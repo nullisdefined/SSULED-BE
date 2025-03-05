@@ -22,7 +22,9 @@ async function bootstrap() {
         : 'http://localhost:5173',
     credentials: true,
   });
-  await app.listen(configService.get('PORT') ?? 7777);
+  const port = configService.get<number>('PORT') ?? 7777;
+  await app.listen(port);
+  console.log(`💡SSULED ${port}번 포트에서 실행중입니다.`);
 
   if (module.hot) {
     module.hot.accept();

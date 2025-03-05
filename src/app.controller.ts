@@ -9,11 +9,20 @@ export class AppController {
     private readonly logger: Logger,
   ) {}
 
-  @Get()
+  @Get('logger')
   getHello(): string {
     this.logger.info('Called getHello()');
     this.logger.debug('Debug message');
     this.logger.error('Error message');
     return this.appService.getHello();
+  }
+
+  @Get('health')
+  healthCheck() {
+    return {
+      status: 'ok',
+      timestamp: new Date().toISOString(),
+      environment: process.env.NODE_ENV,
+    };
   }
 }
