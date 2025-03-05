@@ -14,7 +14,15 @@ async function bootstrap() {
   });
   const configService = app.get(ConfigService);
   app.useLogger(app.get(WINSTON_MODULE_NEST_PROVIDER));
-  await app.listen(configService.get('PORT') ?? 3000);
+  app.setGlobalPrefix('api');
+  app.enableCors({
+    origin:
+      process.env.NODE_ENV === 'production'
+        ? process.env.FRONTEND_URL
+        : 'http://localhost:5173',
+    credentials: true,
+  });
+  await app.listen(configService.get('PORT') ?? 7777);
 
   if (module.hot) {
     module.hot.accept();

@@ -9,6 +9,7 @@ import { winstonConfig } from '../config/loggin.config';
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
+      envFilePath: `${process.env.NODE_ENV}.env`,
     }),
     WinstonModule.forRoot(winstonConfig),
   ],
