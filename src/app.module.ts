@@ -2,8 +2,10 @@ import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { WinstonModule } from 'nest-winston';
-import { ConfigModule } from '@nestjs/config';
-import { winstonConfig } from '../config/loggin.config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import typeOrmConfig from '../config/database.config';
+import { winstonConfig } from '../config/logging.config';
 
 @Module({
   imports: [
@@ -12,6 +14,12 @@ import { winstonConfig } from '../config/loggin.config';
       envFilePath: `env/.${process.env.NODE_ENV}.env`,
     }),
     WinstonModule.forRoot(winstonConfig),
+    TypeOrmModule.forRootAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService) =>
+        typeOrmConfig(configService),
+    }),
   ],
   controllers: [AppController],
   providers: [AppService],

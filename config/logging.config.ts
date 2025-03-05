@@ -1,7 +1,8 @@
 import { utilities as nestWinstonModuleUtilities } from 'nest-winston';
 import * as winston from 'winston';
+import { WinstonModuleOptions } from 'nest-winston';
 
-export const winstonConfig = {
+export const winstonConfig: WinstonModuleOptions = {
   transports: [
     new winston.transports.Console({
       level: process.env.NODE_ENV === 'production' ? 'info' : 'debug',

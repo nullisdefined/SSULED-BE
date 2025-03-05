@@ -6,4 +6,3 @@ dist
 .github
 README.md
 logs
-*.env
