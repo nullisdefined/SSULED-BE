@@ -4,7 +4,7 @@ import { TypeOrmModuleOptions } from '@nestjs/typeorm';
 const typeOrmConfig = (configService: ConfigService): TypeOrmModuleOptions => {
   return {
     type: 'postgres',
-    host: configService.get('DB_HOST') || 'postgres',
+    host: configService.get('DB_HOST') || 'localhost',
     port: parseInt(configService.get('DB_PORT') || '5432', 10),
     username: configService.get('DB_USERNAME') || 'postgres',
     password: configService.get('DB_PASSWORD') || 'postgres',
