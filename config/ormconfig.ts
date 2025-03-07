@@ -12,6 +12,7 @@ const typeOrmConfig = (configService: ConfigService): TypeOrmModuleOptions => {
     entities: [__dirname + '/../**/*.entity.{js,ts}'],
     synchronize: configService.get('NODE_ENV') !== 'production',
     logging: configService.get('NODE_ENV') !== 'production',
+    migrations: [__dirname + '/../migrations/**/*.{js,ts}'],
   };
 };
 
