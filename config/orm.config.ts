@@ -13,6 +13,7 @@ const typeOrmConfig = (configService: ConfigService): TypeOrmModuleOptions => {
     synchronize: configService.get('NODE_ENV') !== 'production',
     logging: configService.get('NODE_ENV') !== 'production',
     migrations: [__dirname + '/../migrations/**/*.{js,ts}'],
+    migrationsRun: true,
   };
 };
 

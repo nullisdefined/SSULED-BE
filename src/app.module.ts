@@ -4,7 +4,7 @@ import { AppService } from './app.service';
 import { WinstonModule } from 'nest-winston';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import typeOrmConfig from '../config/database.config';
+import typeOrmConfig from '../config/orm.config';
 import { winstonConfig } from '../config/logging.config';
 
 @Module({
