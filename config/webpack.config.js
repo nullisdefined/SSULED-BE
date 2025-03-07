@@ -4,14 +4,17 @@ const nodeExternals = require('webpack-node-externals');
 const { RunScriptWebpackPlugin } = require('run-script-webpack-plugin');
 
 module.exports = {
-  entry: ['./src/main.ts'],
+  entry: ['webpack/hot/poll?100', './src/main.ts'],
   target: 'node',
-  externalsPresets: { node: true },
-  externals: [nodeExternals()],
+  externals: [
+    nodeExternals({
+      allowlist: ['webpack/hot/poll?100'],
+    }),
+  ],
   module: {
     rules: [
       {
-        test: /\.tsx?$/,
+        test: /.tsx?$/,
         use: 'ts-loader',
         exclude: /node_modules/,
       },
@@ -23,11 +26,10 @@ module.exports = {
   },
   plugins: [
     new webpack.HotModuleReplacementPlugin(),
-    new RunScriptWebpackPlugin({ name: 'server.js', autoRestart: true }),
+    new RunScriptWebpackPlugin({ name: 'server.js', autoRestart: false }),
   ],
   output: {
-    path: path.join(__dirname, '../dist'),
+    path: path.join(__dirname, 'dist'),
     filename: 'server.js',
   },
-  devtool: 'source-map',
 };
