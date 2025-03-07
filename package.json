@@ -9,7 +9,7 @@
     "build": "nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start": "nest start",
-    "dev": "cross-env NODE_ENV=development webpack --config config/webpack.config.js --watch",
+    "dev": "cross-env NODE_ENV=development webpack --config ./config/webpack.config.js --watch",
     "start:dev": "cross-env NODE_ENV=development nest start --watch",
     "start:debug": "nest start --debug --watch",
     "start:prod": "cross-env NODE_ENV=production node dist/src/main",
@@ -19,7 +19,12 @@
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
-    "typeorm": "cross-env NODE_ENV=development node --require ts-node/register ./node_modules/typeorm/cli.js"
+    "typeorm": "cross-env NODE_ENV=development node --require ts-node/register ./node_modules/typeorm/cli.js --dataSource ./config/orm.config.ts",
+    "migration:create": "cross-env NODE_ENV=development npm run typeorm migration:create",
+    "migration:generate": "cross-env NODE_ENV=development npm run typeorm migration:generate",
+    "migration:run": "cross-env NODE_ENV=development npm run typeorm migration:run",
+    "migration:revert": "cross-env NODE_ENV=development npm run typeorm migration:revert",
+    "migration:show": "cross-env NODE_ENV=development npm run typeorm migration:show"
   },
   "dependencies": {
     "@nestjs/common": "^10.0.0",

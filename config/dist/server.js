@@ -24,10 +24,10 @@ eval("\nObject.defineProperty(exports, \"__esModule\", ({ value: true }));\nexpo
 /*!******************************!*\
   !*** ./config/orm.config.ts ***!
   \******************************/
-/***/ ((__unused_webpack_module, exports) => {
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
-eval("\nObject.defineProperty(exports, \"__esModule\", ({ value: true }));\nconst typeOrmConfig = (configService) => {\n    return {\n        type: 'postgres',\n        host: configService.get('DB_HOST') || 'localhost',\n        port: parseInt(configService.get('DB_PORT') || '5432', 10),\n        username: configService.get('DB_USERNAME') || 'postgres',\n        password: configService.get('DB_PASSWORD') || 'postgres',\n        database: configService.get('DB_DATABASE') || 'postgres',\n        entities: [__dirname + '/../**/*.entity.{js,ts}'],\n        synchronize: configService.get('NODE_ENV') !== 'production',\n        logging: configService.get('NODE_ENV') !== 'production',\n        migrations: [__dirname + '/../migrations/**/*.{js,ts}'],\n        migrationsRun: true,\n    };\n};\nexports[\"default\"] = typeOrmConfig;\n\n\n//# sourceURL=webpack://ssu-led-backend/./config/orm.config.ts?");
+eval("\nObject.defineProperty(exports, \"__esModule\", ({ value: true }));\nexports.AppDataSource = exports.dataSourceOptions = exports.typeOrmConfig = void 0;\nconst typeorm_1 = __webpack_require__(/*! typeorm */ \"typeorm\");\nconst dotenv_1 = __webpack_require__(/*! dotenv */ \"dotenv\");\nconst nodeEnv = \"development\" || 0;\n(0, dotenv_1.config)({ path: `env/.${nodeEnv}.env` });\nconst typeOrmConfig = (configService) => {\n    return {\n        type: 'postgres',\n        host: configService.get('DB_HOST') || 'localhost',\n        port: parseInt(configService.get('DB_PORT') || '5432', 10),\n        username: configService.get('DB_USERNAME') || 'postgres',\n        password: configService.get('DB_PASSWORD') || 'postgres',\n        database: configService.get('DB_DATABASE') || 'postgres',\n        entities: [__dirname + '/../**/*.entity.{js,ts}'],\n        synchronize: configService.get('NODE_ENV') !== 'production',\n        logging: configService.get('NODE_ENV') !== 'production',\n        migrations: [__dirname + '/../migrations/**/*.{js,ts}'],\n        migrationsTableName: 'migrations',\n    };\n};\nexports.typeOrmConfig = typeOrmConfig;\nexports.dataSourceOptions = {\n    type: 'postgres',\n    host: process.env.DB_HOST || 'localhost',\n    port: parseInt(process.env.DB_PORT || '5432', 10),\n    username: process.env.DB_USERNAME || 'postgres',\n    password: process.env.DB_PASSWORD || 'postgres',\n    database: process.env.DB_DATABASE || 'postgres',\n    entities: [__dirname + '/../**/*.entity.{js,ts}'],\n    migrations: [__dirname + '/../migrations/**/*.{js,ts}'],\n    migrationsTableName: 'migrations',\n};\nexports.AppDataSource = new typeorm_1.DataSource(exports.dataSourceOptions);\nexports[\"default\"] = exports.typeOrmConfig;\n\n\n//# sourceURL=webpack://ssu-led-backend/./config/orm.config.ts?");
 
 /***/ }),
 
@@ -149,6 +149,17 @@ module.exports = require("@nestjs/typeorm");
 
 /***/ }),
 
+/***/ "dotenv":
+/*!*************************!*\
+  !*** external "dotenv" ***!
+  \*************************/
+/***/ ((module) => {
+
+"use strict";
+module.exports = require("dotenv");
+
+/***/ }),
+
 /***/ "nest-winston":
 /*!*******************************!*\
   !*** external "nest-winston" ***!
@@ -157,6 +168,17 @@ module.exports = require("@nestjs/typeorm");
 
 "use strict";
 module.exports = require("nest-winston");
+
+/***/ }),
+
+/***/ "typeorm":
+/*!**************************!*\
+  !*** external "typeorm" ***!
+  \**************************/
+/***/ ((module) => {
+
+"use strict";
+module.exports = require("typeorm");
 
 /***/ }),
 
@@ -232,7 +254,7 @@ module.exports = require("winston");
 /******/ 	
 /******/ 	/* webpack/runtime/getFullHash */
 /******/ 	(() => {
-/******/ 		__webpack_require__.h = () => ("db082340ee37eede40f4")
+/******/ 		__webpack_require__.h = () => ("956feaaa4640816279d0")
 /******/ 	})();
 /******/ 	
 /******/ 	/* webpack/runtime/hasOwnProperty shorthand */

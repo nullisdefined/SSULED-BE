@@ -26,6 +26,13 @@ export class User {
   @Column({ default: false })
   isAdmin: boolean;
 
+  // 새로 추가된 필드
+  @Column({ nullable: true })
+  phoneNumber: string;
+
+  @Column({ default: true })
+  isActive: boolean;
+
   @CreateDateColumn()
   createdAt: Date;
 
