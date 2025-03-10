@@ -3,6 +3,7 @@ import { AppModule } from './app.module';
 import { ConfigService } from '@nestjs/config';
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 import { ValidationPipe } from '@nestjs/common';
+import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 
 declare const module: any;
 
@@ -30,6 +31,27 @@ async function bootstrap() {
         : 'http://localhost:5173',
     credentials: true,
   });
+
+  const config = new DocumentBuilder()
+    .setTitle('SSULED API')
+    .setDescription('SSULED API documentation')
+    .setVersion(process.env.npm_package_version || '0.0.1')
+    .addBearerAuth(
+      {
+        type: 'http',
+        scheme: 'bearer',
+        bearerFormat: 'JWT',
+        name: 'Authorization',
+        description: 'Enter JWT token',
+        in: 'header',
+      },
+      'JWT-auth',
+    )
+    .build();
+
+  const document = SwaggerModule.createDocument(app, config);
+  SwaggerModule.setup('api/docs', app, document);
+
   const port = configService.get<number>('PORT') ?? 7777;
   await app.listen(port);
   console.log(`💡SSULED ${port}번 포트에서 실행중입니다.`);
