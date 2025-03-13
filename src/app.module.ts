@@ -6,6 +6,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import typeOrmConfig from '../config/orm.config';
 import { winstonConfig } from '../config/logging.config';
+import { UploadModule } from './modules/upload/upload.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { winstonConfig } from '../config/logging.config';
       useFactory: (configService: ConfigService) =>
         typeOrmConfig(configService),
     }),
+    UploadModule,
   ],
   controllers: [AppController],
   providers: [AppService],
