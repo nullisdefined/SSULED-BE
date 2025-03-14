@@ -101,7 +101,7 @@ eval("\nvar __decorate = (this && this.__decorate) || function (decorators, targ
 /***/ ((__unused_webpack_module, exports, __webpack_require__) => {
 
 "use strict";
-eval("\nObject.defineProperty(exports, \"__esModule\", ({ value: true }));\nexports.ImageFileInterceptor = ImageFileInterceptor;\nconst common_1 = __webpack_require__(/*! @nestjs/common */ \"@nestjs/common\");\nconst platform_express_1 = __webpack_require__(/*! @nestjs/platform-express */ \"@nestjs/platform-express\");\nfunction ImageFileInterceptor(fieldName = 'image', maxSize = 5 * 1024 * 1024) {\n    return (0, common_1.UseInterceptors)((0, platform_express_1.FileInterceptor)(fieldName, {\n        limits: {\n            fileSize: maxSize,\n        },\n        fileFilter: (req, file, cb) => {\n            if (!file.mimetype.match(/^image\\/(jpg|jpeg|png|gif)$/)) {\n                return cb(new common_1.BadRequestException('이미지 파일만 업로드 가능합니다.'), false);\n            }\n            cb(null, true);\n        },\n    }));\n}\n\n\n//# sourceURL=webpack://ssu-led-backend/./src/decorators/file-interceptor.decorator.ts?");
+eval("\nObject.defineProperty(exports, \"__esModule\", ({ value: true }));\nexports.ImageFileInterceptor = ImageFileInterceptor;\nconst common_1 = __webpack_require__(/*! @nestjs/common */ \"@nestjs/common\");\nconst platform_express_1 = __webpack_require__(/*! @nestjs/platform-express */ \"@nestjs/platform-express\");\nfunction ImageFileInterceptor(fieldName = 'image', maxSize = 10 * 1024 * 1024) {\n    return (0, common_1.UseInterceptors)((0, platform_express_1.FileInterceptor)(fieldName, {\n        limits: {\n            fileSize: maxSize,\n        },\n        fileFilter: (req, file, cb) => {\n            if (!file.mimetype.match(/^image\\/(jpg|jpeg|png|gif)$/)) {\n                return cb(new common_1.BadRequestException('이미지 파일만 업로드 가능합니다.'), false);\n            }\n            cb(null, true);\n        },\n    }));\n}\n\n\n//# sourceURL=webpack://ssu-led-backend/./src/decorators/file-interceptor.decorator.ts?");
 
 /***/ }),
 
@@ -408,7 +408,7 @@ module.exports = require("winston");
 /******/ 	
 /******/ 	/* webpack/runtime/getFullHash */
 /******/ 	(() => {
-/******/ 		__webpack_require__.h = () => ("6471d25603189f2d65c9")
+/******/ 		__webpack_require__.h = () => ("2be7e49367a9b2997bc8")
 /******/ 	})();
 /******/ 	
 /******/ 	/* webpack/runtime/hasOwnProperty shorthand */
