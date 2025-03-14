@@ -1,21 +1,24 @@
 import {
-  Entity,
-  PrimaryGeneratedColumn,
   Column,
   CreateDateColumn,
+  Entity,
+  PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
 
-@Entity('image')
-export class Image {
+@Entity('comment')
+export class Comment {
   @PrimaryGeneratedColumn({ name: 'id' })
   id: number;
 
-  @Column({ name: 'image_url', type: 'varchar', nullable: true, default: [] })
-  imageUrl: string[];
+  @Column({ name: 'user_id', type: 'int' })
+  userId: number;
 
   @Column({ name: 'post_id', type: 'int' })
   postId: number;
+
+  @Column({ name: 'content', type: 'varchar' })
+  content: string;
 
   @CreateDateColumn({ name: 'created_at', type: 'timestamptz' })
   createdAt: Date;
