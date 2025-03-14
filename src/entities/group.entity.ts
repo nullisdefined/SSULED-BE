@@ -8,7 +8,7 @@ export class Group {
   @Column({ name: 'owner_id', type: 'int' })
   ownerId: number;
 
-  @Column({ name: 'member_id', type: 'int', default: [] })
+  @Column({ name: 'member_id', type: 'int', array: true, default: '{}' })
   memberId: number[];
 
   @Column({ name: 'title', type: 'varchar' })
@@ -17,7 +17,7 @@ export class Group {
   @Column({ name: 'password', type: 'varchar', nullable: true })
   password: string;
 
-  @Column({ name: 'is_accessible', type: 'varchar', default: true })
+  @Column({ name: 'is_accessible', type: 'boolean', default: true })
   isAccessible: boolean;
 
   @Column({ name: 'max_member', type: 'int', default: 4 })

@@ -11,7 +11,7 @@ export class Image {
   @PrimaryGeneratedColumn({ name: 'id' })
   id: number;
 
-  @Column({ name: 'image_url', type: 'varchar', nullable: true, default: [] })
+  @Column({ name: 'image_url', type: 'varchar', array: true, default: '{}' })
   imageUrl: string[];
 
   @Column({ name: 'post_id', type: 'int' })
