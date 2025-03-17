@@ -20,11 +20,18 @@
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
     "typeorm": "cross-env NODE_ENV=development node --require ts-node/register ./node_modules/typeorm/cli.js --dataSource ./config/orm.config.ts",
+    "docker:down": "docker-compose -f docker-compose.dev.yml down",
+    "docker:up": "docker-compose -f docker-compose.dev.yml up --build",
     "migration:create": "cross-env NODE_ENV=development npm run typeorm migration:create",
     "migration:generate": "cross-env NODE_ENV=development npm run typeorm migration:generate",
     "migration:run": "cross-env NODE_ENV=development npm run typeorm migration:run",
     "migration:revert": "cross-env NODE_ENV=development npm run typeorm migration:revert",
-    "migration:show": "cross-env NODE_ENV=development npm run typeorm migration:show"
+    "migration:show": "cross-env NODE_ENV=development npm run typeorm migration:show",
+    "db:seed": "ts-node -r tsconfig-paths/register ./node_modules/typeorm-extension/bin/cli.cjs seed:run -d config/orm.config.ts",
+    "db:create": "ts-node -r tsconfig-paths/register ./node_modules/typeorm-extension/bin/cli.cjs db:create -d config/orm.config.ts",
+    "db:drop": "ts-node -r tsconfig-paths/register ./node_modules/typeorm-extension/bin/cli.cjs db:drop -d config/orm.config.ts",
+    "db:sync": "ts-node -r tsconfig-paths/register ./scripts/db-sync.ts",
+    "db:refresh": "npm run db:drop && npm run db:create && npm run db:sync && npm run db:seed"
   },
   "dependencies": {
     "@nestjs/common": "^10.0.0",
@@ -45,6 +52,7 @@
     "rxjs": "^7.8.1",
     "swagger-ui-express": "^5.0.1",
     "typeorm": "^0.3.21",
+    "typeorm-extension": "^3.7.0",
     "uuid": "^11.1.0",
     "winston": "^3.17.0"
   },
