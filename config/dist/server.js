@@ -79,7 +79,7 @@ eval("\nvar __decorate = (this && this.__decorate) || function (decorators, targ
 /***/ (function(__unused_webpack_module, exports, __webpack_require__) {
 
 "use strict";
-eval("\nvar __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {\n    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;\n    if (typeof Reflect === \"object\" && typeof Reflect.decorate === \"function\") r = Reflect.decorate(decorators, target, key, desc);\n    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;\n    return c > 3 && r && Object.defineProperty(target, key, r), r;\n};\nObject.defineProperty(exports, \"__esModule\", ({ value: true }));\nexports.AppModule = void 0;\nconst common_1 = __webpack_require__(/*! @nestjs/common */ \"@nestjs/common\");\nconst app_controller_1 = __webpack_require__(/*! ./app.controller */ \"./src/app.controller.ts\");\nconst app_service_1 = __webpack_require__(/*! ./app.service */ \"./src/app.service.ts\");\nconst nest_winston_1 = __webpack_require__(/*! nest-winston */ \"nest-winston\");\nconst config_1 = __webpack_require__(/*! @nestjs/config */ \"@nestjs/config\");\nconst typeorm_1 = __webpack_require__(/*! @nestjs/typeorm */ \"@nestjs/typeorm\");\nconst orm_config_1 = __webpack_require__(/*! ../config/orm.config */ \"./config/orm.config.ts\");\nconst logging_config_1 = __webpack_require__(/*! ../config/logging.config */ \"./config/logging.config.ts\");\nlet AppModule = class AppModule {\n};\nexports.AppModule = AppModule;\nexports.AppModule = AppModule = __decorate([\n    (0, common_1.Module)({\n        imports: [\n            config_1.ConfigModule.forRoot({\n                isGlobal: true,\n                envFilePath: `env/.${\"development\"}.env`,\n            }),\n            nest_winston_1.WinstonModule.forRoot(logging_config_1.winstonConfig),\n            typeorm_1.TypeOrmModule.forRootAsync({\n                imports: [config_1.ConfigModule],\n                inject: [config_1.ConfigService],\n                useFactory: (configService) => (0, orm_config_1.default)(configService),\n            }),\n        ],\n        controllers: [app_controller_1.AppController],\n        providers: [app_service_1.AppService],\n    })\n], AppModule);\n\n\n//# sourceURL=webpack://ssu-led-backend/./src/app.module.ts?");
+eval("\nvar __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {\n    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;\n    if (typeof Reflect === \"object\" && typeof Reflect.decorate === \"function\") r = Reflect.decorate(decorators, target, key, desc);\n    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;\n    return c > 3 && r && Object.defineProperty(target, key, r), r;\n};\nObject.defineProperty(exports, \"__esModule\", ({ value: true }));\nexports.AppModule = void 0;\nconst common_1 = __webpack_require__(/*! @nestjs/common */ \"@nestjs/common\");\nconst app_controller_1 = __webpack_require__(/*! ./app.controller */ \"./src/app.controller.ts\");\nconst app_service_1 = __webpack_require__(/*! ./app.service */ \"./src/app.service.ts\");\nconst nest_winston_1 = __webpack_require__(/*! nest-winston */ \"nest-winston\");\nconst config_1 = __webpack_require__(/*! @nestjs/config */ \"@nestjs/config\");\nconst typeorm_1 = __webpack_require__(/*! @nestjs/typeorm */ \"@nestjs/typeorm\");\nconst orm_config_1 = __webpack_require__(/*! ../config/orm.config */ \"./config/orm.config.ts\");\nconst logging_config_1 = __webpack_require__(/*! ../config/logging.config */ \"./config/logging.config.ts\");\nconst uploads_module_1 = __webpack_require__(/*! ./modules/uploads/uploads.module */ \"./src/modules/uploads/uploads.module.ts\");\nconst s3_module_1 = __webpack_require__(/*! ./modules/s3/s3.module */ \"./src/modules/s3/s3.module.ts\");\nlet AppModule = class AppModule {\n};\nexports.AppModule = AppModule;\nexports.AppModule = AppModule = __decorate([\n    (0, common_1.Module)({\n        imports: [\n            config_1.ConfigModule.forRoot({\n                isGlobal: true,\n                envFilePath: `env/.${\"development\"}.env`,\n            }),\n            nest_winston_1.WinstonModule.forRoot(logging_config_1.winstonConfig),\n            typeorm_1.TypeOrmModule.forRootAsync({\n                imports: [config_1.ConfigModule],\n                inject: [config_1.ConfigService],\n                useFactory: (configService) => (0, orm_config_1.default)(configService),\n            }),\n            uploads_module_1.UploadsModule,\n            s3_module_1.S3Module,\n        ],\n        controllers: [app_controller_1.AppController],\n        providers: [app_service_1.AppService],\n    })\n], AppModule);\n\n\n//# sourceURL=webpack://ssu-led-backend/./src/app.module.ts?");
 
 /***/ }),
 
@@ -94,6 +94,28 @@ eval("\nvar __decorate = (this && this.__decorate) || function (decorators, targ
 
 /***/ }),
 
+/***/ "./src/decorators/file-interceptor.decorator.ts":
+/*!******************************************************!*\
+  !*** ./src/decorators/file-interceptor.decorator.ts ***!
+  \******************************************************/
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+"use strict";
+eval("\nObject.defineProperty(exports, \"__esModule\", ({ value: true }));\nexports.ImageFileInterceptor = ImageFileInterceptor;\nconst common_1 = __webpack_require__(/*! @nestjs/common */ \"@nestjs/common\");\nconst platform_express_1 = __webpack_require__(/*! @nestjs/platform-express */ \"@nestjs/platform-express\");\nfunction ImageFileInterceptor(fieldName = 'image', maxSize = 5 * 1024 * 1024) {\n    return (0, common_1.UseInterceptors)((0, platform_express_1.FileInterceptor)(fieldName, {\n        limits: {\n            fileSize: maxSize,\n        },\n        fileFilter: (req, file, cb) => {\n            if (!file.mimetype.match(/^image\\/(jpg|jpeg|png|gif)$/)) {\n                return cb(new common_1.BadRequestException('이미지 파일만 업로드 가능합니다.'), false);\n            }\n            cb(null, true);\n        },\n    }));\n}\n\n\n//# sourceURL=webpack://ssu-led-backend/./src/decorators/file-interceptor.decorator.ts?");
+
+/***/ }),
+
+/***/ "./src/decorators/swagger.decorator.ts":
+/*!*********************************************!*\
+  !*** ./src/decorators/swagger.decorator.ts ***!
+  \*********************************************/
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+"use strict";
+eval("\nObject.defineProperty(exports, \"__esModule\", ({ value: true }));\nexports.ApiUploadImage = ApiUploadImage;\nexports.ApiDeleteImage = ApiDeleteImage;\nconst common_1 = __webpack_require__(/*! @nestjs/common */ \"@nestjs/common\");\nconst swagger_1 = __webpack_require__(/*! @nestjs/swagger */ \"@nestjs/swagger\");\nfunction ApiUploadImage() {\n    return (0, common_1.applyDecorators)((0, swagger_1.ApiOperation)({\n        summary: '이미지 업로드',\n        description: 'S3 Bucket에 이미지 파일을 업로드합니다.',\n    }), (0, swagger_1.ApiConsumes)('multipart/form-data'), (0, swagger_1.ApiBody)({\n        schema: {\n            type: 'object',\n            properties: {\n                image: {\n                    type: 'string',\n                    format: 'binary',\n                    description: '업로드할 이미지 파일 (jpg, jpeg, png, gif만 가능)',\n                },\n            },\n        },\n    }), (0, swagger_1.ApiResponse)({\n        status: 201,\n        description: '이미지가 성공적으로 업로드됨',\n        schema: {\n            type: 'object',\n            properties: {\n                imageUrl: {\n                    type: 'string',\n                    example: 'https://example-bucket.s3.amazonaws.com/images/example-image.jpg',\n                },\n                message: {\n                    type: 'string',\n                    example: '이미지가 업로드되었습니다.',\n                },\n            },\n        },\n    }), (0, swagger_1.ApiResponse)({\n        status: 400,\n        description: '잘못된 요청',\n        schema: {\n            type: 'object',\n            properties: {\n                message: {\n                    type: 'string',\n                    example: '이미지 업로드 실패: The bucket does not allow ACLs',\n                },\n                error: {\n                    type: 'string',\n                    example: 'Bad Request',\n                },\n                statusCode: {\n                    type: 'number',\n                    example: 400,\n                },\n            },\n        },\n    }));\n}\nfunction ApiDeleteImage() {\n    return (0, common_1.applyDecorators)((0, swagger_1.ApiOperation)({\n        summary: '이미지 삭제',\n        description: '업로드된 이미지를 S3에서 삭제합니다.',\n    }), (0, swagger_1.ApiParam)({\n        name: 'url',\n        description: '삭제할 이미지 URL',\n        required: true,\n    }), (0, swagger_1.ApiResponse)({\n        status: 200,\n        description: '이미지가 성공적으로 삭제됨',\n        schema: {\n            type: 'object',\n            properties: {\n                message: {\n                    type: 'string',\n                    example: '이미지가 삭제되었습니다.',\n                },\n            },\n        },\n    }), (0, swagger_1.ApiResponse)({\n        status: 400,\n        description: '잘못된 요청',\n        schema: {\n            type: 'object',\n            properties: {\n                message: {\n                    type: 'string',\n                    example: '이미지 삭제 실패: The specified key does not exist',\n                },\n                error: {\n                    type: 'string',\n                    example: 'Bad Request',\n                },\n                statusCode: {\n                    type: 'number',\n                    example: 400,\n                },\n            },\n        },\n    }));\n}\n\n\n//# sourceURL=webpack://ssu-led-backend/./src/decorators/swagger.decorator.ts?");
+
+/***/ }),
+
 /***/ "./src/main.ts":
 /*!*********************!*\
   !*** ./src/main.ts ***!
@@ -102,6 +124,83 @@ eval("\nvar __decorate = (this && this.__decorate) || function (decorators, targ
 
 "use strict";
 eval("\nObject.defineProperty(exports, \"__esModule\", ({ value: true }));\nconst core_1 = __webpack_require__(/*! @nestjs/core */ \"@nestjs/core\");\nconst app_module_1 = __webpack_require__(/*! ./app.module */ \"./src/app.module.ts\");\nconst config_1 = __webpack_require__(/*! @nestjs/config */ \"@nestjs/config\");\nconst nest_winston_1 = __webpack_require__(/*! nest-winston */ \"nest-winston\");\nconst common_1 = __webpack_require__(/*! @nestjs/common */ \"@nestjs/common\");\nconst swagger_1 = __webpack_require__(/*! @nestjs/swagger */ \"@nestjs/swagger\");\nasync function bootstrap() {\n    const app = await core_1.NestFactory.create(app_module_1.AppModule, {\n        logger:  false\n            ? 0\n            : ['error', 'warn', 'log', 'debug', 'verbose'],\n    });\n    const configService = app.get(config_1.ConfigService);\n    app.useLogger(app.get(nest_winston_1.WINSTON_MODULE_NEST_PROVIDER));\n    app.setGlobalPrefix('api');\n    app.useGlobalPipes(new common_1.ValidationPipe({\n        whitelist: true,\n        forbidNonWhitelisted: true,\n        transform: true,\n    }));\n    app.enableCors({\n        origin:  false\n            ? 0\n            : 'http://localhost:5173',\n        credentials: true,\n    });\n    const config = new swagger_1.DocumentBuilder()\n        .setTitle('SSULED API')\n        .setDescription('SSULED API documentation')\n        .setVersion(process.env.npm_package_version || '0.0.1')\n        .addBearerAuth({\n        type: 'http',\n        scheme: 'bearer',\n        bearerFormat: 'JWT',\n        name: 'Authorization',\n        description: 'Enter JWT token',\n        in: 'header',\n    }, 'JWT-auth')\n        .build();\n    const document = swagger_1.SwaggerModule.createDocument(app, config);\n    swagger_1.SwaggerModule.setup('api/docs', app, document);\n    const port = configService.get('PORT') ?? 7777;\n    await app.listen(port);\n    console.log(`💡SSULED ${port}번 포트에서 실행중입니다.`);\n    if (true) {\n        module.hot.accept();\n        module.hot.dispose(() => app.close());\n    }\n}\nbootstrap();\n\n\n//# sourceURL=webpack://ssu-led-backend/./src/main.ts?");
+
+/***/ }),
+
+/***/ "./src/modules/s3/s3.controller.ts":
+/*!*****************************************!*\
+  !*** ./src/modules/s3/s3.controller.ts ***!
+  \*****************************************/
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+"use strict";
+eval("\nvar __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {\n    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;\n    if (typeof Reflect === \"object\" && typeof Reflect.decorate === \"function\") r = Reflect.decorate(decorators, target, key, desc);\n    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;\n    return c > 3 && r && Object.defineProperty(target, key, r), r;\n};\nvar __metadata = (this && this.__metadata) || function (k, v) {\n    if (typeof Reflect === \"object\" && typeof Reflect.metadata === \"function\") return Reflect.metadata(k, v);\n};\nObject.defineProperty(exports, \"__esModule\", ({ value: true }));\nexports.S3Controller = void 0;\nconst common_1 = __webpack_require__(/*! @nestjs/common */ \"@nestjs/common\");\nconst s3_service_1 = __webpack_require__(/*! ./s3.service */ \"./src/modules/s3/s3.service.ts\");\nlet S3Controller = class S3Controller {\n    constructor(s3Service) {\n        this.s3Service = s3Service;\n    }\n};\nexports.S3Controller = S3Controller;\nexports.S3Controller = S3Controller = __decorate([\n    (0, common_1.Controller)('s3'),\n    __metadata(\"design:paramtypes\", [s3_service_1.S3Service])\n], S3Controller);\n\n\n//# sourceURL=webpack://ssu-led-backend/./src/modules/s3/s3.controller.ts?");
+
+/***/ }),
+
+/***/ "./src/modules/s3/s3.module.ts":
+/*!*************************************!*\
+  !*** ./src/modules/s3/s3.module.ts ***!
+  \*************************************/
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+"use strict";
+eval("\nvar __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {\n    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;\n    if (typeof Reflect === \"object\" && typeof Reflect.decorate === \"function\") r = Reflect.decorate(decorators, target, key, desc);\n    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;\n    return c > 3 && r && Object.defineProperty(target, key, r), r;\n};\nObject.defineProperty(exports, \"__esModule\", ({ value: true }));\nexports.S3Module = void 0;\nconst common_1 = __webpack_require__(/*! @nestjs/common */ \"@nestjs/common\");\nconst s3_service_1 = __webpack_require__(/*! ./s3.service */ \"./src/modules/s3/s3.service.ts\");\nconst s3_controller_1 = __webpack_require__(/*! ./s3.controller */ \"./src/modules/s3/s3.controller.ts\");\nconst config_1 = __webpack_require__(/*! @nestjs/config */ \"@nestjs/config\");\nlet S3Module = class S3Module {\n};\nexports.S3Module = S3Module;\nexports.S3Module = S3Module = __decorate([\n    (0, common_1.Module)({\n        imports: [config_1.ConfigModule],\n        controllers: [s3_controller_1.S3Controller],\n        providers: [s3_service_1.S3Service],\n    })\n], S3Module);\n\n\n//# sourceURL=webpack://ssu-led-backend/./src/modules/s3/s3.module.ts?");
+
+/***/ }),
+
+/***/ "./src/modules/s3/s3.service.ts":
+/*!**************************************!*\
+  !*** ./src/modules/s3/s3.service.ts ***!
+  \**************************************/
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+"use strict";
+eval("\nvar __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {\n    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;\n    if (typeof Reflect === \"object\" && typeof Reflect.decorate === \"function\") r = Reflect.decorate(decorators, target, key, desc);\n    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;\n    return c > 3 && r && Object.defineProperty(target, key, r), r;\n};\nvar __metadata = (this && this.__metadata) || function (k, v) {\n    if (typeof Reflect === \"object\" && typeof Reflect.metadata === \"function\") return Reflect.metadata(k, v);\n};\nObject.defineProperty(exports, \"__esModule\", ({ value: true }));\nexports.S3Service = void 0;\nconst common_1 = __webpack_require__(/*! @nestjs/common */ \"@nestjs/common\");\nconst config_1 = __webpack_require__(/*! @nestjs/config */ \"@nestjs/config\");\nconst AWS = __webpack_require__(/*! aws-sdk */ \"aws-sdk\");\nconst winston_1 = __webpack_require__(/*! winston */ \"winston\");\nconst uuid_1 = __webpack_require__(/*! uuid */ \"uuid\");\nlet S3Service = class S3Service {\n    constructor(configService) {\n        this.configService = configService;\n        this.bucketName = this.configService.get('AWS_S3_BUCKET');\n        AWS.config.update({\n            accessKeyId: this.configService.get('AWS_ACCESS_KEY_ID'),\n            secretAccessKey: this.configService.get('AWS_SECRET_ACCESS_KEY'),\n            region: this.configService.get('AWS_REGION'),\n        });\n        this.s3 = new AWS.S3();\n    }\n    async uploadImage(file) {\n        try {\n            const fileExtension = file.originalname.split('.').pop();\n            const fileName = `${(0, uuid_1.v4)()}.${fileExtension}`;\n            const params = {\n                Bucket: this.bucketName,\n                Key: `images/${fileName}`,\n                Body: file.buffer,\n                ContentType: file.mimetype,\n                ACL: 'public-read',\n            };\n            const result = await this.s3.upload(params).promise();\n            this.logger.info('이미지 업로드 성공', { location: result.Location });\n            return result.Location;\n        }\n        catch (error) {\n            this.logger.error('이미지 업로드 실패', { error: error.message });\n            throw error;\n        }\n    }\n    async deleteImage(imageUrl) {\n        try {\n            const key = imageUrl.split('/').slice(3).join('/');\n            const params = {\n                Bucket: this.bucketName,\n                Key: key,\n            };\n            await this.s3.deleteObject(params).promise();\n            this.logger.info('이미지 삭제 성공', { key });\n        }\n        catch (error) {\n            this.logger.error('이미지 삭제 실패', { error: error.message });\n            throw error;\n        }\n    }\n};\nexports.S3Service = S3Service;\n__decorate([\n    (0, common_1.Inject)('winston'),\n    __metadata(\"design:type\", winston_1.Logger)\n], S3Service.prototype, \"logger\", void 0);\nexports.S3Service = S3Service = __decorate([\n    (0, common_1.Injectable)(),\n    __metadata(\"design:paramtypes\", [config_1.ConfigService])\n], S3Service);\n\n\n//# sourceURL=webpack://ssu-led-backend/./src/modules/s3/s3.service.ts?");
+
+/***/ }),
+
+/***/ "./src/modules/uploads/dto/delete-image-param.dto.ts":
+/*!***********************************************************!*\
+  !*** ./src/modules/uploads/dto/delete-image-param.dto.ts ***!
+  \***********************************************************/
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+"use strict";
+eval("\nvar __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {\n    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;\n    if (typeof Reflect === \"object\" && typeof Reflect.decorate === \"function\") r = Reflect.decorate(decorators, target, key, desc);\n    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;\n    return c > 3 && r && Object.defineProperty(target, key, r), r;\n};\nvar __metadata = (this && this.__metadata) || function (k, v) {\n    if (typeof Reflect === \"object\" && typeof Reflect.metadata === \"function\") return Reflect.metadata(k, v);\n};\nObject.defineProperty(exports, \"__esModule\", ({ value: true }));\nexports.DeleteImageParamDto = void 0;\nconst class_validator_1 = __webpack_require__(/*! class-validator */ \"class-validator\");\nclass DeleteImageParamDto {\n}\nexports.DeleteImageParamDto = DeleteImageParamDto;\n__decorate([\n    (0, class_validator_1.IsNotEmpty)(),\n    (0, class_validator_1.IsString)(),\n    __metadata(\"design:type\", String)\n], DeleteImageParamDto.prototype, \"ImageUrl\", void 0);\n\n\n//# sourceURL=webpack://ssu-led-backend/./src/modules/uploads/dto/delete-image-param.dto.ts?");
+
+/***/ }),
+
+/***/ "./src/modules/uploads/uploads.controller.ts":
+/*!***************************************************!*\
+  !*** ./src/modules/uploads/uploads.controller.ts ***!
+  \***************************************************/
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+"use strict";
+eval("\nvar __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {\n    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;\n    if (typeof Reflect === \"object\" && typeof Reflect.decorate === \"function\") r = Reflect.decorate(decorators, target, key, desc);\n    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;\n    return c > 3 && r && Object.defineProperty(target, key, r), r;\n};\nvar __metadata = (this && this.__metadata) || function (k, v) {\n    if (typeof Reflect === \"object\" && typeof Reflect.metadata === \"function\") return Reflect.metadata(k, v);\n};\nvar __param = (this && this.__param) || function (paramIndex, decorator) {\n    return function (target, key) { decorator(target, key, paramIndex); }\n};\nObject.defineProperty(exports, \"__esModule\", ({ value: true }));\nexports.UploadsController = void 0;\nconst common_1 = __webpack_require__(/*! @nestjs/common */ \"@nestjs/common\");\nconst uploads_service_1 = __webpack_require__(/*! ./uploads.service */ \"./src/modules/uploads/uploads.service.ts\");\nconst winston_1 = __webpack_require__(/*! winston */ \"winston\");\nconst s3_service_1 = __webpack_require__(/*! ../s3/s3.service */ \"./src/modules/s3/s3.service.ts\");\nconst swagger_1 = __webpack_require__(/*! @nestjs/swagger */ \"@nestjs/swagger\");\nconst delete_image_param_dto_1 = __webpack_require__(/*! ./dto/delete-image-param.dto */ \"./src/modules/uploads/dto/delete-image-param.dto.ts\");\nconst file_interceptor_decorator_1 = __webpack_require__(/*! @/decorators/file-interceptor.decorator */ \"./src/decorators/file-interceptor.decorator.ts\");\nconst swagger_decorator_1 = __webpack_require__(/*! @/decorators/swagger.decorator */ \"./src/decorators/swagger.decorator.ts\");\nlet UploadsController = class UploadsController {\n    constructor(uploadsService, logger, s3Service) {\n        this.uploadsService = uploadsService;\n        this.logger = logger;\n        this.s3Service = s3Service;\n    }\n    async uploadImage(file) {\n        if (!file) {\n            throw new common_1.BadRequestException('이미지 파일을 제공해주세요.');\n        }\n        try {\n            this.logger.info(`이미지 업로드 시작: ${file.originalname}`);\n            const imageUrl = await this.s3Service.uploadImage(file);\n            this.logger.info(`이미지 업로드 완료: ${imageUrl}`);\n            return { message: '이미지가 업로드되었습니다.', imageUrl };\n        }\n        catch (error) {\n            this.logger.error(`이미지 업로드 실패 - ${error.message}`);\n            throw new common_1.BadRequestException(`이미지 업로드 실패: ${error.message}`);\n        }\n    }\n    async deleteImage(params) {\n        try {\n            this.logger.info(`이미지 삭제 시작: ${params.ImageUrl}`);\n            await this.s3Service.deleteImage(params.ImageUrl);\n            this.logger.info(`이미지 삭제 완료: ${params.ImageUrl}`);\n            return {\n                message: '이미지가 삭제되었습니다.',\n            };\n        }\n        catch (error) {\n            this.logger.error(`이미지 삭제 실패 - ${error.message}`);\n            throw new common_1.BadRequestException(`이미지 삭제 실패: ${error.message}`);\n        }\n    }\n};\nexports.UploadsController = UploadsController;\n__decorate([\n    (0, common_1.Post)('image'),\n    (0, swagger_decorator_1.ApiUploadImage)(),\n    (0, file_interceptor_decorator_1.ImageFileInterceptor)('image'),\n    __param(0, (0, common_1.UploadedFile)()),\n    __metadata(\"design:type\", Function),\n    __metadata(\"design:paramtypes\", [Object]),\n    __metadata(\"design:returntype\", Promise)\n], UploadsController.prototype, \"uploadImage\", null);\n__decorate([\n    (0, common_1.Delete)('image/:url'),\n    (0, swagger_decorator_1.ApiDeleteImage)(),\n    __param(0, (0, common_1.Param)()),\n    __metadata(\"design:type\", Function),\n    __metadata(\"design:paramtypes\", [delete_image_param_dto_1.DeleteImageParamDto]),\n    __metadata(\"design:returntype\", Promise)\n], UploadsController.prototype, \"deleteImage\", null);\nexports.UploadsController = UploadsController = __decorate([\n    (0, swagger_1.ApiTags)('uploads'),\n    (0, common_1.Controller)('uploads'),\n    __param(1, (0, common_1.Inject)('winston')),\n    __metadata(\"design:paramtypes\", [uploads_service_1.UploadsService,\n        winston_1.Logger,\n        s3_service_1.S3Service])\n], UploadsController);\n\n\n//# sourceURL=webpack://ssu-led-backend/./src/modules/uploads/uploads.controller.ts?");
+
+/***/ }),
+
+/***/ "./src/modules/uploads/uploads.module.ts":
+/*!***********************************************!*\
+  !*** ./src/modules/uploads/uploads.module.ts ***!
+  \***********************************************/
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+"use strict";
+eval("\nvar __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {\n    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;\n    if (typeof Reflect === \"object\" && typeof Reflect.decorate === \"function\") r = Reflect.decorate(decorators, target, key, desc);\n    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;\n    return c > 3 && r && Object.defineProperty(target, key, r), r;\n};\nObject.defineProperty(exports, \"__esModule\", ({ value: true }));\nexports.UploadsModule = void 0;\nconst common_1 = __webpack_require__(/*! @nestjs/common */ \"@nestjs/common\");\nconst uploads_service_1 = __webpack_require__(/*! ./uploads.service */ \"./src/modules/uploads/uploads.service.ts\");\nconst uploads_controller_1 = __webpack_require__(/*! ./uploads.controller */ \"./src/modules/uploads/uploads.controller.ts\");\nconst config_1 = __webpack_require__(/*! @nestjs/config */ \"@nestjs/config\");\nconst s3_service_1 = __webpack_require__(/*! ../s3/s3.service */ \"./src/modules/s3/s3.service.ts\");\nlet UploadsModule = class UploadsModule {\n};\nexports.UploadsModule = UploadsModule;\nexports.UploadsModule = UploadsModule = __decorate([\n    (0, common_1.Module)({\n        imports: [config_1.ConfigModule],\n        controllers: [uploads_controller_1.UploadsController],\n        providers: [uploads_service_1.UploadsService, s3_service_1.S3Service],\n    })\n], UploadsModule);\n\n\n//# sourceURL=webpack://ssu-led-backend/./src/modules/uploads/uploads.module.ts?");
+
+/***/ }),
+
+/***/ "./src/modules/uploads/uploads.service.ts":
+/*!************************************************!*\
+  !*** ./src/modules/uploads/uploads.service.ts ***!
+  \************************************************/
+/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
+
+"use strict";
+eval("\nvar __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {\n    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;\n    if (typeof Reflect === \"object\" && typeof Reflect.decorate === \"function\") r = Reflect.decorate(decorators, target, key, desc);\n    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;\n    return c > 3 && r && Object.defineProperty(target, key, r), r;\n};\nObject.defineProperty(exports, \"__esModule\", ({ value: true }));\nexports.UploadsService = void 0;\nconst common_1 = __webpack_require__(/*! @nestjs/common */ \"@nestjs/common\");\nlet UploadsService = class UploadsService {\n};\nexports.UploadsService = UploadsService;\nexports.UploadsService = UploadsService = __decorate([\n    (0, common_1.Injectable)()\n], UploadsService);\n\n\n//# sourceURL=webpack://ssu-led-backend/./src/modules/uploads/uploads.service.ts?");
 
 /***/ }),
 
@@ -138,6 +237,17 @@ module.exports = require("@nestjs/core");
 
 /***/ }),
 
+/***/ "@nestjs/platform-express":
+/*!*******************************************!*\
+  !*** external "@nestjs/platform-express" ***!
+  \*******************************************/
+/***/ ((module) => {
+
+"use strict";
+module.exports = require("@nestjs/platform-express");
+
+/***/ }),
+
 /***/ "@nestjs/swagger":
 /*!**********************************!*\
   !*** external "@nestjs/swagger" ***!
@@ -157,6 +267,28 @@ module.exports = require("@nestjs/swagger");
 
 "use strict";
 module.exports = require("@nestjs/typeorm");
+
+/***/ }),
+
+/***/ "aws-sdk":
+/*!**************************!*\
+  !*** external "aws-sdk" ***!
+  \**************************/
+/***/ ((module) => {
+
+"use strict";
+module.exports = require("aws-sdk");
+
+/***/ }),
+
+/***/ "class-validator":
+/*!**********************************!*\
+  !*** external "class-validator" ***!
+  \**********************************/
+/***/ ((module) => {
+
+"use strict";
+module.exports = require("class-validator");
 
 /***/ }),
 
@@ -190,6 +322,17 @@ module.exports = require("nest-winston");
 
 "use strict";
 module.exports = require("typeorm");
+
+/***/ }),
+
+/***/ "uuid":
+/*!***********************!*\
+  !*** external "uuid" ***!
+  \***********************/
+/***/ ((module) => {
+
+"use strict";
+module.exports = require("uuid");
 
 /***/ }),
 
@@ -265,7 +408,7 @@ module.exports = require("winston");
 /******/ 	
 /******/ 	/* webpack/runtime/getFullHash */
 /******/ 	(() => {
-/******/ 		__webpack_require__.h = () => ("7b08cfc141b2a53fa604")
+/******/ 		__webpack_require__.h = () => ("6471d25603189f2d65c9")
 /******/ 	})();
 /******/ 	
 /******/ 	/* webpack/runtime/hasOwnProperty shorthand */
