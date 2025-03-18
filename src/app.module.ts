@@ -8,6 +8,7 @@ import typeOrmConfig from '../config/orm.config';
 import { winstonConfig } from '../config/logging.config';
 import { UploadsModule } from './modules/uploads/uploads.module';
 import { S3Module } from './modules/s3/s3.module';
+import { PostsModule } from './modules/posts/posts.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { S3Module } from './modules/s3/s3.module';
     }),
     UploadsModule,
     S3Module,
+    PostsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
