@@ -61,6 +61,9 @@ export class PostsService {
     if (!post) {
       throw new NotFoundException('해당 ID의 게시글을 찾을 수 없습니다.');
     }
+    // TODO: 좋아요 추가
+    // TODO: 댓글 추가
+    // TODO: response type
     return post;
   }
 
@@ -91,9 +94,21 @@ export class PostsService {
       throw new NotFoundException('해당 ID의 게시글을 찾을 수 없습니다.');
     }
     // TODO: 게시글 삭제 권한 체크
+    // TODO: response type
     this.postRepository.delete(id);
     return {
       message: '게시글이 성공적으로 삭제되었습니다.',
     };
   }
+
+  /* TODO
+   * findPopularPosts - 인기 게시글 조회
+   * @returns 좋아요, 댓글 순 인기 게시글 목록
+   */
+
+  /* TODO
+   * findGroupPosts - 그룹 게시글 조회
+   * @param groupId 그룹 ID
+   * @returns 그룹원 게시글 목록
+   */
 }

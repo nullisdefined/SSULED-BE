@@ -37,7 +37,7 @@ export function ApiUploadImage() {
           imageUrl: {
             type: 'string',
             example:
-              'https://example-bucket.s3.amazonaws.com/images/example-image.jpg',
+              'https://ssuled-bucket.s3.amazonaws.com/images/example-image.jpg',
           },
           message: {
             type: 'string',
@@ -146,7 +146,7 @@ export function ApiCreatePost() {
             },
             description: '게시글 이미지 URL 배열',
             example: [
-              'https://example-bucket.s3.amazonaws.com/images/example-image1.jpg',
+              'https://ssuled-bucket.s3.amazonaws.com/images/example-image1.jpg',
             ],
           },
           bodyPart: {
@@ -190,7 +190,7 @@ export function ApiCreatePost() {
               type: 'string',
             },
             example: [
-              'https://example-bucket.s3.amazonaws.com/images/example-image1.jpg',
+              'https://ssuled-bucket.s3.amazonaws.com/images/example-image1.jpg',
             ],
           },
           bodyPart: {
@@ -310,7 +310,7 @@ export function ApiGetAllPosts() {
                     type: 'string',
                   },
                   example: [
-                    'https://example-bucket.s3.amazonaws.com/images/example-image1.jpg',
+                    'https://ssuled-bucket.s3.amazonaws.com/images/example-image1.jpg',
                   ],
                 },
                 bodyPart: {
@@ -338,6 +338,16 @@ export function ApiGetAllPosts() {
                   type: 'string',
                   format: 'date-time',
                   example: '2025-03-19T09:00:00.000Z',
+                },
+                likeCount: {
+                  type: 'number',
+                  example: 15,
+                  description: '좋아요 수',
+                },
+                commentCount: {
+                  type: 'number',
+                  example: 5,
+                  description: '댓글 수',
                 },
               },
             },
@@ -401,7 +411,7 @@ export function ApiGetPostById() {
               type: 'string',
             },
             example: [
-              'https://example-bucket.s3.amazonaws.com/images/example-image1.jpg',
+              'https://ssuled-bucket.s3.amazonaws.com/images/example-image1.jpg',
             ],
           },
           bodyPart: {
@@ -429,6 +439,51 @@ export function ApiGetPostById() {
             type: 'string',
             format: 'date-time',
             example: '2025-03-19T09:00:00.000Z',
+          },
+          likeCount: {
+            type: 'number',
+            example: 15,
+            description: '좋아요 수',
+          },
+          comments: {
+            type: 'array',
+            description: '댓글 목록',
+            items: {
+              type: 'object',
+              properties: {
+                id: {
+                  type: 'number',
+                  example: 1,
+                },
+                content: {
+                  type: 'string',
+                  example: '오운완 좋아요!',
+                },
+                userUuid: {
+                  type: 'string',
+                  example: '123e4567-e89b-12d3-a456-426614174001',
+                },
+                userName: {
+                  type: 'string',
+                  example: '재굴TV',
+                },
+                userProfileImage: {
+                  type: 'string',
+                  example:
+                    'https://ssuled-bucket.s3.amazonaws.com/profiles/user1.jpg',
+                },
+                createdAt: {
+                  type: 'string',
+                  format: 'date-time',
+                  example: '2025-03-18T10:00:00.000Z',
+                },
+                updatedAt: {
+                  type: 'string',
+                  format: 'date-time',
+                  example: '2025-03-18T10:00:00.000Z',
+                },
+              },
+            },
           },
         },
       },
@@ -485,7 +540,7 @@ export function ApiUpdatePost() {
             },
             description: '게시글 이미지 URL 배열',
             example: [
-              'https://example-bucket.s3.amazonaws.com/images/updated-image1.jpg',
+              'https://ssuled-bucket.s3.amazonaws.com/images/updated-image1.jpg',
             ],
           },
           bodyPart: {
@@ -529,7 +584,7 @@ export function ApiUpdatePost() {
               type: 'string',
             },
             example: [
-              'https://example-bucket.s3.amazonaws.com/images/updated-image1.jpg',
+              'https://ssuled-bucket.s3.amazonaws.com/images/updated-image1.jpg',
             ],
           },
           bodyPart: {

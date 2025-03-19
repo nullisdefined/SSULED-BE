@@ -87,4 +87,15 @@ export class PostsController {
   removePost(@Param('postId') postId: string) {
     return this.postsService.removePost(+postId);
   }
+
+  /* TODO
+   * findPopularPosts - 인기 게시글 조회
+   * @returns 좋아요, 댓글 순 인기 게시글 목록
+   */
+
+  /* TODO
+   * findGroupPosts - 그룹 게시글 조회
+   * @param groupId 그룹 ID
+   * @returns 그룹원 게시글 목록
+   */
 }
