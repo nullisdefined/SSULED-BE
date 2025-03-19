@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { WinstonModule } from 'nest-winston';
@@ -9,6 +9,7 @@ import { winstonConfig } from '../config/logging.config';
 import { UploadsModule } from './modules/uploads/uploads.module';
 import { S3Module } from './modules/s3/s3.module';
 import { PostsModule } from './modules/posts/posts.module';
+import { HttpLoggerMiddleware } from './middlewares/http-logger.middleware';
 
 @Module({
   imports: [
@@ -30,4 +31,8 @@ import { PostsModule } from './modules/posts/posts.module';
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule {}
+export class AppModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(HttpLoggerMiddleware).forRoutes('*');
+  }
+}
