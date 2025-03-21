@@ -17,8 +17,8 @@ import { DeleteImageParamDto } from './dto/delete-image-param.dto';
 import { ImageFileInterceptor } from '@/decorators/file-interceptor.decorator';
 import { ApiDeleteImage, ApiUploadImage } from '@/decorators/swagger.decorator';
 
-@ApiTags('uploads')
-@Controller('uploads')
+@ApiTags('upload')
+@Controller('upload')
 export class UploadsController {
   constructor(
     private readonly uploadsService: UploadsService,
