@@ -74,10 +74,8 @@ export class PostsService {
    * @returns 수정된 게시글 정보
    */
   async updatePost(id: number, updatePostDto: UpdatePostDto) {
-    const post = await this.findOnePost(id);
-    if (!post) {
-      throw new NotFoundException('해당 ID의 게시글을 찾을 수 없습니다.');
-    }
+    await this.findOnePost(id);
+
     // TODO: 게시글 수정 권한 체크
     this.postRepository.update(id, updatePostDto);
     return this.findOnePost(id);
@@ -89,10 +87,8 @@ export class PostsService {
    * @returns 삭제된 게시글 정보
    */
   async removePost(id: number) {
-    const post = await this.findOnePost(id);
-    if (!post) {
-      throw new NotFoundException('해당 ID의 게시글을 찾을 수 없습니다.');
-    }
+    await this.findOnePost(id);
+
     // TODO: 게시글 삭제 권한 체크
     // TODO: response type
     this.postRepository.delete(id);

@@ -21,8 +21,8 @@ import {
 } from '@/decorators/swagger.decorator';
 import { FindAllPostsDto } from './dto/find-all-posts.dto';
 
-@ApiTags('posts')
-@Controller('posts')
+@ApiTags('post')
+@Controller('post')
 export class PostsController {
   constructor(private readonly postsService: PostsService) {}
 
