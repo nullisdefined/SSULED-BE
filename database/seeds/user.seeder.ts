@@ -1,6 +1,5 @@
 import { DataSource } from 'typeorm';
 import { Seeder } from 'typeorm-extension';
-import { v4 as uuidv4 } from 'uuid';
 import { SocialProvider } from '@/types/social-provider.enum';
 import { User } from '@/entities/user.entity';
 import { Logger } from 'winston';
@@ -14,35 +13,35 @@ export class UserSeeder implements Seeder {
 
     const users = [
       {
-        userUuid: uuidv4(),
+        userUuid: '123e4567-e89b-12d3-a456-426614174000',
         nickname: '숭실대벤치프레스',
         profileImage: 'https://example.com/admin.jpg',
         socialProvider: SocialProvider.KAKAO,
         socialId: '12345',
       },
       {
-        userUuid: uuidv4(),
+        userUuid: '123e4567-e89b-12d3-a456-426614174001',
         nickname: '포켓몬마스터',
         profileImage: 'https://example.com/user1.jpg',
         socialProvider: SocialProvider.NAVER,
         socialId: '23456',
       },
       {
-        userUuid: uuidv4(),
+        userUuid: '123e4567-e89b-12d3-a456-426614174002',
         nickname: '말하는고구마',
         profileImage: 'https://example.com/user2.jpg',
         socialProvider: SocialProvider.NAVER,
         socialId: '34567',
       },
       {
-        userUuid: uuidv4(),
+        userUuid: '123e4567-e89b-12d3-a456-426614174003',
         nickname: '배졍',
         profileImage: 'https://example.com/user3.jpg',
         socialProvider: SocialProvider.KAKAO,
         socialId: '45678',
       },
       {
-        userUuid: uuidv4(),
+        userUuid: '123e4567-e89b-12d3-a456-426614174004',
         nickname: '재굴TV',
         profileImage: 'https://example.com/user4.jpg',
         socialProvider: SocialProvider.NAVER,

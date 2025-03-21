@@ -10,6 +10,7 @@ import { UploadsModule } from './modules/uploads/uploads.module';
 import { S3Module } from './modules/s3/s3.module';
 import { PostsModule } from './modules/posts/posts.module';
 import { HttpLoggerMiddleware } from './middlewares/http-logger.middleware';
+import { CommentsModule } from './modules/comments/comments.module';
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { HttpLoggerMiddleware } from './middlewares/http-logger.middleware';
     UploadsModule,
     S3Module,
     PostsModule,
+    CommentsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

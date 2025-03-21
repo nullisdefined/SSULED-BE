@@ -656,6 +656,121 @@ export function ApiUpdatePost() {
   );
 }
 
+export function ApiCreateComment() {
+  return applyDecorators(
+    ApiOperation({
+      summary: '댓글 생성',
+      description: '게시글에 새로운 댓글을 작성합니다.',
+    }),
+    ApiBody({
+      schema: {
+        type: 'object',
+        properties: {
+          userUuid: {
+            type: 'string',
+            format: 'uuid',
+            description: '댓글 작성자 UUID',
+            example: '123e4567-e89b-12d3-a456-426614174000',
+          },
+          postId: {
+            type: 'integer',
+            description: '댓글을 작성할 게시글 ID',
+            example: 1,
+          },
+          content: {
+            type: 'string',
+            description: '댓글 내용',
+            example: '오운완 축하합니다! 💪',
+          },
+        },
+        required: ['userUuid', 'postId', 'content'],
+      },
+    }),
+    ApiResponse({
+      status: 201,
+      description: '댓글이 성공적으로 생성됨',
+      schema: {
+        type: 'object',
+        properties: {
+          id: {
+            type: 'integer',
+            example: 1,
+          },
+          content: {
+            type: 'string',
+            example: '오운완 축하합니다! 💪',
+          },
+          userUuid: {
+            type: 'string',
+            example: '123e4567-e89b-12d3-a456-426614174000',
+          },
+          postId: {
+            type: 'integer',
+            example: 1,
+          },
+          createdAt: {
+            type: 'string',
+            format: 'date-time',
+            example: '2025-03-20T10:30:00Z',
+          },
+          updatedAt: {
+            type: 'string',
+            format: 'date-time',
+            example: '2025-03-20T10:30:00Z',
+          },
+        },
+      },
+    }),
+    ApiResponse({
+      status: 400,
+      description: '잘못된 요청',
+      schema: {
+        type: 'object',
+        properties: {
+          message: {
+            type: 'array',
+            example: [
+              'content must be a string',
+              'content should not be empty',
+              'userUuid must be a string',
+              'postId must be a number',
+            ],
+          },
+          error: {
+            type: 'string',
+            example: 'Bad Request',
+          },
+          statusCode: {
+            type: 'number',
+            example: 400,
+          },
+        },
+      },
+    }),
+    ApiResponse({
+      status: 404,
+      description: '게시글 또는 사용자를 찾을 수 없음',
+      schema: {
+        type: 'object',
+        properties: {
+          message: {
+            type: 'string',
+            example: '해당 ID의 게시글을 찾을 수 없습니다.',
+          },
+          error: {
+            type: 'string',
+            example: 'Not Found',
+          },
+          statusCode: {
+            type: 'number',
+            example: 404,
+          },
+        },
+      },
+    }),
+  );
+}
+
 export function ApiDeletePost() {
   return applyDecorators(
     ApiOperation({
@@ -698,6 +813,404 @@ export function ApiDeletePost() {
           statusCode: {
             type: 'number',
             example: 404,
+          },
+        },
+      },
+    }),
+  );
+}
+
+export function ApiUpdateComment() {
+  return applyDecorators(
+    ApiOperation({
+      summary: '댓글 수정',
+      description: '특정 ID의 댓글을 수정합니다.',
+    }),
+    ApiParam({
+      name: 'commentId',
+      description: '수정할 댓글 ID',
+      required: true,
+      type: 'string',
+    }),
+    ApiBody({
+      schema: {
+        type: 'object',
+        properties: {
+          content: {
+            type: 'string',
+            description: '댓글 내용',
+            example: '정말 멋진 운동이네요! 👍',
+          },
+        },
+        required: ['content'],
+      },
+    }),
+    ApiResponse({
+      status: 200,
+      description: '댓글이 성공적으로 수정됨',
+      schema: {
+        type: 'object',
+        properties: {
+          id: {
+            type: 'integer',
+            example: 1,
+          },
+          content: {
+            type: 'string',
+            example: '정말 멋진 운동이네요! 👍',
+          },
+          userUuid: {
+            type: 'string',
+            example: '123e4567-e89b-12d3-a456-426614174000',
+          },
+          postId: {
+            type: 'integer',
+            example: 1,
+          },
+          createdAt: {
+            type: 'string',
+            format: 'date-time',
+            example: '2025-03-20T10:30:00Z',
+          },
+          updatedAt: {
+            type: 'string',
+            format: 'date-time',
+            example: '2025-03-20T10:35:00Z',
+          },
+        },
+      },
+    }),
+    ApiResponse({
+      status: 404,
+      description: '댓글을 찾을 수 없음',
+      schema: {
+        type: 'object',
+        properties: {
+          message: {
+            type: 'string',
+            example: '해당 ID의 댓글을 찾을 수 없습니다.',
+          },
+          error: {
+            type: 'string',
+            example: 'Not Found',
+          },
+          statusCode: {
+            type: 'number',
+            example: 404,
+          },
+        },
+      },
+    }),
+    ApiResponse({
+      status: 400,
+      description: 'Validation 오류',
+      schema: {
+        type: 'object',
+        properties: {
+          message: {
+            type: 'array',
+            example: [
+              'content must be a string',
+              'content should not be empty',
+            ],
+          },
+          error: {
+            type: 'string',
+            example: 'Bad Request',
+          },
+          statusCode: {
+            type: 'number',
+            example: 400,
+          },
+        },
+      },
+    }),
+    ApiResponse({
+      status: 403,
+      description: '권한 없음',
+      schema: {
+        type: 'object',
+        properties: {
+          message: {
+            type: 'string',
+            example: '이 댓글을 수정할 권한이 없습니다.',
+          },
+          error: {
+            type: 'string',
+            example: 'Forbidden',
+          },
+          statusCode: {
+            type: 'number',
+            example: 403,
+          },
+        },
+      },
+    }),
+  );
+}
+
+export function ApiGetAllComments() {
+  return applyDecorators(
+    ApiOperation({
+      summary: '모든 댓글 조회',
+      description: '특정 게시글의 모든 댓글을 조회합니다.',
+    }),
+    ApiParam({
+      name: 'postId',
+      description: '댓글을 조회할 게시글 ID',
+      required: true,
+      type: 'string',
+    }),
+    ApiQuery({
+      name: 'page',
+      required: false,
+      description: '페이지 번호 (default: 1)',
+      type: 'number',
+      example: 1,
+    }),
+    ApiQuery({
+      name: 'limit',
+      required: false,
+      description: '페이지당 댓글 수 (default: 10)',
+      type: 'number',
+      example: 10,
+    }),
+    ApiResponse({
+      status: 200,
+      description: '댓글 목록 조회 성공',
+      schema: {
+        type: 'object',
+        properties: {
+          data: {
+            type: 'array',
+            items: {
+              type: 'object',
+              properties: {
+                id: {
+                  type: 'number',
+                  example: 1,
+                },
+                content: {
+                  type: 'string',
+                  example: '멋진 운동이네요!',
+                },
+                postId: {
+                  type: 'number',
+                  example: 1,
+                },
+                createdAt: {
+                  type: 'string',
+                  format: 'date-time',
+                  example: '2025-03-18T10:00:00.000Z',
+                },
+                updatedAt: {
+                  type: 'string',
+                  format: 'date-time',
+                  example: '2025-03-18T10:00:00.000Z',
+                },
+                user: {
+                  type: 'object',
+                  properties: {
+                    userUuid: {
+                      type: 'string',
+                      example: '123e4567-e89b-12d3-a456-426614174001',
+                    },
+                    nickname: {
+                      type: 'string',
+                      example: '재굴TV',
+                    },
+                    profileImage: {
+                      type: 'string',
+                      example:
+                        'https://ssuled-bucket.s3.amazonaws.com/profiles/user1.jpg',
+                    },
+                  },
+                },
+              },
+            },
+          },
+          meta: {
+            type: 'object',
+            properties: {
+              totalItems: {
+                type: 'number',
+                example: 25,
+              },
+              itemsPerPage: {
+                type: 'number',
+                example: 10,
+              },
+              totalPages: {
+                type: 'number',
+                example: 3,
+              },
+              currentPage: {
+                type: 'number',
+                example: 1,
+              },
+            },
+          },
+        },
+      },
+    }),
+    ApiResponse({
+      status: 404,
+      description: '댓글을 찾을 수 없음',
+      schema: {
+        type: 'object',
+        properties: {
+          message: {
+            type: 'string',
+            example: '해당 ID의 댓글을 찾을 수 없습니다.',
+          },
+          error: {
+            type: 'string',
+            example: 'Not Found',
+          },
+          statusCode: {
+            type: 'number',
+            example: 404,
+          },
+        },
+      },
+    }),
+  );
+}
+
+export function ApiGetComment() {
+  return applyDecorators(
+    ApiOperation({
+      summary: '댓글 상세 조회',
+      description: '특정 ID의 댓글을 상세하게 조회합니다.',
+    }),
+    ApiParam({
+      name: 'commentId',
+      description: '조회할 댓글 ID',
+      required: true,
+      type: 'string',
+    }),
+    ApiResponse({
+      status: 200,
+      description: '댓글 상세 조회 성공',
+      schema: {
+        type: 'object',
+        properties: {
+          id: {
+            type: 'number',
+            example: 1,
+          },
+          content: {
+            type: 'string',
+            example: '멋진 운동이네요!',
+          },
+          userUuid: {
+            type: 'string',
+            example: '123e4567-e89b-12d3-a456-426614174001',
+          },
+          postId: {
+            type: 'number',
+            example: 1,
+          },
+          createdAt: {
+            type: 'string',
+            format: 'date-time',
+            example: '2025-03-18T10:00:00.000Z',
+          },
+          updatedAt: {
+            type: 'string',
+            format: 'date-time',
+            example: '2025-03-18T10:00:00.000Z',
+          },
+        },
+      },
+    }),
+    ApiResponse({
+      status: 404,
+      description: '댓글을 찾을 수 없음',
+      schema: {
+        type: 'object',
+        properties: {
+          message: {
+            type: 'string',
+            example: '해당 ID의 댓글을 찾을 수 없습니다.',
+          },
+          error: {
+            type: 'string',
+            example: 'Not Found',
+          },
+          statusCode: {
+            type: 'number',
+            example: 404,
+          },
+        },
+      },
+    }),
+  );
+}
+
+export function ApiDeleteComment() {
+  return applyDecorators(
+    ApiOperation({
+      summary: '댓글 삭제',
+      description: '특정 ID의 댓글을 삭제합니다.',
+    }),
+    ApiParam({
+      name: 'commentId',
+      description: '삭제할 댓글 ID',
+      required: true,
+      type: 'string',
+    }),
+    ApiResponse({
+      status: 200,
+      description: '댓글이 성공적으로 삭제됨',
+      schema: {
+        type: 'object',
+        properties: {
+          message: {
+            type: 'string',
+            example: '댓글이 성공적으로 삭제되었습니다.',
+          },
+        },
+      },
+    }),
+    ApiResponse({
+      status: 404,
+      description: '댓글을 찾을 수 없음',
+      schema: {
+        type: 'object',
+        properties: {
+          message: {
+            type: 'string',
+            example: '해당 ID의 댓글을 찾을 수 없습니다.',
+          },
+          error: {
+            type: 'string',
+            example: 'Not Found',
+          },
+          statusCode: {
+            type: 'number',
+            example: 404,
+          },
+        },
+      },
+    }),
+    ApiResponse({
+      status: 403,
+      description: '권한 없음',
+      schema: {
+        type: 'object',
+        properties: {
+          message: {
+            type: 'string',
+            example: '이 댓글을 삭제할 권한이 없습니다.',
+          },
+          error: {
+            type: 'string',
+            example: 'Forbidden',
+          },
+          statusCode: {
+            type: 'number',
+            example: 403,
           },
         },
       },
