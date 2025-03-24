@@ -9,11 +9,11 @@ import { winstonConfig } from '../config/logging.config';
 import { UploadsModule } from './modules/uploads/uploads.module';
 import { S3Module } from './modules/s3/s3.module';
 import { AuthModule } from './auth/auth.module';
-import { UserModule } from './user/user.module';
 import { PostsModule } from './modules/posts/posts.module';
 import { HttpLoggerMiddleware } from './middlewares/http-logger.middleware';
 import { CommentsModule } from './modules/comments/comments.module';
 import { LikesModule } from './modules/likes/likes.module';
+import { UsersModule } from './modules/users/users.module';
 
 @Module({
   imports: [
@@ -31,10 +31,11 @@ import { LikesModule } from './modules/likes/likes.module';
     UploadsModule,
     S3Module,
     AuthModule,
-    UserModule,
+
     PostsModule,
     CommentsModule,
     LikesModule,
+    UsersModule,
   ],
   controllers: [AppController],
   providers: [AppService],
