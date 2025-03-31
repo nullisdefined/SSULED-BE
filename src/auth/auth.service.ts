@@ -3,10 +3,14 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { SocialRequest } from './auth.controller';
-import { Response } from 'express';
+import { Request, Response } from 'express';
 import { UsersService } from '@/modules/users/users.service';
 import { v4 as uuidv4 } from 'uuid';
 import { JwtService } from '@nestjs/jwt';
+import { nanoid } from 'nanoid';
+import axios from 'axios';
+import * as bcrypt from 'bcrypt';
+import { SocialProvider } from '@/types/social-provider.enum';
 
 @Injectable()
 export class AuthService {
@@ -16,112 +20,227 @@ export class AuthService {
     private readonly jwtService: JwtService,
   ) {}
 
-  async kakaoLogin(req: SocialRequest, res: Response) {
-    try {
-      const { user } = req;
-
-      // 유저 중복 검사
-      let findUser = await this.userService.findOneBySocialId(user.socialId);
-
+  private async handleSocialLogin(user: SocialRequest['user'], res: Response) {
+    // 유저 중복 검사
+    let findUser = await this.userService.findOneBySocialId(user.socialId);
+    if (!findUser) {
       // 없는 유저면 DB에 유저정보 저장
-      if (!findUser) {
-        const uuid = uuidv4();
-        findUser = await this.userService.createUser(user, uuid);
-      }
+      const uuid = uuidv4();
+      findUser = await this.userService.createUser(user, uuid);
+    }
 
-      console.log(findUser);
+    // 카카오 가입이 되어 있는 경우 accessToken 및 refreshToken 발급
+    const findUserPayload = { userUuid: findUser.userUuid };
+    const access_token = await this.jwtService.sign(findUserPayload, {
+      secret: process.env.JWT_ACCESS_TOKEN_SECRET,
+      expiresIn: `${process.env.JWT_ACCESS_TOKEN_EXPIRES_IN}`,
+    });
 
-      // 카카오 가입이 되어 있는 경우 accessToken 및 refreshToken 발급
-      const findUserPayload = { userUuid: findUser.userUuid };
-      const access_token = await this.jwtService.sign(findUserPayload, {
-        secret: process.env.JWT_ACCESS_TOKEN_SECRET,
-        expiresIn: '30m',
-      });
+    const refresh_token = await this.jwtService.sign(findUserPayload, {
+      secret: process.env.JWT_REFRESH_TOKEN_SECRET,
+      expiresIn: `${process.env.JWT_REFRESH_TOKEN_EXPIRES_IN}`,
+    });
 
-      const refresh_token = await this.jwtService.sign(findUserPayload, {
-        secret: process.env.JWT_REFRESH_TOKEN_SECRET,
-        expiresIn: '14d',
-      });
+    const userId = await this.userService.getUserIdByUuid(findUser.userUuid);
+    const existingAuth = await this.authRepository.findOne({
+      where: { userId },
+    });
 
-      // Auth 정보 DB에 저장(기존 회원이면 update, 신규회원이면 save? 아직 암호화 X)
-      const userId = await this.userService.getUserIdByUuid(findUser.userUuid);
-      const findAuth = await this.authRepository.create({
+    const hashedRefreshToken = await bcrypt.hash(refresh_token, 10);
+
+    if (existingAuth) {
+      existingAuth.refreshToken = refresh_token;
+      await this.authRepository.save(existingAuth);
+    } else {
+      const newAuth = await this.authRepository.create({
         userId,
-        refreshToken: refresh_token,
+        refreshToken: hashedRefreshToken,
       });
-      await this.authRepository.save(findAuth);
+      await this.authRepository.save(newAuth);
+    }
 
-      // 쿠키 설정
-      const now = new Date();
-      now.setDate(now.getDate() + 14);
-      res.cookie('refresh_token', refresh_token, {
-        expires: now,
-        httpOnly: true,
-        // secure: process.env.NODE_ENV === 'production' ? true : false,
-        // sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
-      });
-      return {
-        ok: true,
-        access_token,
+    return res.json({
+      ok: true,
+      access_token,
+      refresh_token,
+      message: '로그인 성공',
+    });
+  }
+
+  async kakaoLogin(code: string, res: Response) {
+    try {
+      // 1. 인가 코드로 access token 요청
+      const tokenResponse = await axios.post(
+        'https://kauth.kakao.com/oauth/token',
+        null,
+        {
+          params: {
+            grant_type: 'authorization_code',
+            client_id: process.env.KAKAO_REST_API_KEY,
+            redirect_uri: process.env.KAKAO_REDIRECT_URL,
+            code: code,
+          },
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+          },
+        },
+      );
+
+      const kakaoAccessToken = tokenResponse.data.access_token;
+
+      // 2. 카카오 access_token으로 사용자 정보 요청
+      const userResponse = await axios.get(
+        'https://kapi.kakao.com/v2/user/me',
+        {
+          headers: {
+            Authorization: `Bearer ${kakaoAccessToken}`,
+          },
+        },
+      );
+
+      const kakaoUser = userResponse.data;
+
+      const user = {
+        socialId: kakaoUser.id.toString(),
+        socialNickname: kakaoUser.properties?.nickname || '',
+        nickname: `익명_${nanoid(4)}`,
+        profileImage: kakaoUser.properties?.profile_image || '',
+        socialProvider: SocialProvider.KAKAO,
       };
+      return await this.handleSocialLogin(user, res);
     } catch (error) {
       console.log(error);
-      return { ok: false, error: '구글 로그인 인증을 실패하였습니다.' };
+      return res
+        .status(401)
+        .json({ ok: false, message: '카카오 로그인 실패', error });
     }
   }
 
   // naver login
-  async naverLogin(req: SocialRequest, res: Response) {
+  async naverLogin(code: string, res: Response) {
     try {
-      const { user } = req;
+      // 1. 네이버 토큰 요청
+      const tokenRes = await axios.post(
+        'https://nid.naver.com/oauth2.0/token',
+        null,
+        {
+          params: {
+            grant_type: 'authorization_code',
+            client_id: process.env.NAVER_ID,
+            client_secret: process.env.NAVER_SECRET,
+            code,
+          },
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+          },
+        },
+      );
 
-      // 유저 중복 검사
-      let findUser = await this.userService.findOneBySocialId(user.socialId);
+      const accessToken = tokenRes.data.access_token;
 
-      // 없는 유저면 DB에 유저정보 저장
-      if (!findUser) {
-        const uuid = uuidv4();
-        findUser = await this.userService.createUser(user, uuid);
-      }
-
-      console.log(findUser);
-
-      // 카카오 가입이 되어 있는 경우 accessToken 및 refreshToken 발급
-      const findUserPayload = { userUuid: findUser.userUuid };
-      const access_token = await this.jwtService.sign(findUserPayload, {
-        secret: process.env.JWT_ACCESS_TOKEN_SECRET,
-        expiresIn: '30m',
+      // 2. 유저 정보 요청
+      const userRes = await axios.get('https://openapi.naver.com/v1/nid/me', {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
       });
 
-      const refresh_token = await this.jwtService.sign(findUserPayload, {
-        secret: process.env.JWT_REFRESH_TOKEN_SECRET,
-        expiresIn: '14d',
-      });
+      const profile = userRes.data.response;
 
-      // Auth 정보 DB에 저장(기존 회원이면 update, 신규회원이면 save? 아직 암호화 X)
-      const userId = await this.userService.getUserIdByUuid(findUser.userUuid);
-      const findAuth = await this.authRepository.create({
-        userId,
-        refreshToken: refresh_token,
-      });
-      await this.authRepository.save(findAuth);
-
-      // 쿠키 설정
-      const now = new Date();
-      now.setDate(now.getDate() + 14);
-      res.cookie('refresh_token', refresh_token, {
-        expires: now,
-        httpOnly: true,
-        // secure: process.env.NODE_ENV === 'production' ? true : false,
-        // sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
-      });
-      return {
-        ok: true,
-        access_token,
+      const user = {
+        socialId: profile.id,
+        socialNickname: profile.nickname || '',
+        nickname: `익명_${nanoid(4)}`,
+        profileImage: profile.profile_image || '',
+        socialProvider: SocialProvider.NAVER,
       };
+
+      return this.handleSocialLogin(user, res);
     } catch (error) {
       console.log(error);
-      return { ok: false, error: '구글 로그인 인증을 실패하였습니다.' };
+      return res
+        .status(401)
+        .json({ ok: false, message: '네이버 로그인 실패', error });
+    }
+  }
+
+  // refreshToken으로 accessToken 재발급
+  async RefreshToken(req: Request, res: Response) {
+    const refreshToken = req.headers['authorization']?.replace('Bearer ', '');
+
+    if (!refreshToken) {
+      return res.status(401).json({ ok: false, message: '리프레시 토큰 없음' });
+    }
+
+    try {
+      // 1. 리프레시 토큰 유효성 검사
+      const payload = await this.jwtService.verifyAsync(refreshToken, {
+        secret: process.env.JWT_REFRESH_TOKEN_SECRET,
+      });
+
+      const userId = await this.userService.getUserIdByUuid(payload.userUuid);
+
+      if (!userId) {
+        return res.status(401).json({ ok: false, message: '유효하지 않음' });
+      }
+
+      // 2. DB에 저장된 refreshToken과 비교
+      const auth = await this.authRepository.findOne({
+        where: { userId },
+      });
+
+      if (!auth || !(await bcrypt.compare(auth.refreshToken, refreshToken))) {
+        return res
+          .status(401)
+          .json({ ok: false, message: '리프레시 토큰 불일치' });
+      }
+
+      // 3. 새 accessToken 발급
+      const newAccessToken = this.jwtService.sign(
+        {
+          userUuid: payload.userUuid,
+        },
+        {
+          secret: process.env.JWT_ACCESS_TOKEN_SECRET,
+          expiresIn: `${process.env.JWT_ACCESS_TOKEN_EXPIRES_IN}`,
+        },
+      );
+
+      // 리프레시 토큰 만료 여부 확인
+      const nowInSec = Math.floor(Date.now() / 1000);
+      let newRefreshToken = null;
+      let hashedRefreshToken = null;
+
+      if (payload.exp && payload.exp < nowInSec) {
+        // refreshToken도 만료 => 새 refreshToken 재발급
+        newRefreshToken = this.jwtService.sign(
+          { userUuid: payload.userUuid },
+          {
+            secret: process.env.JWT_REFRESH_TOKEN_SECRET,
+            expiresIn: `${process.env.JWT_REFRESH_TOKEN_EXPIRES_IN}`,
+          },
+        );
+
+        hashedRefreshToken = await bcrypt.hash(newRefreshToken, 10);
+
+        auth.refreshToken = hashedRefreshToken;
+        await this.authRepository.save(auth);
+      }
+
+      return res.json({
+        ok: true,
+        message: newRefreshToken
+          ? 'accessToken 및 refreshToken 재발급 완료'
+          : 'accessToken 재발급 완료',
+
+        access_token: newAccessToken,
+        refresh_token: newRefreshToken ? newRefreshToken : '',
+      });
+    } catch (error) {
+      console.log(error);
+      return res
+        .status(401)
+        .json({ ok: false, message: '리프레시 토큰 만료 혹은 잘못됨' });
     }
   }
 }

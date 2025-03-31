@@ -2381,3 +2381,146 @@ export function ApiGetGroupPosts() {
     }),
   );
 }
+
+export function ApiKakaoLogin() {
+  return applyDecorators(
+    ApiOperation({
+      summary: '카카오 로그인',
+      description:
+        '카카오 인가 코드를 통해 유저 정보를 받아 로그인 처리합니다.',
+    }),
+    ApiBody({
+      schema: {
+        type: 'object',
+        required: ['code'],
+        properties: {
+          code: {
+            type: 'string',
+            description: '카카오 인가 코드',
+            example: 'QwrwER124ADSda==',
+          },
+        },
+      },
+    }),
+    ApiResponse({
+      status: 200,
+      description: '로그인 성공',
+      schema: {
+        type: 'object',
+        properties: {
+          ok: { type: 'boolean', example: true },
+          access_token: { type: 'string', example: 'access.jwt.token' },
+          refresh_token: { type: 'string', example: 'refresh.jwt.token' },
+          message: { type: 'string', example: '로그인 성공' },
+        },
+      },
+    }),
+    ApiResponse({
+      status: 401,
+      description: '카카오 로그인 실패',
+      schema: {
+        type: 'object',
+        properties: {
+          ok: { type: 'boolean', example: false },
+          message: { type: 'string', example: '카카오 로그인 실패' },
+          error: { type: 'string', example: 'Unauthorized' },
+        },
+      },
+    }),
+  );
+}
+
+export function ApiNaverLogin() {
+  return applyDecorators(
+    ApiOperation({
+      summary: '네이버 로그인',
+      description:
+        '네이버 인가 코드를 통해 유저 정보를 받아 로그인 처리합니다.',
+    }),
+    ApiBody({
+      schema: {
+        type: 'object',
+        required: ['code'],
+        properties: {
+          code: {
+            type: 'string',
+            description: '네이버 인가 코드',
+            example: 'QwrwER124ADSda==',
+          },
+        },
+      },
+    }),
+    ApiResponse({
+      status: 200,
+      description: '로그인 성공',
+      schema: {
+        type: 'object',
+        properties: {
+          ok: { type: 'boolean', example: true },
+          access_token: { type: 'string', example: 'access.jwt.token' },
+          refresh_token: { type: 'string', example: 'refresh.jwt.token' },
+          message: { type: 'string', example: '로그인 성공' },
+        },
+      },
+    }),
+    ApiResponse({
+      status: 401,
+      description: '네이버 로그인 실패',
+      schema: {
+        type: 'object',
+        properties: {
+          ok: { type: 'boolean', example: false },
+          message: { type: 'string', example: '네이버 로그인 실패' },
+          error: { type: 'string', example: 'Unauthorized' },
+        },
+      },
+    }),
+  );
+}
+
+import { ApiHeader } from '@nestjs/swagger';
+
+export function ApiRefreshToken() {
+  return applyDecorators(
+    ApiOperation({
+      summary: 'AccessToken 재발급',
+      description:
+        '리프레시 토큰을 Authorization 헤더로 보내 새로운 AccessToken을 발급받습니다.',
+    }),
+    ApiHeader({
+      name: 'Authorization',
+      description: 'Bearer {refresh_token}',
+      required: true,
+    }),
+    ApiResponse({
+      status: 200,
+      description: 'accessToken 및 refreshToken 재발급 성공',
+      schema: {
+        type: 'object',
+        properties: {
+          ok: { type: 'boolean', example: true },
+          access_token: { type: 'string', example: 'new.access.token' },
+          refresh_token: {
+            type: 'string',
+            example: 'new.refresh.token (optional)',
+          },
+          message: { type: 'string', example: 'accessToken 재발급 완료' },
+        },
+      },
+    }),
+    ApiResponse({
+      status: 401,
+      description: '리프레시 토큰 유효성 검사 실패',
+      schema: {
+        type: 'object',
+        properties: {
+          ok: { type: 'boolean', example: false },
+          message: {
+            type: 'string',
+            example: '리프레시 토큰 만료 혹은 잘못됨',
+          },
+        },
+      },
+    }),
+  );
+}

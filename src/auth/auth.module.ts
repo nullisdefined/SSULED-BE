@@ -5,10 +5,8 @@ import { Auth } from '@/entities/auth.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UsersService } from '@/modules/users/users.service';
 import { User } from '@/entities/user.entity';
-import { JwtKakaoStrategy } from './strategy/jwt-social-kakao.strategy';
 import { PassportModule } from '@nestjs/passport';
 import { JwtModule } from '@nestjs/jwt';
-import { JwtNaverStrategy } from './strategy/jwt-social-naver.strategy';
 
 @Module({
   imports: [
@@ -20,6 +18,6 @@ import { JwtNaverStrategy } from './strategy/jwt-social-naver.strategy';
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService, UsersService, JwtKakaoStrategy, JwtNaverStrategy],
+  providers: [AuthService, UsersService],
 })
 export class AuthModule {}

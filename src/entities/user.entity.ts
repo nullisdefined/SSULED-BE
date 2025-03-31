@@ -15,8 +15,11 @@ export class User {
   @Column({ name: 'user_uuid', type: 'uuid', unique: true })
   userUuid: string;
 
-  @Column({ name: 'nickname', type: 'varchar' })
+  @Column({ name: 'nickname', type: 'varchar', unique: true })
   nickname: string;
+
+  @Column({ name: 'socialNickname', type: 'varchar' })
+  socialNickname: string;
 
   @Column({ name: 'profile_image', type: 'varchar', nullable: true })
   profileImage: string;
