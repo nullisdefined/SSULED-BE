@@ -44,7 +44,7 @@ export class AuthService {
       });
 
       // Auth 정보 DB에 저장(기존 회원이면 update, 신규회원이면 save? 아직 암호화 X)
-      const userId = await this.userService.findOneById(findUser.userUuid);
+      const userId = await this.userService.getUserIdByUuid(findUser.userUuid);
       const findAuth = await this.authRepository.create({
         userId,
         refreshToken: refresh_token,
@@ -53,8 +53,8 @@ export class AuthService {
 
       // 쿠키 설정
       const now = new Date();
-      now.setDate(now.getDate() + +'14d');
-      res.cookie('frefresh_token', refresh_token, {
+      now.setDate(now.getDate() + 14);
+      res.cookie('refresh_token', refresh_token, {
         expires: now,
         httpOnly: true,
         // secure: process.env.NODE_ENV === 'production' ? true : false,
@@ -99,7 +99,7 @@ export class AuthService {
       });
 
       // Auth 정보 DB에 저장(기존 회원이면 update, 신규회원이면 save? 아직 암호화 X)
-      const userId = await this.userService.findOneById(findUser.userUuid);
+      const userId = await this.userService.getUserIdByUuid(findUser.userUuid);
       const findAuth = await this.authRepository.create({
         userId,
         refreshToken: refresh_token,
@@ -108,8 +108,8 @@ export class AuthService {
 
       // 쿠키 설정
       const now = new Date();
-      now.setDate(now.getDate() + +'14d');
-      res.cookie('frefresh_token', refresh_token, {
+      now.setDate(now.getDate() + 14);
+      res.cookie('refresh_token', refresh_token, {
         expires: now,
         httpOnly: true,
         // secure: process.env.NODE_ENV === 'production' ? true : false,

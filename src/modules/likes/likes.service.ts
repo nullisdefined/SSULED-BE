@@ -2,20 +2,22 @@ import {
   Injectable,
   NotFoundException,
   ConflictException,
+  Inject,
+  forwardRef,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Like } from '@/entities/like.entity';
 import { CreateLikeDto } from './dto/create-like.dto';
-import { User } from '@/entities/user.entity';
+import { UsersService } from '../users/users.service';
 
 @Injectable()
 export class LikesService {
   constructor(
     @InjectRepository(Like)
     private likeRepository: Repository<Like>,
-    @InjectRepository(User)
-    private userRepository: Repository<User>,
+    @Inject(forwardRef(() => UsersService))
+    private userService: UsersService,
   ) {}
 
   /**
@@ -37,7 +39,9 @@ export class LikesService {
     }
 
     // 사용자 정보 조회
-    const userId = await this.getUserIdByUuid(createLikeDto.userUuid);
+    const userId = await this.userService.getUserIdByUuid(
+      createLikeDto.userUuid,
+    );
 
     // 좋아요 생성
     const like = this.likeRepository.create({
@@ -142,25 +146,5 @@ export class LikesService {
     });
 
     return likeCountMap;
-  }
-
-  /**
-   * userUuid로 userId 조회 (user.service로 추후 이동 예정)
-   * @param userUuid 사용자 UUID
-   * @returns 사용자 ID
-   */
-  async getUserIdByUuid(userUuid: string): Promise<number> {
-    const user = await this.userRepository.findOne({
-      where: { userUuid },
-      select: ['id'],
-    });
-
-    if (!user) {
-      throw new NotFoundException(
-        `UUID ${userUuid}에 해당하는 사용자를 찾을 수 없습니다.`,
-      );
-    }
-
-    return user.id;
   }
 }
