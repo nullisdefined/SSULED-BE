@@ -1,7 +1,11 @@
-import { Controller, Get, Req, Res, UseGuards } from '@nestjs/common';
+import { Body, Controller, Post, Req, Res } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { AuthGuard } from '@nestjs/passport';
-import { Response } from 'express';
+import { Request, Response } from 'express';
+import {
+  ApiKakaoLogin,
+  ApiNaverLogin,
+  ApiRefreshToken,
+} from '@/decorators/swagger.decorator';
 
 export interface SocialRequest {
   user: {
@@ -16,41 +20,22 @@ export interface SocialRequest {
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
-  @Get('login/kakao')
-  @UseGuards(AuthGuard('kakao'))
-  async kakaoAuth() {
-    console.log('kakao login triggered');
+  @ApiKakaoLogin()
+  @Post('kakao')
+  async kakaoAuthCallback(@Body('code') code: string, @Res() res: Response) {
+    return this.authService.kakaoLogin(code, res);
   }
 
-  /* Get kakao Auth Callback */
-  @Get('kakao/callback')
-  @UseGuards(AuthGuard('kakao'))
-  async kakaoAuthCallback(
-    @Req() req: SocialRequest,
-    @Res() res: Response, // : Promise<KakaoLoginAuthOutputDto>
-  ) {
-    const { user } = req;
-    console.log(user);
-    // return res.send(user);
-    return this.authService.kakaoLogin(req, res);
+  @ApiNaverLogin()
+  @Post('naver')
+  async naverAuthCallback(@Body('code') code: string, @Res() res: Response) {
+    return this.authService.naverLogin(code, res);
   }
 
-  @Get('login/naver')
-  @UseGuards(AuthGuard('naver'))
-  async naverAuth() {
-    console.log('naver login triggered');
-  }
-
-  /* Get naver Auth Callback */
-  @Get('naver/callback')
-  @UseGuards(AuthGuard('naver'))
-  async naverAuthCallback(
-    @Req() req: SocialRequest,
-    @Res() res: Response, // : Promise<NaverLoginAuthOutputDto>
-  ) {
-    const { user } = req;
-    console.log(user);
-    // return res.send(user);
-    return this.authService.naverLogin(req, res);
+  // refreshToken으로 accessToken 재발급
+  @ApiRefreshToken()
+  @Post('refresh')
+  async Refresh(@Req() req: Request, @Res() res: Response) {
+    return this.authService.RefreshToken(req, res);
   }
 }

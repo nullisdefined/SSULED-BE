@@ -17,6 +17,7 @@ export class UsersService {
     const newUser = this.userRepository.create({
       userUuid: uuid,
       nickname: user.nickname,
+      socialNickname: user.socialNickname,
       profileImage: user.profileImage,
       socialProvider: user.socialProvider,
       socialId: user.socialId,
