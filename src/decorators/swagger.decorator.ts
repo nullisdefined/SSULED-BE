@@ -6,6 +6,7 @@ import {
   ApiParam,
   ApiResponse,
   ApiQuery,
+  ApiBearerAuth,
 } from '@nestjs/swagger';
 import { BodyPartEnum } from '../types/body-part.enum';
 
@@ -2519,6 +2520,49 @@ export function ApiRefreshToken() {
             type: 'string',
             example: '리프레시 토큰 만료 혹은 잘못됨',
           },
+        },
+      },
+    }),
+  );
+}
+
+export function ApiLogout() {
+  return applyDecorators(
+    ApiOperation({
+      summary: '로그아웃',
+      description: '유저의 리프레시 토큰을 무효화하여 로그아웃합니다.',
+    }),
+    ApiBearerAuth(),
+    ApiResponse({
+      status: 200,
+      description: '로그아웃 성공',
+      schema: {
+        type: 'object',
+        properties: {
+          ok: {
+            type: 'boolean',
+            example: true,
+          },
+          message: {
+            type: 'string',
+            example: '로그아웃 완료',
+          },
+          statusCode: {
+            type: 'number',
+            example: 200,
+          },
+        },
+      },
+    }),
+    ApiResponse({
+      status: 401,
+      description: 'JWT 토큰이 유효하지 않거나 만료된 경우',
+      schema: {
+        type: 'object',
+        properties: {
+          statusCode: { type: 'number', example: 401 },
+          message: { type: 'string', example: 'Unauthorized' },
+          error: { type: 'string', example: 'Unauthorized' },
         },
       },
     }),

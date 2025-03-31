@@ -1,3 +1,4 @@
+import { Auth } from '@/entities/auth.entity';
 import { User } from '@/entities/user.entity';
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -7,6 +8,8 @@ export class UsersService {
   constructor(
     @InjectRepository(User)
     private userRepository: Repository<User>,
+    @InjectRepository(Auth)
+    private authRepository: Repository<Auth>,
   ) {}
 
   findOneBySocialId(socialId: string) {
@@ -43,5 +46,20 @@ export class UsersService {
     }
 
     return user.id;
+  }
+
+  async logout(userUuid: string) {
+    const userId = await this.getUserIdByUuid(userUuid);
+    await this.authRepository.update(
+      { userId },
+      {
+        refreshToken: null,
+      },
+    );
+
+    return {
+      ok: true,
+      message: '로그아웃 성공',
+    };
   }
 }
