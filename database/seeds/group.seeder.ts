@@ -25,8 +25,8 @@ export class GroupSeeder implements Seeder {
         password: null,
         isAccessible: true,
         maxMember: 4,
-        ownerId: users[0].userUuid,
-        memberId: [
+        ownerUuid: users[0].userUuid,
+        memberUuid: [
           users[0].userUuid,
           users[1].userUuid,
           users[2].userUuid,
@@ -41,7 +41,7 @@ export class GroupSeeder implements Seeder {
       const existingGroup = await groupRepository.findOne({
         where: {
           title: groupData.title,
-          ownerId: groupData.ownerId,
+          ownerUuid: groupData.ownerUuid,
         },
       });
 
