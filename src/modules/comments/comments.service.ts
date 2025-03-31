@@ -12,6 +12,7 @@ import { PostsService } from '@/modules/posts/posts.service';
 import { FindAllCommentsDto } from './dto/find-all-comments.dto';
 import { Comment } from '@/entities/comment.entity';
 import { User } from '@/entities/user.entity';
+import { UsersService } from '../users/users.service';
 
 @Injectable()
 export class CommentsService {
@@ -22,6 +23,7 @@ export class CommentsService {
     private postsService: PostsService,
     @InjectRepository(User)
     private userRepository: Repository<User>,
+    private userService: UsersService,
   ) {}
 
   /**
@@ -33,7 +35,9 @@ export class CommentsService {
     // 게시글 존재 여부 확인
     await this.postsService.findOnePost(createCommentDto.postId);
 
-    const userId = await this.getUserIdByUuid(createCommentDto.userUuid);
+    const userId = await this.userService.getUserIdByUuid(
+      createCommentDto.userUuid,
+    );
 
     const comment = this.commentRepository.create({
       ...createCommentDto,
@@ -241,25 +245,5 @@ export class CommentsService {
     });
 
     return commentCountMap;
-  }
-
-  /**
-   * userUuid로 userId 조회 (user.service로 추후 이동 예정)
-   * @param userUuid 사용자 UUID
-   * @returns 사용자 ID
-   */
-  async getUserIdByUuid(userUuid: string): Promise<number> {
-    const user = await this.userRepository.findOne({
-      where: { userUuid },
-      select: ['id'],
-    });
-
-    if (!user) {
-      throw new NotFoundException(
-        `UUID ${userUuid}에 해당하는 사용자를 찾을 수 없습니다.`,
-      );
-    }
-
-    return user.id;
   }
 }
