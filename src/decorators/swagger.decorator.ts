@@ -2260,3 +2260,124 @@ export function ApiGetUserGroup() {
     }),
   );
 }
+
+export function ApiGetGroupPosts() {
+  return applyDecorators(
+    ApiOperation({
+      summary: '그룹 게시글 조회',
+      description: '특정 그룹에 속한 모든 멤버들의 게시글을 조회합니다.',
+    }),
+    ApiParam({
+      name: 'groupId',
+      required: true,
+      description: '그룹 ID',
+      type: 'number',
+    }),
+    ApiQuery({
+      name: 'page',
+      required: false,
+      description: '페이지 번호 (default: 1)',
+      type: 'number',
+    }),
+    ApiQuery({
+      name: 'limit',
+      required: false,
+      description: '페이지당 항목 수 (default: 10)',
+      type: 'number',
+    }),
+    ApiResponse({
+      status: 200,
+      description: '그룹 게시글 조회 성공',
+      schema: {
+        type: 'object',
+        properties: {
+          data: {
+            type: 'array',
+            items: {
+              type: 'object',
+              properties: {
+                id: {
+                  type: 'number',
+                  example: 1,
+                },
+                title: {
+                  type: 'string',
+                  example: '오늘의 운동 완료! 💪',
+                },
+                content: {
+                  type: 'string',
+                  example:
+                    '오늘도 성공적으로 운동을 완료했습니다. 모두 화이팅하세요!',
+                },
+                userUuid: {
+                  type: 'string',
+                  example: '123e4567-e89b-12d3-a456-426614174000',
+                },
+                createdAt: {
+                  type: 'string',
+                  format: 'date-time',
+                  example: '2023-04-15T09:00:00.000Z',
+                },
+                updatedAt: {
+                  type: 'string',
+                  format: 'date-time',
+                  example: '2023-04-15T09:00:00.000Z',
+                },
+                likeCount: {
+                  type: 'number',
+                  example: 5,
+                },
+                commentCount: {
+                  type: 'number',
+                  example: 3,
+                },
+              },
+            },
+          },
+          meta: {
+            type: 'object',
+            properties: {
+              totalItems: {
+                type: 'number',
+                example: 15,
+              },
+              itemsPerPage: {
+                type: 'number',
+                example: 10,
+              },
+              totalPages: {
+                type: 'number',
+                example: 2,
+              },
+              currentPage: {
+                type: 'number',
+                example: 1,
+              },
+            },
+          },
+        },
+      },
+    }),
+    ApiResponse({
+      status: 404,
+      description: '그룹을 찾을 수 없음',
+      schema: {
+        type: 'object',
+        properties: {
+          message: {
+            type: 'string',
+            example: '해당 그룹을 찾을 수 없거나 그룹에 멤버가 없습니다.',
+          },
+          error: {
+            type: 'string',
+            example: 'Not Found',
+          },
+          statusCode: {
+            type: 'number',
+            example: 404,
+          },
+        },
+      },
+    }),
+  );
+}

@@ -7,11 +7,12 @@ import {
 import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { FindAllPostsDto } from './dto/find-all-posts.dto';
 import { Post } from '@/entities/post.entity';
 import { LikesService } from '@/modules/likes/likes.service';
 import { CommentsService } from '../comments/comments.service';
+import { GroupService } from '../group/group.service';
 
 @Injectable()
 export class PostsService {
@@ -21,6 +22,8 @@ export class PostsService {
     private likesService: LikesService,
     @Inject(forwardRef(() => CommentsService))
     private commentsService: CommentsService,
+    @Inject(forwardRef(() => GroupService))
+    private groupService: GroupService,
   ) {}
 
   /**
@@ -142,14 +145,77 @@ export class PostsService {
     };
   }
 
+  /**
+   * 그룹 게시글 조회
+   * @param groupId 그룹 ID
+   * @param options 조회 옵션 (페이지, 한 페이지당 항목 수)
+   * @returns 그룹원들의 게시글 목록
+   */
+  async findGroupPosts(
+    groupId: number,
+    options: { page: number; limit: number },
+  ) {
+    const group = await this.groupService.findOneGroup(groupId);
+
+    if (!group) {
+      throw new NotFoundException('해당 ID의 그룹을 찾을 수 없습니다.');
+    }
+
+    const memberUuids = group.memberUuid;
+
+    if (!memberUuids.length) {
+      throw new NotFoundException('그룹에 멤버가 없습니다.');
+    }
+
+    const { page, limit } = options;
+
+    const [posts, total] = await this.postRepository.findAndCount({
+      where: { userUuid: In(memberUuids) },
+      skip: (page - 1) * limit,
+      take: limit,
+      order: { createdAt: 'DESC' },
+    });
+
+    if (!posts.length) {
+      return {
+        data: [],
+        meta: {
+          totalItems: 0,
+          itemsPerPage: limit,
+          totalPages: 0,
+          currentPage: page,
+        },
+      };
+    }
+
+    const postIds = posts.map((post) => post.id);
+
+    const likeCounts = await this.likesService.getLikeCountsByPostIds(postIds);
+
+    const commentCounts =
+      await this.commentsService.getCommentCountsByPostIds(postIds);
+
+    const postsWithLikeAndCommentCounts = posts.map((post) => {
+      return {
+        ...post,
+        likeCount: likeCounts.get(post.id) || 0,
+        commentCount: commentCounts.get(post.id) || 0,
+      };
+    });
+
+    return {
+      data: postsWithLikeAndCommentCounts,
+      meta: {
+        totalItems: total,
+        itemsPerPage: limit,
+        totalPages: Math.ceil(total / limit),
+        currentPage: page,
+      },
+    };
+  }
+
   /* TODO
    * findPopularPosts - 인기 게시글 조회
    * @returns 좋아요, 댓글 순 인기 게시글 목록
-   */
-
-  /* TODO
-   * findGroupPosts - 그룹 게시글 조회
-   * @param groupId 그룹 ID
-   * @returns 그룹원 게시글 목록
    */
 }

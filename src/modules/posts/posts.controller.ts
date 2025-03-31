@@ -18,8 +18,10 @@ import {
   ApiGetAllPosts,
   ApiGetPostById,
   ApiUpdatePost,
+  ApiGetGroupPosts,
 } from '@/decorators/swagger.decorator';
 import { FindAllPostsDto } from './dto/find-all-posts.dto';
+import { FindGroupPostsDto } from './dto/find-group-posts.dto';
 
 @ApiTags('post')
 @Controller('post')
@@ -42,6 +44,7 @@ export class PostsController {
   /**
    * 사용자 게시글 조회
    * @param findAllPostsDto 게시글 목록 조회 조건들
+   * ? userUuid dto에 포함됨
    * @returns 사용자 게시글 목록
    */
   @Get()
@@ -88,14 +91,23 @@ export class PostsController {
     return this.postsService.removePost(+postId);
   }
 
+  /**
+   * 그룹 게시글 조회
+   * @param groupId 그룹 ID
+   * @param findGroupPostsDto 조회 옵션
+   * @returns 그룹원들의 게시글 목록
+   */
+  @Get('group/:groupId')
+  @ApiGetGroupPosts()
+  findGroupPosts(
+    @Param('groupId') groupId: string,
+    @Query() findGroupPostsDto: FindGroupPostsDto,
+  ) {
+    return this.postsService.findGroupPosts(+groupId, findGroupPostsDto);
+  }
+
   /* TODO
    * findPopularPosts - 인기 게시글 조회
    * @returns 좋아요, 댓글 순 인기 게시글 목록
-   */
-
-  /* TODO
-   * findGroupPosts - 그룹 게시글 조회
-   * @param groupId 그룹 ID
-   * @returns 그룹원 게시글 목록
    */
 }
