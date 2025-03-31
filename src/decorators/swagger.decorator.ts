@@ -1437,3 +1437,826 @@ export function ApiDeleteLike() {
     }),
   );
 }
+
+export function ApiCreateGroup() {
+  return applyDecorators(
+    ApiOperation({
+      summary: '그룹 생성',
+      description: '새로운 그룹을 생성합니다.',
+    }),
+    ApiQuery({
+      name: 'ownerUuid',
+      description: '방장 UUID',
+      required: true,
+      type: 'string',
+      example: '123e4567-e89b-12d3-a456-426614174000',
+    }),
+    ApiBody({
+      schema: {
+        type: 'object',
+        properties: {
+          title: {
+            type: 'string',
+            description: '그룹 제목',
+            example: '같이 운동해요',
+          },
+          password: {
+            type: 'string',
+            description: '그룹 비밀번호 (선택사항)',
+            example: '1234',
+          },
+          isAccessible: {
+            type: 'boolean',
+            description: '그룹 공개 여부',
+            example: false,
+          },
+          maxMember: {
+            type: 'number',
+            description: '최대 멤버 수',
+            example: 4,
+          },
+        },
+        required: ['title'],
+      },
+    }),
+    ApiResponse({
+      status: 201,
+      description: '그룹이 성공적으로 생성됨',
+      schema: {
+        type: 'object',
+        properties: {
+          id: {
+            type: 'number',
+            example: 1,
+          },
+          ownerUuid: {
+            type: 'string',
+            example: '123e4567-e89b-12d3-a456-426614174000',
+          },
+          memberUuid: {
+            type: 'array',
+            items: {
+              type: 'string',
+            },
+            example: ['123e4567-e89b-12d3-a456-426614174000'],
+          },
+          title: {
+            type: 'string',
+            example: '같이 운동해요',
+          },
+          password: {
+            type: 'string',
+            example: '1234',
+          },
+          isAccessible: {
+            type: 'boolean',
+            example: false,
+          },
+          maxMember: {
+            type: 'number',
+            example: 4,
+          },
+          createdAt: {
+            type: 'string',
+            format: 'date-time',
+            example: '2025-03-31T10:00:00.000Z',
+          },
+          updatedAt: {
+            type: 'string',
+            format: 'date-time',
+            example: '2025-03-31T10:00:00.000Z',
+          },
+        },
+      },
+    }),
+    ApiResponse({
+      status: 400,
+      description: 'Validation 오류',
+      schema: {
+        type: 'object',
+        properties: {
+          message: {
+            type: 'array',
+            example: ['title must be a string', 'title should not be empty'],
+          },
+          error: {
+            type: 'string',
+            example: 'Bad Request',
+          },
+          statusCode: {
+            type: 'number',
+            example: 400,
+          },
+        },
+      },
+    }),
+  );
+}
+
+export function ApiUpdateGroup() {
+  return applyDecorators(
+    ApiOperation({
+      summary: '그룹 수정',
+      description: '그룹 방장이 특정 ID의 그룹을 수정합니다.',
+    }),
+    ApiParam({
+      name: 'groupId',
+      description: '수정할 그룹 ID',
+      required: true,
+      type: 'string',
+      example: '1',
+    }),
+    ApiParam({
+      name: 'ownerUuid',
+      description: '방장 UUID',
+      required: true,
+      type: 'string',
+      example: '123e4567-e89b-12d3-a456-426614174000',
+    }),
+    ApiBody({
+      schema: {
+        type: 'object',
+        properties: {
+          title: {
+            type: 'string',
+            description: '그룹 제목',
+            example: '수정된 그룹 제목',
+          },
+          password: {
+            type: 'string',
+            description: '그룹 비밀번호 (선택사항)',
+            example: '7890',
+          },
+          isAccessible: {
+            type: 'boolean',
+            description: '그룹 공개 여부',
+            example: false,
+          },
+          maxMember: {
+            type: 'number',
+            description: '최대 멤버 수',
+            example: 6,
+          },
+        },
+      },
+    }),
+    ApiResponse({
+      status: 200,
+      description: '그룹이 성공적으로 수정됨',
+      schema: {
+        type: 'object',
+        properties: {
+          id: {
+            type: 'number',
+            example: 1,
+          },
+          ownerUuid: {
+            type: 'string',
+            example: '123e4567-e89b-12d3-a456-426614174000',
+          },
+          memberUuid: {
+            type: 'array',
+            items: {
+              type: 'string',
+            },
+            example: [
+              '123e4567-e89b-12d3-a456-426614174000',
+              '123e4567-e89b-12d3-a456-426614174001',
+            ],
+          },
+          title: {
+            type: 'string',
+            example: '수정된 그룹 제목',
+          },
+          password: {
+            type: 'string',
+            example: '7890',
+          },
+          isAccessible: {
+            type: 'boolean',
+            example: false,
+          },
+          maxMember: {
+            type: 'number',
+            example: 6,
+          },
+          createdAt: {
+            type: 'string',
+            format: 'date-time',
+            example: '2025-03-31T10:00:00.000Z',
+          },
+          updatedAt: {
+            type: 'string',
+            format: 'date-time',
+            example: '2025-03-31T10:30:00.000Z',
+          },
+        },
+      },
+    }),
+    ApiResponse({
+      status: 404,
+      description: '그룹을 찾을 수 없음',
+      schema: {
+        type: 'object',
+        properties: {
+          message: {
+            type: 'string',
+            example: '해당 ID의 그룹을 찾을 수 없습니다.',
+          },
+          error: {
+            type: 'string',
+            example: 'Not Found',
+          },
+          statusCode: {
+            type: 'number',
+            example: 404,
+          },
+        },
+      },
+    }),
+    ApiResponse({
+      status: 403,
+      description: '권한 없음',
+      schema: {
+        type: 'object',
+        properties: {
+          message: {
+            type: 'string',
+            example: '이 그룹을 수정할 권한이 없습니다.',
+          },
+          error: {
+            type: 'string',
+            example: 'Unauthorized',
+          },
+          statusCode: {
+            type: 'number',
+            example: 403,
+          },
+        },
+      },
+    }),
+  );
+}
+
+export function ApiDeleteGroup() {
+  return applyDecorators(
+    ApiOperation({
+      summary: '그룹 삭제',
+      description: '그룹 방장이 특정 ID의 그룹을 삭제합니다.',
+    }),
+    ApiParam({
+      name: 'groupId',
+      description: '삭제할 그룹 ID',
+      required: true,
+      type: 'string',
+    }),
+    ApiResponse({
+      status: 200,
+      description: '그룹이 성공적으로 삭제됨',
+      schema: {
+        type: 'object',
+        properties: {
+          message: {
+            type: 'string',
+            example: '그룹이 성공적으로 삭제되었습니다.',
+          },
+        },
+      },
+    }),
+    ApiResponse({
+      status: 404,
+      description: '그룹을 찾을 수 없음',
+      schema: {
+        type: 'object',
+        properties: {
+          message: {
+            type: 'string',
+            example: '해당 ID의 그룹을 찾을 수 없습니다.',
+          },
+          error: {
+            type: 'string',
+            example: 'Not Found',
+          },
+          statusCode: {
+            type: 'number',
+            example: 404,
+          },
+        },
+      },
+    }),
+    ApiResponse({
+      status: 403,
+      description: '권한 없음',
+      schema: {
+        type: 'object',
+        properties: {
+          message: {
+            type: 'string',
+            example: '이 그룹을 삭제할 권한이 없습니다.',
+          },
+          error: {
+            type: 'string',
+            example: 'Unauthorized',
+          },
+          statusCode: {
+            type: 'number',
+            example: 403,
+          },
+        },
+      },
+    }),
+  );
+}
+
+export function ApiGetAllGroups() {
+  return applyDecorators(
+    ApiOperation({
+      summary: '모든 공개 그룹 조회',
+      description: '모든 공개 그룹을 조회합니다.',
+    }),
+    ApiQuery({
+      name: 'page',
+      required: false,
+      description: '페이지 번호 (default: 1)',
+      type: 'number',
+      example: 1,
+    }),
+    ApiQuery({
+      name: 'limit',
+      required: false,
+      description: '페이지당 그룹 수 (default: 10)',
+      type: 'number',
+      example: 10,
+    }),
+    ApiResponse({
+      status: 200,
+      description: '공개 그룹 목록 조회 성공',
+      schema: {
+        type: 'object',
+        properties: {
+          data: {
+            type: 'array',
+            items: {
+              type: 'object',
+              properties: {
+                id: {
+                  type: 'number',
+                  example: 1,
+                },
+                ownerUuid: {
+                  type: 'string',
+                  example: '123e4567-e89b-12d3-a456-426614174000',
+                },
+                memberUuid: {
+                  type: 'array',
+                  items: {
+                    type: 'string',
+                  },
+                  example: [
+                    '123e4567-e89b-12d3-a456-426614174000',
+                    '123e4567-e89b-12d3-a456-426614174001',
+                  ],
+                },
+                title: {
+                  type: 'string',
+                  example: '같이 운동해요',
+                },
+                isAccessible: {
+                  type: 'boolean',
+                  example: true,
+                },
+                maxMember: {
+                  type: 'number',
+                  example: 4,
+                },
+                createdAt: {
+                  type: 'string',
+                  format: 'date-time',
+                  example: '2025-03-31T10:00:00.000Z',
+                },
+                updatedAt: {
+                  type: 'string',
+                  format: 'date-time',
+                  example: '2025-03-31T10:00:00.000Z',
+                },
+              },
+            },
+          },
+          meta: {
+            type: 'object',
+            properties: {
+              totalItems: {
+                type: 'number',
+                example: 25,
+              },
+              itemsPerPage: {
+                type: 'number',
+                example: 10,
+              },
+              totalPages: {
+                type: 'number',
+                example: 3,
+              },
+              currentPage: {
+                type: 'number',
+                example: 1,
+              },
+            },
+          },
+        },
+      },
+    }),
+  );
+}
+
+export function ApiGetGroup() {
+  return applyDecorators(
+    ApiOperation({
+      summary: '그룹 상세 조회',
+      description: '특정 ID의 그룹을 상세하게 조회합니다.',
+    }),
+    ApiParam({
+      name: 'groupId',
+      description: '조회할 그룹 ID',
+      required: true,
+      type: 'string',
+    }),
+    ApiResponse({
+      status: 200,
+      description: '그룹 상세 조회 성공',
+      schema: {
+        type: 'object',
+        properties: {
+          id: {
+            type: 'number',
+            example: 1,
+          },
+          ownerUuid: {
+            type: 'string',
+            example: '123e4567-e89b-12d3-a456-426614174000',
+          },
+          memberUuid: {
+            type: 'array',
+            items: {
+              type: 'string',
+            },
+            example: [
+              '123e4567-e89b-12d3-a456-426614174000',
+              '123e4567-e89b-12d3-a456-426614174001',
+            ],
+          },
+          title: {
+            type: 'string',
+            example: '같이 운동해요',
+          },
+          isAccessible: {
+            type: 'boolean',
+            example: true,
+          },
+          maxMember: {
+            type: 'number',
+            example: 4,
+          },
+          createdAt: {
+            type: 'string',
+            format: 'date-time',
+            example: '2025-03-31T10:00:00.000Z',
+          },
+          updatedAt: {
+            type: 'string',
+            format: 'date-time',
+            example: '2025-03-31T10:00:00.000Z',
+          },
+        },
+      },
+    }),
+    ApiResponse({
+      status: 404,
+      description: '그룹을 찾을 수 없음',
+      schema: {
+        type: 'object',
+        properties: {
+          message: {
+            type: 'string',
+            example: '해당 ID의 그룹을 찾을 수 없습니다.',
+          },
+          error: {
+            type: 'string',
+            example: 'Not Found',
+          },
+          statusCode: {
+            type: 'number',
+            example: 404,
+          },
+        },
+      },
+    }),
+  );
+}
+
+export function ApiJoinGroup() {
+  return applyDecorators(
+    ApiOperation({
+      summary: '그룹 참여',
+      description:
+        '특정 그룹에 참여합니다. 비공개 그룹인 경우 비밀번호가 필요합니다.',
+    }),
+    ApiParam({
+      name: 'groupId',
+      description: '참여할 그룹 ID',
+      required: true,
+      type: 'string',
+      example: '1',
+    }),
+    ApiQuery({
+      name: 'userUuid',
+      description: '사용자 UUID',
+      required: true,
+      type: 'string',
+      example: '123e4567-e89b-12d3-a456-426614174000',
+    }),
+    ApiBody({
+      schema: {
+        type: 'object',
+        properties: {
+          password: {
+            type: 'string',
+            description: '그룹 비밀번호 (비공개 그룹인 경우 필요)',
+            example: '1234',
+          },
+        },
+        required: [],
+      },
+    }),
+    ApiResponse({
+      status: 200,
+      description: '그룹 참여 성공',
+      schema: {
+        type: 'object',
+        properties: {
+          id: {
+            type: 'number',
+            example: 1,
+          },
+          ownerUuid: {
+            type: 'string',
+            example: '123e4567-e89b-12d3-a456-426614174000',
+          },
+          memberUuid: {
+            type: 'array',
+            items: {
+              type: 'string',
+            },
+            example: [
+              '123e4567-e89b-12d3-a456-426614174000',
+              '123e4567-e89b-12d3-a456-426614174001',
+            ],
+          },
+          title: {
+            type: 'string',
+            example: '같이 운동해요',
+          },
+          isAccessible: {
+            type: 'boolean',
+            example: true,
+          },
+          maxMember: {
+            type: 'number',
+            example: 4,
+          },
+          createdAt: {
+            type: 'string',
+            format: 'date-time',
+            example: '2025-03-31T10:00:00.000Z',
+          },
+          updatedAt: {
+            type: 'string',
+            format: 'date-time',
+            example: '2025-03-31T11:00:00.000Z',
+          },
+        },
+      },
+    }),
+    ApiResponse({
+      status: 400,
+      description: '잘못된 요청',
+      schema: {
+        type: 'object',
+        properties: {
+          message: {
+            type: 'string',
+            example: '이미 그룹에 가입되어 있습니다.',
+          },
+          error: {
+            type: 'string',
+            example: 'Bad Request',
+          },
+          statusCode: {
+            type: 'number',
+            example: 400,
+          },
+        },
+      },
+    }),
+    ApiResponse({
+      status: 401,
+      description: '인증 오류',
+      schema: {
+        type: 'object',
+        properties: {
+          message: {
+            type: 'string',
+            example: '비밀번호가 일치하지 않습니다.',
+          },
+          error: {
+            type: 'string',
+            example: 'Unauthorized',
+          },
+          statusCode: {
+            type: 'number',
+            example: 401,
+          },
+        },
+      },
+    }),
+    ApiResponse({
+      status: 404,
+      description: '그룹을 찾을 수 없음',
+      schema: {
+        type: 'object',
+        properties: {
+          message: {
+            type: 'string',
+            example: '해당 ID의 그룹을 찾을 수 없습니다.',
+          },
+          error: {
+            type: 'string',
+            example: 'Not Found',
+          },
+          statusCode: {
+            type: 'number',
+            example: 404,
+          },
+        },
+      },
+    }),
+  );
+}
+
+export function ApiLeaveGroup() {
+  return applyDecorators(
+    ApiOperation({
+      summary: '그룹 탈퇴',
+      description: '그룹에서 탈퇴합니다. 방장은 그룹을 탈퇴할 수 없습니다.',
+    }),
+    ApiQuery({
+      name: 'userUuid',
+      description: '사용자 UUID',
+      required: true,
+      type: 'string',
+      example: '123e4567-e89b-12d3-a456-426614174000',
+    }),
+    ApiResponse({
+      status: 200,
+      description: '그룹 탈퇴 성공',
+      schema: {
+        type: 'object',
+        properties: {
+          message: {
+            type: 'string',
+            example: '그룹에서 성공적으로 탈퇴했습니다.',
+          },
+        },
+      },
+    }),
+    ApiResponse({
+      status: 400,
+      description: '잘못된 요청',
+      schema: {
+        type: 'object',
+        properties: {
+          message: {
+            type: 'string',
+            example: '방장은 그룹을 탈퇴할 수 없습니다. 그룹을 삭제하세요.',
+          },
+          error: {
+            type: 'string',
+            example: 'Bad Request',
+          },
+          statusCode: {
+            type: 'number',
+            example: 400,
+          },
+        },
+      },
+    }),
+    ApiResponse({
+      status: 404,
+      description: '그룹을 찾을 수 없음',
+      schema: {
+        type: 'object',
+        properties: {
+          message: {
+            type: 'string',
+            example: '해당 ID의 그룹을 찾을 수 없습니다.',
+          },
+          error: {
+            type: 'string',
+            example: 'Not Found',
+          },
+          statusCode: {
+            type: 'number',
+            example: 404,
+          },
+        },
+      },
+    }),
+  );
+}
+
+export function ApiGetUserGroup() {
+  return applyDecorators(
+    ApiOperation({
+      summary: '사용자가 속한 그룹 조회',
+      description:
+        '사용자가 현재 속한 그룹을 조회합니다. 한 사용자는 최대 하나의 그룹에만 속할 수 있습니다.',
+    }),
+    ApiQuery({
+      name: 'userUuid',
+      description: '사용자 UUID',
+      required: true,
+      type: 'string',
+      example: '123e4567-e89b-12d3-a456-426614174000',
+    }),
+    ApiResponse({
+      status: 200,
+      description: '사용자가 속한 그룹 정보',
+      schema: {
+        type: 'object',
+        properties: {
+          id: {
+            type: 'number',
+            example: 1,
+          },
+          ownerUuid: {
+            type: 'string',
+            example: '123e4567-e89b-12d3-a456-426614174000',
+          },
+          memberUuid: {
+            type: 'array',
+            items: {
+              type: 'string',
+            },
+            example: [
+              '123e4567-e89b-12d3-a456-426614174000',
+              '123e4567-e89b-12d3-a456-426614174001',
+            ],
+          },
+          title: {
+            type: 'string',
+            example: '같이 운동해요',
+          },
+          isAccessible: {
+            type: 'boolean',
+            example: true,
+          },
+          maxMember: {
+            type: 'number',
+            example: 4,
+          },
+          createdAt: {
+            type: 'string',
+            format: 'date-time',
+            example: '2025-03-31T10:00:00.000Z',
+          },
+          updatedAt: {
+            type: 'string',
+            format: 'date-time',
+            example: '2025-03-31T11:00:00.000Z',
+          },
+        },
+      },
+    }),
+    ApiResponse({
+      status: 400,
+      description: '잘못된 요청',
+      schema: {
+        type: 'object',
+        properties: {
+          message: {
+            type: 'string',
+            example: '사용자 UUID가 필요합니다.',
+          },
+          error: {
+            type: 'string',
+            example: 'Bad Request',
+          },
+          statusCode: {
+            type: 'number',
+            example: 400,
+          },
+        },
+      },
+    }),
+  );
+}

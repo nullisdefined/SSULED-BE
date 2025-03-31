@@ -5,11 +5,11 @@ export class Group {
   @PrimaryGeneratedColumn({ name: 'id' })
   id: number;
 
-  @Column({ name: 'owner_id', type: 'uuid' })
-  ownerId: string;
+  @Column({ name: 'owner_uuid', type: 'uuid' })
+  ownerUuid: string;
 
-  @Column({ name: 'member_id', type: 'uuid', array: true, default: '{}' })
-  memberId: string[];
+  @Column({ name: 'member_uuid', type: 'uuid', array: true, default: '{}' })
+  memberUuid: string[];
 
   @Column({ name: 'title', type: 'varchar' })
   title: string;
