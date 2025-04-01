@@ -15,7 +15,7 @@ export class UsersController {
     return this.usersService.logout(userUuid);
   }
 
-  @Post('/nickname')
+  @Post('nickname')
   @UseGuards(JwtAuthGuard)
   async updateNickname(
     @Body('newNickname') newNickname: string,
