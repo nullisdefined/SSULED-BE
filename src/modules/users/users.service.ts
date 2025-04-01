@@ -1,6 +1,10 @@
 import { Auth } from '@/entities/auth.entity';
 import { User } from '@/entities/user.entity';
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 @Injectable()
@@ -61,5 +65,25 @@ export class UsersService {
       ok: true,
       message: '로그아웃 성공',
     };
+  }
+
+  async updateNickname(userUuid: string, newNickname: string) {
+    const user = await this.userRepository.findOneBy({ userUuid });
+    if (!user) {
+      throw new NotFoundException('사용자를 찾을 수 없습니다.');
+    }
+
+    // 닉네임 중복 체크
+    const isDuplicate = await this.userRepository.findOneBy({
+      nickname: newNickname,
+    });
+    if (isDuplicate && isDuplicate.userUuid !== userUuid) {
+      throw new BadRequestException('이미 사용 중인 닉네임입니다.');
+    }
+
+    user.nickname = newNickname;
+    await this.userRepository.save(user);
+
+    return { ok: true, nickname: newNickname, message: '닉네임 변경 성공' };
   }
 }
