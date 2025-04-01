@@ -30,6 +30,9 @@ export class User {
   @Column({ name: 'social_id', type: 'varchar', nullable: true })
   socialId: string;
 
+  @Column({ name: 'introduction', type: 'varchar', nullable: true })
+  introduction: string;
+
   @CreateDateColumn({ name: 'created_at', type: 'timestamptz' })
   createdAt: Date;
 

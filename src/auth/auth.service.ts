@@ -106,6 +106,7 @@ export class AuthService {
         nickname: `익명_${nanoid(4)}`,
         profileImage: kakaoUser.properties?.profile_image || '',
         socialProvider: SocialProvider.KAKAO,
+        introduction: null,
       };
       return await this.handleSocialLogin(user, res);
     } catch (error) {
@@ -153,6 +154,7 @@ export class AuthService {
         nickname: `익명_${nanoid(4)}`,
         profileImage: profile.profile_image || '',
         socialProvider: SocialProvider.NAVER,
+        introduction: null,
       };
 
       return this.handleSocialLogin(user, res);
