@@ -2568,3 +2568,58 @@ export function ApiLogout() {
     }),
   );
 }
+
+export function ApiUpdateNickname() {
+  return applyDecorators(
+    ApiOperation({
+      summary: '닉네임 변경',
+      description: '현재 로그인한 사용자의 닉네임을 변경합니다.',
+    }),
+    ApiBearerAuth(),
+    ApiBody({
+      schema: {
+        type: 'object',
+        properties: {
+          newNickname: {
+            type: 'string',
+            example: '새로운닉네임',
+          },
+        },
+        required: ['newNickname'],
+      },
+    }),
+    ApiResponse({
+      status: 200,
+      description: '닉네임 변경 성공',
+      schema: {
+        example: {
+          ok: true,
+          nickname: '새로운닉네임',
+          message: '닉네임 변경 성공',
+        },
+      },
+    }),
+    ApiResponse({
+      status: 404,
+      description: '사용자를 찾을 수 없음',
+      schema: {
+        example: {
+          statusCode: 404,
+          message: '사용자를 찾을 수 없습니다.',
+          error: 'Not Found',
+        },
+      },
+    }),
+    ApiResponse({
+      status: 400,
+      description: '닉네임 유효성 실패 등 잘못된 요청',
+      schema: {
+        example: {
+          statusCode: 400,
+          message: '닉네임은 최소 2자 이상이어야 합니다.',
+          error: 'Bad Request',
+        },
+      },
+    }),
+  );
+}
