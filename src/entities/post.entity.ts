@@ -30,6 +30,9 @@ export class Post {
   @Column({ name: 'duration', type: 'integer' })
   duration: number;
 
+  @Column({ name: 'is_public', type: 'boolean', default: true })
+  isPublic: boolean;
+
   @CreateDateColumn({ name: 'created_at', type: 'timestamptz' })
   createdAt: Date;
 
