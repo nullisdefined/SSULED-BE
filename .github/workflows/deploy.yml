@@ -83,9 +83,10 @@ jobs:
             
             # PM2 서비스 재시작/시작
             if pm2 list | grep -q 'ssuled-api'; then
-              pm2 restart ssuled-api
+              pm2 restart ssuled-api --update-env
             else
-              pm2 start dist/src/main.js --name ssuled-api
+              cd /home/${{ secrets.EC2_USERNAME }}/ssuled-be
+              NODE_ENV=production pm2 start dist/src/main.js --name ssuled-api
             fi
             
             # PM2 설정 저장
