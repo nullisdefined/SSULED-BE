@@ -9,7 +9,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { JwtService } from '@nestjs/jwt';
 import { customAlphabet } from 'nanoid';
 import axios from 'axios';
-import * as bcrypt from 'bcrypt';
+import * as bcrypt from 'bcryptjs';
 import { SocialProvider } from '@/types/social-provider.enum';
 
 @Injectable()
