@@ -84,7 +84,7 @@ jobs:
             if pm2 list | grep -q 'ssuled-api'; then
               pm2 restart ssuled-api
             else
-              pm2 start dist/main.js --name ssuled-api
+              pm2 start dist/src/main.js --name ssuled-api
             fi
             
             # PM2 설정 저장
