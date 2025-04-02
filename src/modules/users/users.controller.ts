@@ -23,4 +23,13 @@ export class UsersController {
   ) {
     return this.usersService.updateNickname(UserUuid, newNickname);
   }
+
+  @Post('introduction')
+  @UseGuards(JwtAuthGuard)
+  async updateIntroduction(
+    @Body('newIntroduction') newIntroduction: string,
+    @UserUuid() UserUuid: string,
+  ) {
+    return this.usersService.updateIntroduction(UserUuid, newIntroduction);
+  }
 }

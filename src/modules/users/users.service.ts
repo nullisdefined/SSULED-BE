@@ -86,4 +86,16 @@ export class UsersService {
 
     return { ok: true, nickname: newNickname, message: '닉네임 변경 성공' };
   }
+
+  async updateIntroduction(userUuid: string, newIntroduction: string) {
+    const user = await this.userRepository.findOneBy({ userUuid });
+    if (!user) {
+      throw new NotFoundException('사용자를 찾을 수 없습니다.');
+    }
+
+    user.introduction = newIntroduction;
+    await this.userRepository.save(user);
+
+    return { ok: true, message: '소개글 변경 성공!' };
+  }
 }
