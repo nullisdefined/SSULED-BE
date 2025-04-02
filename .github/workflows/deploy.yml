@@ -60,13 +60,6 @@ jobs:
             # 배포 디렉토리 생성
             mkdir -p /home/${{ secrets.EC2_USERNAME }}/ssuled-be
             
-            # 이전 배포 백업
-            if [ -d '/home/${{ secrets.EC2_USERNAME }}/ssuled-be/dist' ]; then
-              timestamp=\$(date +%Y%m%d%H%M%S)
-              mkdir -p /home/${{ secrets.EC2_USERNAME }}/ssuled-be-backups
-              cp -r /home/${{ secrets.EC2_USERNAME }}/ssuled-be /home/${{ secrets.EC2_USERNAME }}/ssuled-be-backups/ssuled-be-\$timestamp
-            fi
-            
             # 압축 해제
             tar -xzf deploy.tar.gz
             
