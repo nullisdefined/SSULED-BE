@@ -1,4 +1,4 @@
-import { IsInt, IsOptional, IsString, Min } from 'class-validator';
+import { IsInt, IsOptional, Min } from 'class-validator';
 import { Type } from 'class-transformer';
 
 export class FindPopularPostsDto {
@@ -13,8 +13,4 @@ export class FindPopularPostsDto {
   @IsOptional()
   @Type(() => Number)
   limit?: number = 10;
-
-  @IsString()
-  @IsOptional()
-  userUuid?: string;
 }

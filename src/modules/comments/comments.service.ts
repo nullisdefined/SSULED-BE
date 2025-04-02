@@ -3,6 +3,7 @@ import {
   NotFoundException,
   Inject,
   forwardRef,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, DeepPartial, In } from 'typeorm';
@@ -29,15 +30,14 @@ export class CommentsService {
   /**
    * 댓글 생성
    * @param createCommentDto 댓글 생성 정보
+   * @param userUuid 인증된 사용자 UUID
    * @returns 생성된 댓글 정보
    */
-  async createComment(createCommentDto: CreateCommentDto) {
+  async createComment(createCommentDto: CreateCommentDto, userUuid: string) {
     // 게시글 존재 여부 확인
     await this.postsService.findOnePost(createCommentDto.postId);
 
-    const userId = await this.userService.getUserIdByUuid(
-      createCommentDto.userUuid,
-    );
+    const userId = await this.userService.getUserIdByUuid(userUuid);
 
     const comment = this.commentRepository.create({
       ...createCommentDto,
@@ -46,8 +46,22 @@ export class CommentsService {
 
     await this.commentRepository.save(comment);
 
-    const { id, content, userUuid, postId, createdAt, updatedAt } = comment;
-    return { id, content, userUuid, postId, createdAt, updatedAt };
+    const {
+      id,
+      content,
+      userUuid: commentUserUuid,
+      postId,
+      createdAt,
+      updatedAt,
+    } = comment;
+    return {
+      id,
+      content,
+      userUuid: commentUserUuid,
+      postId,
+      createdAt,
+      updatedAt,
+    };
   }
 
   /**
@@ -171,10 +185,16 @@ export class CommentsService {
    * @param updateCommentDto 댓글 수정 정보
    * @returns 수정된 댓글 정보
    */
-  async updateComment(id: number, updateCommentDto: UpdateCommentDto) {
-    await this.findOneComment(id);
+  async updateComment(
+    id: number,
+    updateCommentDto: UpdateCommentDto,
+    userUuid: string,
+  ) {
+    const comment = await this.findOneComment(id);
 
-    // TODO: 댓글 작성자 체크 로직 추가
+    if (comment.userUuid !== userUuid) {
+      throw new UnauthorizedException('댓글을 수정할 권한이 없습니다.');
+    }
 
     await this.commentRepository.update(id, {
       ...updateCommentDto,
@@ -189,10 +209,12 @@ export class CommentsService {
    * @param id 댓글 ID
    * @returns 삭제 성공 메시지
    */
-  async removeComment(id: number) {
-    await this.findOneComment(id);
+  async removeComment(id: number, userUuid: string) {
+    const comment = await this.findOneComment(id);
 
-    // TODO: 댓글 작성자 체크 로직 추가
+    if (comment.userUuid !== userUuid) {
+      throw new UnauthorizedException('댓글을 삭제할 권한이 없습니다.');
+    }
 
     await this.commentRepository.delete(id);
 

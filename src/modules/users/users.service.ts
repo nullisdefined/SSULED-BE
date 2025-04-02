@@ -86,4 +86,9 @@ export class UsersService {
 
     return { ok: true, nickname: newNickname, message: '닉네임 변경 성공' };
   }
+
+  async checkUserExists(userUuid: string): Promise<boolean> {
+    const user = await this.userRepository.findOne({ where: { userUuid } });
+    return !!user;
+  }
 }

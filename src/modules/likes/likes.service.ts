@@ -25,12 +25,12 @@ export class LikesService {
    * @param createLikeDto 좋아요 생성 정보
    * @returns 생성된 좋아요 정보와 좋아요 수
    */
-  async createLike(createLikeDto: CreateLikeDto) {
+  async createLike(createLikeDto: CreateLikeDto, userUuid: string) {
     // 이미 좋아요한 게시글인지 확인
     const existingLike = await this.likeRepository.findOne({
       where: {
         postId: createLikeDto.postId,
-        userUuid: createLikeDto.userUuid,
+        userUuid,
       },
     });
 
@@ -39,9 +39,7 @@ export class LikesService {
     }
 
     // 사용자 정보 조회
-    const userId = await this.userService.getUserIdByUuid(
-      createLikeDto.userUuid,
-    );
+    const userId = await this.userService.getUserIdByUuid(userUuid);
 
     // 좋아요 생성
     const like = this.likeRepository.create({

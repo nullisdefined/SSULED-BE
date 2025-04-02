@@ -1,5 +1,13 @@
-import { Body, Controller, Delete, Get, Param, Post } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Post,
+  UseGuards,
+} from '@nestjs/common';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { LikesService } from './likes.service';
 import { CreateLikeDto } from './dto/create-like.dto';
 import {
@@ -7,9 +15,13 @@ import {
   ApiDeleteLike,
   ApiCheckLikeStatus,
 } from '@/decorators/swagger.decorator';
+import { JwtAuthGuard } from '@/auth/guards/jwt-auth.guard';
+import { UserUuid } from '@/decorators/user-uuid.decorator';
 
 @ApiTags('like')
+@ApiBearerAuth('JWT-auth')
 @Controller('like')
+@UseGuards(JwtAuthGuard)
 export class LikesController {
   constructor(private readonly likesService: LikesService) {}
 
@@ -20,9 +32,11 @@ export class LikesController {
    */
   @Post()
   @ApiCreateLike()
-  createLike(@Body() createLikeDto: CreateLikeDto) {
-    // TODO: JWT에서 userUuid 추출
-    return this.likesService.createLike(createLikeDto);
+  createLike(
+    @Body() createLikeDto: CreateLikeDto,
+    @UserUuid() userUuid: string,
+  ) {
+    return this.likesService.createLike(createLikeDto, userUuid);
   }
 
   /**
@@ -35,7 +49,7 @@ export class LikesController {
   @ApiCheckLikeStatus()
   checkLikeStatus(
     @Param('postId') postId: string,
-    @Param('userUuid') userUuid: string, // TODO: JWT에서 userUuid 추출
+    @UserUuid() userUuid: string,
   ) {
     return this.likesService.checkLikeStatus(userUuid, +postId);
   }
@@ -48,10 +62,7 @@ export class LikesController {
    */
   @Delete('post/:postId/user/:userUuid')
   @ApiDeleteLike()
-  removeLike(
-    @Param('postId') postId: string,
-    @Param('userUuid') userUuid: string, // TODO: JWT에서 userUuid 추출
-  ) {
+  removeLike(@Param('postId') postId: string, @UserUuid() userUuid: string) {
     return this.likesService.removeLike(+postId, userUuid);
   }
 }

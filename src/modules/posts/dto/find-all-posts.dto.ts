@@ -1,5 +1,5 @@
 import { Type } from 'class-transformer';
-import { IsNumber, IsOptional, IsString, Min } from 'class-validator';
+import { IsNumber, Min } from 'class-validator';
 
 export class FindAllPostsDto {
   @IsNumber()
@@ -11,9 +11,4 @@ export class FindAllPostsDto {
   @Type(() => Number)
   @Min(1)
   limit: number = 24;
-
-  // temporary
-  @IsOptional()
-  @IsString()
-  userUuid?: string;
 }

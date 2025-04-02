@@ -10,8 +10,9 @@ import {
   Patch,
   Post,
   Query,
+  UseGuards,
 } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import {
   ApiCreatePost,
   ApiDeletePost,
@@ -24,9 +25,13 @@ import {
 import { FindAllPostsDto } from './dto/find-all-posts.dto';
 import { FindGroupPostsDto } from './dto/find-group-posts.dto';
 import { FindPopularPostsDto } from './dto/find-popular-posts.dto';
+import { UserUuid } from '@/decorators/user-uuid.decorator';
+import { JwtAuthGuard } from '@/auth/guards/jwt-auth.guard';
 
 @ApiTags('post')
+@ApiBearerAuth('JWT-auth')
 @Controller('post')
+@UseGuards(JwtAuthGuard)
 export class PostsController {
   constructor(private readonly postsService: PostsService) {}
 
@@ -38,49 +43,65 @@ export class PostsController {
    */
   @Post()
   @ApiCreatePost()
-  createPost(@Body() createPostDto: CreatePostDto) {
-    // TODO: payload에서 userUuid 추출
-    return this.postsService.createPost(createPostDto);
+  createPost(
+    @Body() createPostDto: CreatePostDto,
+    @UserUuid() userUuid: string,
+  ) {
+    // userUuid를 createPostDto에 포함시키거나 서비스에 전달
+    return this.postsService.createPost({
+      ...createPostDto,
+      userUuid,
+    });
   }
 
   /**
    * 사용자 게시글 조회
    * @param findAllPostsDto 게시글 목록 조회 조건들
-   * ? userUuid dto에 포함됨
+   * @param userUuid 사용자 UUID
    * @returns 사용자 게시글 목록
    */
   @Get()
   @ApiGetAllPosts()
-  findAllPosts(@Query() findAllPostsDto: FindAllPostsDto) {
-    return this.postsService.findAllPosts(findAllPostsDto);
+  findAllPosts(
+    @Query() findAllPostsDto: FindAllPostsDto,
+    @UserUuid() userUuid: string,
+  ) {
+    // userUuid를 dto에 포함시키거나 직접 전달
+    return this.postsService.findAllPosts(findAllPostsDto, userUuid);
   }
 
   /**
    * 인기 게시글 조회
    * @param findPopularPostsDto 조회 옵션
+   * @param userUuid 사용자 UUID (옵션)
    * @returns 좋아요, 댓글 순 인기 게시글 목록
    */
   @Get('popular')
   @ApiGetPopularPosts()
-  findPopularPosts(@Query() findPopularPostsDto: FindPopularPostsDto) {
-    return this.postsService.findPopularPosts(findPopularPostsDto);
+  findPopularPosts(
+    @Query() findPopularPostsDto: FindPopularPostsDto,
+    @UserUuid() userUuid: string,
+  ) {
+    return this.postsService.findPopularPosts(findPopularPostsDto, userUuid);
   }
 
   /**
    * 게시글 상세 조회
    * @param postId 게시글 ID
+   * @param userUuid 사용자 UUID (옵션)
    * @returns 게시글 상세 정보
    */
   @Get(':postId')
   @ApiGetPostById()
-  findOnePost(@Param('postId') postId: string) {
-    return this.postsService.findOnePost(+postId);
+  findOnePost(@Param('postId') postId: string, @UserUuid() userUuid: string) {
+    return this.postsService.findOnePost(+postId, userUuid);
   }
 
   /**
    * 게시글 수정
    * @param postId 게시글 ID
    * @param updatePostDto 게시글 수정 정보
+   * @param userUuid 사용자 UUID
    * @returns 수정된 게시글 정보
    */
   @Patch(':postId')
@@ -88,8 +109,12 @@ export class PostsController {
   updatePost(
     @Param('postId') postId: string,
     @Body() updatePostDto: UpdatePostDto,
+    @UserUuid() userUuid: string,
   ) {
-    return this.postsService.updatePost(+postId, updatePostDto);
+    return this.postsService.updatePost(+postId, {
+      ...updatePostDto,
+      userUuid,
+    });
   }
 
   /**
@@ -100,15 +125,15 @@ export class PostsController {
    */
   @Delete(':postId')
   @ApiDeletePost()
-  removePost(@Param('postId') postId: string) {
-    return this.postsService.removePost(+postId);
+  removePost(@Param('postId') postId: string, @UserUuid() userUuid: string) {
+    return this.postsService.removePost(+postId, userUuid);
   }
 
   /**
    * 그룹 게시글 조회
    * @param groupId 그룹 ID
    * @param findGroupPostsDto 조회 옵션
-   * @query userUuid 사용자 UUID (임시)
+   * @param userUuid 사용자 UUID
    * @returns 그룹원들의 게시글 목록
    */
   @Get('group/:groupId')
@@ -116,7 +141,12 @@ export class PostsController {
   findGroupPosts(
     @Param('groupId') groupId: string,
     @Query() findGroupPostsDto: FindGroupPostsDto,
+    @UserUuid() userUuid: string,
   ) {
-    return this.postsService.findGroupPosts(+groupId, findGroupPostsDto);
+    return this.postsService.findGroupPosts(
+      +groupId,
+      findGroupPostsDto,
+      userUuid,
+    );
   }
 }

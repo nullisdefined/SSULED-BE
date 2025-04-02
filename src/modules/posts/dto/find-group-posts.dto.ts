@@ -1,4 +1,4 @@
-import { IsNumber, IsOptional, IsString, Min } from 'class-validator';
+import { IsNumber, IsOptional, Min } from 'class-validator';
 import { Type } from 'class-transformer';
 
 export class FindGroupPostsDto {
@@ -13,8 +13,4 @@ export class FindGroupPostsDto {
   @IsNumber()
   @Min(1)
   limit: number = 10;
-
-  @IsOptional()
-  @IsString()
-  userUuid: string;
 }

@@ -46,8 +46,8 @@ export class PostsService {
    * @param findAllPostsDto 게시글 목록 조회 조건들
    * @returns 게시글 목록과 페이지네이션 메타데이터
    */
-  async findAllPosts(findAllPostsDto: FindAllPostsDto) {
-    const { page, limit, userUuid } = findAllPostsDto;
+  async findAllPosts(findAllPostsDto: FindAllPostsDto, userUuid: string) {
+    const { page, limit } = findAllPostsDto;
 
     const [posts, total] = await this.postRepository.findAndCount({
       where: { userUuid },
@@ -128,23 +128,35 @@ export class PostsService {
    * @returns 수정된 게시글 정보
    */
   async updatePost(id: number, updatePostDto: UpdatePostDto) {
-    await this.findOnePost(id);
+    const post = await this.findOnePost(id);
 
-    // TODO: 게시글 수정 권한 체크
-    this.postRepository.update(id, updatePostDto);
+    // 게시글 수정 권한 체크
+    if (post.userUuid !== updatePostDto.userUuid) {
+      throw new UnauthorizedException('게시글을 수정할 권한이 없습니다.');
+    }
+
+    // userUuid는 변경하지 않도록 제외
+    const updateData = { ...updatePostDto };
+    delete updateData.userUuid;
+
+    await this.postRepository.update(id, updateData);
     return this.findOnePost(id);
   }
 
   /**
    * 게시글 삭제
    * @param id 게시글 ID
+   * @param userUuid 삭제 요청하는 사용자 UUID
    * @returns 삭제된 게시글 정보
    */
-  async removePost(id: number) {
-    await this.findOnePost(id);
+  async removePost(id: number, userUuid: string) {
+    const post = await this.findOnePost(id);
 
-    // TODO: 게시글 삭제 권한 체크
-    // TODO: response type
+    // 게시글 삭제 권한 체크
+    if (post.userUuid !== userUuid) {
+      throw new UnauthorizedException('게시글을 삭제할 권한이 없습니다.');
+    }
+
     this.postRepository.delete(id);
     return {
       message: '게시글이 성공적으로 삭제되었습니다.',
@@ -157,7 +169,11 @@ export class PostsService {
    * @param options 조회 옵션 (페이지, 한 페이지당 항목 수)
    * @returns 그룹원들의 게시글 목록
    */
-  async findGroupPosts(groupId: number, findGroupPostsDto: FindGroupPostsDto) {
+  async findGroupPosts(
+    groupId: number,
+    findGroupPostsDto: FindGroupPostsDto,
+    userUuid: string,
+  ) {
     const group = await this.groupService.findOneGroup(groupId);
 
     if (!group) {
@@ -165,7 +181,7 @@ export class PostsService {
     }
 
     const memberUuids = group.memberUuid;
-    const isMember = memberUuids.includes(findGroupPostsDto.userUuid);
+    const isMember = memberUuids.includes(userUuid);
     const { page, limit } = findGroupPostsDto;
 
     // 그룹 멤버 여부에 따라 where 조건 다르게 구성
@@ -221,8 +237,11 @@ export class PostsService {
    * @param options 조회 옵션 (페이지, 한 페이지당 항목 수)
    * @returns 좋아요, 댓글 순 인기 게시글 목록
    */
-  async findPopularPosts(findPopularPostsDto: FindPopularPostsDto) {
-    const { page = 1, limit = 10, userUuid } = findPopularPostsDto;
+  async findPopularPosts(
+    findPopularPostsDto: FindPopularPostsDto,
+    userUuid: string,
+  ) {
+    const { page = 1, limit = 10 } = findPopularPostsDto;
 
     // 기본적으로 공개 게시글은 모두 볼 수 있음
     const whereCondition: any[] = [{ isPublic: true }];
