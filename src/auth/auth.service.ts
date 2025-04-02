@@ -7,7 +7,7 @@ import { Request, Response } from 'express';
 import { UsersService } from '@/modules/users/users.service';
 import { v4 as uuidv4 } from 'uuid';
 import { JwtService } from '@nestjs/jwt';
-import { nanoid } from 'nanoid';
+import { customAlphabet } from 'nanoid';
 import axios from 'axios';
 import * as bcrypt from 'bcrypt';
 import { SocialProvider } from '@/types/social-provider.enum';
@@ -103,7 +103,10 @@ export class AuthService {
       const user = {
         socialId: kakaoUser.id.toString(),
         socialNickname: kakaoUser.properties?.nickname || '',
-        nickname: `익명_${nanoid(4)}`,
+        nickname: `익명_${customAlphabet(
+          '0123456789abcdefghijklmnopqrstuvwxyz',
+          4,
+        )}`,
         profileImage: kakaoUser.properties?.profile_image || '',
         socialProvider: SocialProvider.KAKAO,
       };
@@ -150,7 +153,10 @@ export class AuthService {
       const user = {
         socialId: profile.id,
         socialNickname: profile.nickname || '',
-        nickname: `익명_${nanoid(4)}`,
+        nickname: `익명_${customAlphabet(
+          '0123456789abcdefghijklmnopqrstuvwxyz',
+          4,
+        )}`,
         profileImage: profile.profile_image || '',
         socialProvider: SocialProvider.NAVER,
       };
