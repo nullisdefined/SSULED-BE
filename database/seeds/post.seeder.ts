@@ -30,6 +30,7 @@ export class PostSeeder implements Seeder {
         imageUrl: ['https://example.com/image1.jpg'],
         bodyPart: [BodyPartEnum.CHEST, BodyPartEnum.BACK],
         duration: 60,
+        isPublic: true,
       },
       {
         title: '러닝 메이트 구합니다',
@@ -39,6 +40,7 @@ export class PostSeeder implements Seeder {
         imageUrl: ['https://example.com/image2.jpg'],
         bodyPart: [BodyPartEnum.LEGS],
         duration: 45,
+        isPublic: true,
       },
       {
         title: '단백질 보충제 추천해주세요',
@@ -53,6 +55,7 @@ export class PostSeeder implements Seeder {
           BodyPartEnum.CORE,
         ],
         duration: 0,
+        isPublic: true,
       },
       {
         title: '3개월 다이어트 성공 후기',
@@ -70,6 +73,7 @@ export class PostSeeder implements Seeder {
           BodyPartEnum.CORE,
         ],
         duration: 90,
+        isPublic: true,
       },
       {
         title: '운동 자세 체크해주세요',
@@ -79,6 +83,7 @@ export class PostSeeder implements Seeder {
         imageUrl: ['https://example.com/image6.jpg'],
         bodyPart: [BodyPartEnum.LEGS, BodyPartEnum.OTHER],
         duration: 30,
+        isPublic: true,
       },
     ];
 

@@ -1,6 +1,7 @@
 import { BodyPartEnum } from '@/types/body-part.enum';
 import {
   IsArray,
+  IsBoolean,
   IsDate,
   IsNumber,
   IsOptional,
@@ -27,6 +28,10 @@ export class CreatePostDto {
 
   @IsNumber()
   duration: number;
+
+  @IsBoolean()
+  @IsOptional()
+  isPublic: boolean = false;
 
   @IsDate()
   createdAt: Date = new Date();
