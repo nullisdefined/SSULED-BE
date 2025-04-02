@@ -243,4 +243,60 @@ export class AuthService {
         .json({ ok: false, message: '리프레시 토큰 만료 혹은 잘못됨' });
     }
   }
+
+  async generateDevToken(userUuid: string, res: Response) {
+    try {
+      // 유저가 존재하는지 확인
+      await this.userService.checkUserExists(userUuid);
+
+      // 토큰 페이로드
+      const payload = { userUuid };
+
+      // 액세스 토큰 발급
+      const access_token = await this.jwtService.sign(payload, {
+        secret: process.env.JWT_ACCESS_TOKEN_SECRET,
+        expiresIn: `${process.env.JWT_ACCESS_TOKEN_EXPIRES_IN}`,
+      });
+
+      // 리프레시 토큰 발급
+      const refresh_token = await this.jwtService.sign(payload, {
+        secret: process.env.JWT_REFRESH_TOKEN_SECRET,
+        expiresIn: `${process.env.JWT_REFRESH_TOKEN_EXPIRES_IN}`,
+      });
+
+      // 리프레시 토큰 해싱 및 저장
+      const hashedRefreshToken = await bcrypt.hash(refresh_token, 10);
+
+      // 사용자 ID 가져오기
+      const userId = await this.userService.getUserIdByUuid(userUuid);
+
+      // 기존 인증 정보 확인 및 업데이트 또는 생성
+      const existingAuth = await this.authRepository.findOne({
+        where: { userId },
+      });
+
+      if (existingAuth) {
+        existingAuth.refreshToken = hashedRefreshToken;
+        await this.authRepository.save(existingAuth);
+      } else {
+        const newAuth = this.authRepository.create({
+          userId,
+          refreshToken: hashedRefreshToken,
+        });
+        await this.authRepository.save(newAuth);
+      }
+
+      return res.json({
+        access_token,
+        refresh_token,
+      });
+    } catch (error) {
+      console.error('개발용 토큰 생성 에러:', error);
+      return res.status(500).json({
+        ok: false,
+        message: '개발용 토큰 생성 실패',
+        error: error.message,
+      });
+    }
+  }
 }

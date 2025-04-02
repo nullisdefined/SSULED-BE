@@ -1,12 +1,25 @@
-import { Body, Controller, Post, Req, Res } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Post,
+  Req,
+  Res,
+  UseGuards,
+} from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { Request, Response } from 'express';
 import {
+  ApiDevToken,
   ApiKakaoLogin,
   ApiNaverLogin,
   ApiRefreshToken,
+  ApiTestAuth,
 } from '@/decorators/swagger.decorator';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { DevLoginDto } from './dto/auth.dto';
+import { JwtAuthGuard } from './guards/jwt-auth.guard';
+import { UserUuid } from '@/decorators/user-uuid.decorator';
 
 export interface SocialRequest {
   user: {
@@ -22,22 +35,40 @@ export interface SocialRequest {
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
-  @ApiKakaoLogin()
   @Post('kakao')
+  @ApiKakaoLogin()
   async kakaoAuthCallback(@Body('code') code: string, @Res() res: Response) {
     return this.authService.kakaoLogin(code, res);
   }
 
-  @ApiNaverLogin()
   @Post('naver')
+  @ApiNaverLogin()
   async naverAuthCallback(@Body('code') code: string, @Res() res: Response) {
     return this.authService.naverLogin(code, res);
   }
 
   // refreshToken으로 accessToken 재발급
-  @ApiRefreshToken()
   @Post('refresh')
+  @ApiRefreshToken()
   async Refresh(@Req() req: Request, @Res() res: Response) {
     return this.authService.RefreshToken(req, res);
+  }
+
+  @Post('dev-token')
+  @ApiDevToken()
+  async getDevToken(@Body() devLoginDto: DevLoginDto, @Res() res: Response) {
+    return this.authService.generateDevToken(devLoginDto.userUuid, res);
+  }
+
+  @Get('auth-test')
+  @ApiTestAuth()
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth('JWT-auth')
+  async testAuth(@UserUuid() userUuid: string) {
+    return {
+      message: '인증 성공',
+      userUuid,
+      timestamp: new Date().toISOString(),
+    };
   }
 }
