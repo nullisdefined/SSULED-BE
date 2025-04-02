@@ -13,6 +13,7 @@ import { Post } from '@/entities/post.entity';
 import { LikesService } from '@/modules/likes/likes.service';
 import { CommentsService } from '../comments/comments.service';
 import { GroupService } from '../group/group.service';
+import { FindPopularPostsDto } from './dto/find-popular-posts.dto';
 
 @Injectable()
 export class PostsService {
@@ -214,8 +215,64 @@ export class PostsService {
     };
   }
 
-  /* TODO
-   * findPopularPosts - 인기 게시글 조회
+  /**
+   * 인기 게시글 조회
+   * @param options 조회 옵션 (페이지, 한 페이지당 항목 수)
    * @returns 좋아요, 댓글 순 인기 게시글 목록
    */
+  async findPopularPosts(options: FindPopularPostsDto) {
+    const { page = 1, limit = 10 } = options;
+
+    const [posts, total] = await this.postRepository.findAndCount({
+      skip: (page - 1) * limit,
+      take: limit * 2, // 좋아요와 댓글 기준으로 필터링할 것이므로 더 많이 가져옴
+      order: { createdAt: 'DESC' },
+    });
+
+    if (!posts.length) {
+      return {
+        data: [],
+        meta: {
+          totalItems: 0,
+          itemsPerPage: limit,
+          totalPages: 0,
+          currentPage: page,
+        },
+      };
+    }
+
+    const postIds = posts.map((post) => post.id);
+
+    const likeCounts = await this.likesService.getLikeCountsByPostIds(postIds);
+    const commentCounts =
+      await this.commentsService.getCommentCountsByPostIds(postIds);
+
+    const postsWithCounts = posts.map((post) => {
+      return {
+        ...post,
+        likeCount: likeCounts.get(post.id) || 0,
+        commentCount: commentCounts.get(post.id) || 0,
+      };
+    });
+
+    // 가중치를 적용하여 좋아요 수와 댓글 수를 기준으로 정렬
+    // 좋아요는 1점, 댓글은 2점
+    const sortedPosts = postsWithCounts.sort((a, b) => {
+      const scoreA = a.likeCount + a.commentCount * 2;
+      const scoreB = b.likeCount + b.commentCount * 2;
+      return scoreB - scoreA; // 내림차순 정렬
+    });
+
+    const popularPosts = sortedPosts.slice(0, limit);
+
+    return {
+      data: popularPosts,
+      meta: {
+        totalItems: total,
+        itemsPerPage: limit,
+        totalPages: Math.ceil(total / limit),
+        currentPage: page,
+      },
+    };
+  }
 }

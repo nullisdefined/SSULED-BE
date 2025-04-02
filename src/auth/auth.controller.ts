@@ -6,6 +6,7 @@ import {
   ApiNaverLogin,
   ApiRefreshToken,
 } from '@/decorators/swagger.decorator';
+import { ApiTags } from '@nestjs/swagger';
 
 export interface SocialRequest {
   user: {
@@ -16,6 +17,7 @@ export interface SocialRequest {
   };
 }
 
+@ApiTags('auth')
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}

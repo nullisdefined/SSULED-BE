@@ -2623,3 +2623,84 @@ export function ApiUpdateNickname() {
     }),
   );
 }
+
+export function ApiGetPopularPosts() {
+  return applyDecorators(
+    ApiOperation({
+      summary: '인기 게시글 조회',
+      description:
+        '좋아요와 댓글 수를 기반으로 인기 게시글 목록을 조회합니다. (댓글 수는 가중치가 더 높습니다)',
+    }),
+    ApiQuery({
+      name: 'page',
+      required: false,
+      description: '페이지 번호 (default: 1)',
+      type: 'number',
+      example: 1,
+    }),
+    ApiQuery({
+      name: 'limit',
+      required: false,
+      description: '페이지당 항목 수 (default: 10)',
+      type: 'number',
+      example: 10,
+    }),
+    ApiResponse({
+      status: 200,
+      description: '인기 게시글 목록 조회 성공',
+      schema: {
+        type: 'object',
+        properties: {
+          data: {
+            type: 'array',
+            items: {
+              type: 'object',
+              properties: {
+                id: { type: 'number', example: 1 },
+                title: { type: 'string', example: '오늘의 운동 완료! 💪' },
+                content: { type: 'string', example: '하체 불태웠다🔥' },
+                imageUrl: {
+                  type: 'array',
+                  items: { type: 'string' },
+                  example: [
+                    'https://ssuled-bucket.s3.amazonaws.com/images/example.jpg',
+                  ],
+                },
+                bodyPart: {
+                  type: 'array',
+                  items: {
+                    type: 'string',
+                    enum: ['CHEST', 'BACK', 'LEGS', 'CORE'],
+                  },
+                  example: ['LEGS'],
+                },
+                duration: { type: 'number', example: 60 },
+                likeCount: { type: 'number', example: 42 },
+                commentCount: { type: 'number', example: 18 },
+                createdAt: {
+                  type: 'string',
+                  format: 'date-time',
+                  example: '2025-04-01T10:00:00.000Z',
+                },
+                updatedAt: {
+                  type: 'string',
+                  format: 'date-time',
+                  example: '2025-04-01T12:00:00.000Z',
+                },
+              },
+            },
+          },
+          meta: {
+            type: 'object',
+            properties: {
+              totalItems: { type: 'number', example: 100 },
+              itemsPerPage: { type: 'number', example: 10 },
+              totalPages: { type: 'number', example: 10 },
+              currentPage: { type: 'number', example: 1 },
+            },
+          },
+        },
+      },
+    }),
+  );
+}
