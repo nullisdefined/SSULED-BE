@@ -70,6 +70,10 @@ jobs:
             cp -f deploy/package-lock.json /home/${{ secrets.EC2_USERNAME }}/ssuled-be/
             cp -f deploy/.env /home/${{ secrets.EC2_USERNAME }}/ssuled-be/
             
+            # 환경 변수 파일 복사
+            mkdir -p /home/${{ secrets.EC2_USERNAME }}/ssuled-be/env
+            cp -f deploy/.production.env /home/${{ secrets.EC2_USERNAME }}/ssuled-be/env/.production.env
+            
             # 패키지 설치
             cd /home/${{ secrets.EC2_USERNAME }}/ssuled-be
             npm ci --production
