@@ -19,9 +19,11 @@ import {
   ApiGetPostById,
   ApiUpdatePost,
   ApiGetGroupPosts,
+  ApiGetPopularPosts,
 } from '@/decorators/swagger.decorator';
 import { FindAllPostsDto } from './dto/find-all-posts.dto';
 import { FindGroupPostsDto } from './dto/find-group-posts.dto';
+import { FindPopularPostsDto } from './dto/find-popular-posts.dto';
 
 @ApiTags('post')
 @Controller('post')
@@ -51,6 +53,17 @@ export class PostsController {
   @ApiGetAllPosts()
   findAllPosts(@Query() findAllPostsDto: FindAllPostsDto) {
     return this.postsService.findAllPosts(findAllPostsDto);
+  }
+
+  /**
+   * 인기 게시글 조회
+   * @param findPopularPostsDto 조회 옵션
+   * @returns 좋아요, 댓글 순 인기 게시글 목록
+   */
+  @Get('popular')
+  @ApiGetPopularPosts()
+  findPopularPosts(@Query() findPopularPostsDto: FindPopularPostsDto) {
+    return this.postsService.findPopularPosts(findPopularPostsDto);
   }
 
   /**
@@ -105,9 +118,4 @@ export class PostsController {
   ) {
     return this.postsService.findGroupPosts(+groupId, findGroupPostsDto);
   }
-
-  /* TODO
-   * findPopularPosts - 인기 게시글 조회
-   * @returns 좋아요, 댓글 순 인기 게시글 목록
-   */
 }

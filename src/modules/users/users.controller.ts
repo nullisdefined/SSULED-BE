@@ -3,7 +3,9 @@ import { UserUuid } from '@/decorators/user-uuid.deorator';
 import { Body, Controller, Post, UseGuards } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { ApiLogout } from '@/decorators/swagger.decorator';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('user')
 @Controller('user')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
