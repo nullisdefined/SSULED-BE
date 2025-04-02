@@ -3,6 +3,7 @@ import {
   NotFoundException,
   Inject,
   forwardRef,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
@@ -14,6 +15,7 @@ import { LikesService } from '@/modules/likes/likes.service';
 import { CommentsService } from '../comments/comments.service';
 import { GroupService } from '../group/group.service';
 import { FindPopularPostsDto } from './dto/find-popular-posts.dto';
+import { FindGroupPostsDto } from './dto/find-group-posts.dto';
 
 @Injectable()
 export class PostsService {
@@ -92,26 +94,29 @@ export class PostsService {
    */
   async findOnePost(id: number, userUuid?: string) {
     const post = await this.postRepository.findOne({ where: { id } });
-    if (!post) {
+    if (!post)
       throw new NotFoundException('해당 ID의 게시글을 찾을 수 없습니다.');
+
+    // 비공개 게시글이라면 그룹 멤버인지 체크
+    if (!post.isPublic && userUuid) {
+      const group = await this.groupService.findUserCurrentGroup(userUuid);
+      if (!group || !group.memberUuid.includes(post.userUuid)) {
+        throw new UnauthorizedException('이 게시글을 조회할 권한이 없습니다.');
+      }
     }
 
     const likeCount = await this.likesService.getLikeCountByPostId(id);
-
     const comments = await this.commentsService.getCommentsByPostId(id);
     const commentCount = comments.length;
-
-    // 사용자의 좋아요 상태 조회 (userUuid가 제공된 경우)
-    let likeStatus = null;
-    if (userUuid) {
-      likeStatus = await this.likesService.checkLikeStatus(userUuid, id);
-    }
+    const likeStatus = userUuid
+      ? await this.likesService.checkLikeStatus(userUuid, id)
+      : null;
 
     return {
       ...post,
       likeCount,
       commentCount,
-      userLiked: likeStatus ? likeStatus.liked : false,
+      userLiked: likeStatus?.liked ?? false,
       comments,
     };
   }
@@ -152,10 +157,7 @@ export class PostsService {
    * @param options 조회 옵션 (페이지, 한 페이지당 항목 수)
    * @returns 그룹원들의 게시글 목록
    */
-  async findGroupPosts(
-    groupId: number,
-    options: { page: number; limit: number },
-  ) {
+  async findGroupPosts(groupId: number, findGroupPostsDto: FindGroupPostsDto) {
     const group = await this.groupService.findOneGroup(groupId);
 
     if (!group) {
@@ -163,15 +165,16 @@ export class PostsService {
     }
 
     const memberUuids = group.memberUuid;
+    const isMember = memberUuids.includes(findGroupPostsDto.userUuid);
+    const { page, limit } = findGroupPostsDto;
 
-    if (!memberUuids.length) {
-      throw new NotFoundException('그룹에 멤버가 없습니다.');
-    }
-
-    const { page, limit } = options;
+    // 그룹 멤버 여부에 따라 where 조건 다르게 구성
+    const whereCondition = isMember
+      ? [{ isPublic: true }, { userUuid: In(memberUuids), isPublic: false }]
+      : [{ isPublic: true }];
 
     const [posts, total] = await this.postRepository.findAndCount({
-      where: { userUuid: In(memberUuids) },
+      where: whereCondition,
       skip: (page - 1) * limit,
       take: limit,
       order: { createdAt: 'DESC' },
@@ -190,9 +193,7 @@ export class PostsService {
     }
 
     const postIds = posts.map((post) => post.id);
-
     const likeCounts = await this.likesService.getLikeCountsByPostIds(postIds);
-
     const commentCounts =
       await this.commentsService.getCommentCountsByPostIds(postIds);
 
@@ -220,12 +221,28 @@ export class PostsService {
    * @param options 조회 옵션 (페이지, 한 페이지당 항목 수)
    * @returns 좋아요, 댓글 순 인기 게시글 목록
    */
-  async findPopularPosts(options: FindPopularPostsDto) {
-    const { page = 1, limit = 10 } = options;
+  async findPopularPosts(findPopularPostsDto: FindPopularPostsDto) {
+    const { page = 1, limit = 10, userUuid } = findPopularPostsDto;
+
+    // 기본적으로 공개 게시글은 모두 볼 수 있음
+    const whereCondition: any[] = [{ isPublic: true }];
+
+    // 사용자가 그룹에 속해 있는 경우, 해당 그룹의 비공개 게시글도 볼 수 있음
+    if (userUuid) {
+      const group = await this.groupService.findUserCurrentGroup(userUuid);
+      if (group) {
+        // 그룹에 속한 사용자라면 그룹원들의 비공개 게시글도 조회 가능
+        whereCondition.push({
+          userUuid: In(group.memberUuid),
+          isPublic: false,
+        });
+      }
+    }
 
     const [posts, total] = await this.postRepository.findAndCount({
+      where: whereCondition,
       skip: (page - 1) * limit,
-      take: limit * 2, // 좋아요와 댓글 기준으로 필터링할 것이므로 더 많이 가져옴
+      take: limit * 2, // 인기 게시글은 더 많이 가져와야 점수 매기기 쉬움
       order: { createdAt: 'DESC' },
     });
 
@@ -242,25 +259,20 @@ export class PostsService {
     }
 
     const postIds = posts.map((post) => post.id);
-
     const likeCounts = await this.likesService.getLikeCountsByPostIds(postIds);
     const commentCounts =
       await this.commentsService.getCommentCountsByPostIds(postIds);
 
-    const postsWithCounts = posts.map((post) => {
-      return {
-        ...post,
-        likeCount: likeCounts.get(post.id) || 0,
-        commentCount: commentCounts.get(post.id) || 0,
-      };
-    });
+    const postsWithCounts = posts.map((post) => ({
+      ...post,
+      likeCount: likeCounts.get(post.id) || 0,
+      commentCount: commentCounts.get(post.id) || 0,
+    }));
 
-    // 가중치를 적용하여 좋아요 수와 댓글 수를 기준으로 정렬
-    // 좋아요는 1점, 댓글은 2점
     const sortedPosts = postsWithCounts.sort((a, b) => {
       const scoreA = a.likeCount + a.commentCount * 2;
       const scoreB = b.likeCount + b.commentCount * 2;
-      return scoreB - scoreA; // 내림차순 정렬
+      return scoreB - scoreA;
     });
 
     const popularPosts = sortedPosts.slice(0, limit);

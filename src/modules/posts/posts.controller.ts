@@ -108,6 +108,7 @@ export class PostsController {
    * 그룹 게시글 조회
    * @param groupId 그룹 ID
    * @param findGroupPostsDto 조회 옵션
+   * @query userUuid 사용자 UUID (임시)
    * @returns 그룹원들의 게시글 목록
    */
   @Get('group/:groupId')

@@ -168,6 +168,11 @@ export function ApiCreatePost() {
             description: '운동한 시간 (분 단위)',
             example: 90,
           },
+          isPublic: {
+            type: 'boolean',
+            description: '게시글 공개 여부',
+            example: true,
+          },
         },
       },
     }),
@@ -209,6 +214,10 @@ export function ApiCreatePost() {
           duration: {
             type: 'number',
             example: 90,
+          },
+          isPublic: {
+            type: 'boolean',
+            example: true,
           },
           createdAt: {
             type: 'string',
@@ -330,6 +339,10 @@ export function ApiGetAllPosts() {
                   type: 'number',
                   example: 90,
                 },
+                isPublic: {
+                  type: 'boolean',
+                  example: true,
+                },
                 createdAt: {
                   type: 'string',
                   format: 'date-time',
@@ -433,6 +446,10 @@ export function ApiGetPostById() {
           duration: {
             type: 'number',
             example: 90,
+          },
+          isPublic: {
+            type: 'boolean',
+            example: true,
           },
           createdAt: {
             type: 'string',
@@ -575,6 +592,11 @@ export function ApiUpdatePost() {
             description: '운동한 시간 (분 단위)',
             example: 120,
           },
+          isPublic: {
+            type: 'boolean',
+            description: '게시글 공개 여부',
+            example: true,
+          },
         },
       },
     }),
@@ -616,6 +638,10 @@ export function ApiUpdatePost() {
           duration: {
             type: 'number',
             example: 120,
+          },
+          isPublic: {
+            type: 'boolean',
+            example: true,
           },
           updatedAt: {
             type: 'string',
@@ -2286,6 +2312,13 @@ export function ApiGetGroupPosts() {
       description: '페이지당 항목 수 (default: 10)',
       type: 'number',
     }),
+    ApiQuery({
+      name: 'userUuid',
+      required: false,
+      description: '사용자 UUID',
+      type: 'string',
+      example: '123e4567-e89b-12d3-a456-426614174000',
+    }),
     ApiResponse({
       status: 200,
       description: '그룹 게시글 조회 성공',
@@ -2644,6 +2677,13 @@ export function ApiGetPopularPosts() {
       description: '페이지당 항목 수 (default: 10)',
       type: 'number',
       example: 10,
+    }),
+    ApiQuery({
+      name: 'userUuid',
+      required: false,
+      description: '사용자 UUID',
+      type: 'string',
+      example: '123e4567-e89b-12d3-a456-426614174000',
     }),
     ApiResponse({
       status: 200,
