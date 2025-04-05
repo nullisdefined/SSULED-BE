@@ -67,6 +67,9 @@ export class UsersService {
     };
   }
 
+  /*
+  닉네임 변경
+  */
   async updateNickname(userUuid: string, newNickname: string) {
     const user = await this.userRepository.findOneBy({ userUuid });
     if (!user) {
@@ -87,6 +90,9 @@ export class UsersService {
     return { ok: true, nickname: newNickname, message: '닉네임 변경 성공' };
   }
 
+  /*
+  소개글 변경
+  */
   async updateIntroduction(userUuid: string, newIntroduction: string) {
     const user = await this.userRepository.findOneBy({ userUuid });
     if (!user) {
@@ -97,5 +103,16 @@ export class UsersService {
     await this.userRepository.save(user);
 
     return { ok: true, message: '소개글 변경 성공!' };
+  }
+
+  async getUserByIds(idArray: string[]) {
+    const users = await Promise.all(
+      idArray.map(async (id) => {
+        const user = await this.userRepository.findOneBy({ userUuid: id });
+        return user;
+      }),
+    );
+
+    return users.filter((user) => user !== null);
   }
 }
