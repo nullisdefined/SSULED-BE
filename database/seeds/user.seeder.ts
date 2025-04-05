@@ -19,6 +19,7 @@ export class UserSeeder implements Seeder {
         profileImage: 'https://example.com/admin.jpg',
         socialProvider: SocialProvider.KAKAO,
         socialId: '12345',
+        introduction: '난 근육맨이다.',
       },
       {
         userUuid: '123e4567-e89b-12d3-a456-426614174001',
@@ -27,6 +28,7 @@ export class UserSeeder implements Seeder {
         profileImage: 'https://example.com/user1.jpg',
         socialProvider: SocialProvider.NAVER,
         socialId: '23456',
+        introduction: '파로 때리기!',
       },
       {
         userUuid: '123e4567-e89b-12d3-a456-426614174002',
@@ -35,6 +37,7 @@ export class UserSeeder implements Seeder {
         profileImage: 'https://example.com/user2.jpg',
         socialProvider: SocialProvider.NAVER,
         socialId: '34567',
+        introduction: '나는 고구마...고구마..',
       },
       {
         userUuid: '123e4567-e89b-12d3-a456-426614174003',
@@ -43,6 +46,7 @@ export class UserSeeder implements Seeder {
         profileImage: 'https://example.com/user3.jpg',
         socialProvider: SocialProvider.KAKAO,
         socialId: '45678',
+        introduction: '우하하하하',
       },
       {
         userUuid: '123e4567-e89b-12d3-a456-426614174004',
@@ -51,6 +55,7 @@ export class UserSeeder implements Seeder {
         profileImage: 'https://example.com/user4.jpg',
         socialProvider: SocialProvider.NAVER,
         socialId: '56789',
+        introduction: '재굴재굴',
       },
     ];
 

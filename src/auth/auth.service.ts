@@ -109,6 +109,7 @@ export class AuthService {
         )}`,
         profileImage: kakaoUser.properties?.profile_image || '',
         socialProvider: SocialProvider.KAKAO,
+        introduction: null,
       };
       return await this.handleSocialLogin(user, res);
     } catch (error) {
@@ -159,6 +160,7 @@ export class AuthService {
         )}`,
         profileImage: profile.profile_image || '',
         socialProvider: SocialProvider.NAVER,
+        introduction: null,
       };
 
       return this.handleSocialLogin(user, res);
