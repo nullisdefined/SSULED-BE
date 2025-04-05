@@ -27,6 +27,10 @@ export const typeOrmConfig = (
     logging: configService.get('NODE_ENV') !== 'production',
     migrations: [__dirname + '/../database/migrations/**/*.{js,ts}'],
     migrationsTableName: 'migrations',
+    ssl:
+      configService.get('NODE_ENV') === 'production'
+        ? { rejectUnauthorized: false }
+        : false,
   };
 };
 
@@ -41,6 +45,10 @@ export const dataSourceOptions: DataSourceOptions & SeederOptions = {
   migrations: [__dirname + '/../database/migrations/**/*.{js,ts}'],
   migrationsTableName: 'migrations',
   seeds: [UserSeeder, AuthSeeder, GroupSeeder, PostSeeder],
+  ssl:
+    process.env.NODE_ENV === 'production'
+      ? { rejectUnauthorized: false }
+      : false,
 };
 
 // TypeORM CLI를 위한 DataSource 인스턴스

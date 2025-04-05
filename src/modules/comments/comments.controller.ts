@@ -7,8 +7,9 @@ import {
   Patch,
   Post,
   Query,
+  UseGuards,
 } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import {
   ApiCreateComment,
   ApiGetAllComments,
@@ -20,22 +21,29 @@ import { CreateCommentDto } from './dto/create-comment.dto';
 import { UpdateCommentDto } from './dto/update-comment.dto';
 import { FindAllCommentsDto } from './dto/find-all-comments.dto';
 import { ApiDeleteComment } from '@/decorators/swagger.decorator';
+import { JwtAuthGuard } from '@/auth/guards/jwt-auth.guard';
+import { UserUuid } from '@/decorators/user-uuid.decorator';
 
 @ApiTags('comment')
+@ApiBearerAuth('JWT-auth')
 @Controller('comment')
+@UseGuards(JwtAuthGuard)
 export class CommentsController {
   constructor(private readonly commentsService: CommentsService) {}
 
   /**
    * 댓글 생성
    * @param createCommentDto 댓글 생성 정보
+   * @param userUuid 인증된 사용자 UUID
    * @returns 생성된 댓글 정보
    */
   @Post()
   @ApiCreateComment()
-  createComment(@Body() createCommentDto: CreateCommentDto) {
-    // TODO: JWT에서 userUuid 추출
-    return this.commentsService.createComment(createCommentDto);
+  createComment(
+    @Body() createCommentDto: CreateCommentDto,
+    @UserUuid() userUuid: string,
+  ) {
+    return this.commentsService.createComment(createCommentDto, userUuid);
   }
 
   /**
@@ -68,6 +76,7 @@ export class CommentsController {
    * 댓글 수정
    * @param commentId 댓글 ID
    * @param updateCommentDto 댓글 수정 정보
+   * @param userUuid 인증된 사용자 UUID
    * @returns 수정된 댓글 정보
    */
   @Patch(':commentId')
@@ -75,20 +84,27 @@ export class CommentsController {
   updateComment(
     @Param('commentId') commentId: string,
     @Body() updateCommentDto: UpdateCommentDto,
+    @UserUuid() userUuid: string,
   ) {
-    // TODO: JWT에서 userUuid 추출하여 권한 체크
-    return this.commentsService.updateComment(+commentId, updateCommentDto);
+    return this.commentsService.updateComment(
+      +commentId,
+      updateCommentDto,
+      userUuid,
+    );
   }
 
   /**
    * 댓글 삭제
    * @param commentId 댓글 ID
+   * @param userUuid 인증된 사용자 UUID
    * @returns 삭제 성공 메시지
    */
   @Delete(':commentId')
   @ApiDeleteComment()
-  removeComment(@Param('commentId') commentId: string) {
-    // TODO: JWT에서 userUuid 추출하여 권한 체크
-    return this.commentsService.removeComment(+commentId);
+  removeComment(
+    @Param('commentId') commentId: string,
+    @UserUuid() userUuid: string,
+  ) {
+    return this.commentsService.removeComment(+commentId, userUuid);
   }
 }

@@ -1,11 +1,6 @@
 import { IsDate, IsNotEmpty, IsNumber, IsString } from 'class-validator';
 
 export class CreateCommentDto {
-  // temporary
-  @IsString()
-  @IsNotEmpty()
-  userUuid: string;
-
   @IsNumber()
   @IsNotEmpty()
   postId: number;

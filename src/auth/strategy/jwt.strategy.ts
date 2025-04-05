@@ -17,6 +17,7 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
   async validate(req: Request, payload: any) {
     const { userUuid } = payload;
     if (!userUuid) {
+      console.log('Invalid token');
       throw new UnauthorizedException('Invalid token');
     }
     // 검증된 토큰의 정보를 req.user에 할당

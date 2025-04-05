@@ -6,19 +6,23 @@ import {
   Param,
   Post,
   UploadedFile,
+  UseGuards,
 } from '@nestjs/common';
 import { UploadsService } from './uploads.service';
 import { Logger } from 'winston';
 import { S3Service } from '../s3/s3.service';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { UploadResponseDto } from './dto/upload-response.dto';
 import { DeleteResponseDto } from './dto/delete-response.dto';
 import { DeleteImageParamDto } from './dto/delete-image-param.dto';
 import { ImageFileInterceptor } from '@/decorators/file-interceptor.decorator';
 import { ApiDeleteImage, ApiUploadImage } from '@/decorators/swagger.decorator';
+import { JwtAuthGuard } from '@/auth/guards/jwt-auth.guard';
 
 @ApiTags('upload')
+@ApiBearerAuth('JWT-auth')
 @Controller('upload')
+@UseGuards(JwtAuthGuard)
 export class UploadsController {
   constructor(
     private readonly uploadsService: UploadsService,

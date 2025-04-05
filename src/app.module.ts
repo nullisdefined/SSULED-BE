@@ -32,7 +32,6 @@ import { GroupModule } from './modules/group/group.module';
     UploadsModule,
     S3Module,
     AuthModule,
-
     PostsModule,
     CommentsModule,
     LikesModule,

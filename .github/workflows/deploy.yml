@@ -1,0 +1,103 @@
+name: Deploy to EC2
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '22'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+
+      - name: Prepare deployment files
+        run: |
+          mkdir -p deploy
+          cp -r dist deploy/
+          cp package.json deploy/
+          cp package-lock.json deploy/
+
+          # 환경 변수 파일 생성
+          echo "${{ secrets.SERVER_ENV }}" > deploy/.env
+          echo "${{ secrets.SERVER_ENV }}" > deploy/.production.env
+
+          tar -czf deploy.tar.gz deploy
+
+      - name: Configure SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "Host *
+            ServerAliveInterval 60
+            ServerAliveCountMax 30" > ~/.ssh/config
+          ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts
+
+      - name: Set up SSH Agent
+        uses: webfactory/ssh-agent@v0.7.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_KEY }}
+
+      - name: Transfer files to EC2
+        run: scp deploy.tar.gz ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }}:/home/${{ secrets.EC2_USERNAME }}/
+
+      - name: Deploy application
+        run: |
+          ssh ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} "
+            # 배포 디렉토리 생성
+            mkdir -p /home/${{ secrets.EC2_USERNAME }}/ssuled-be
+            
+            # 압축 해제
+            tar -xzf deploy.tar.gz
+            
+            # 파일 복사
+            rm -rf /home/${{ secrets.EC2_USERNAME }}/ssuled-be/dist
+            cp -r deploy/dist /home/${{ secrets.EC2_USERNAME }}/ssuled-be/
+            cp -f deploy/package.json /home/${{ secrets.EC2_USERNAME }}/ssuled-be/
+            cp -f deploy/package-lock.json /home/${{ secrets.EC2_USERNAME }}/ssuled-be/
+            cp -f deploy/.env /home/${{ secrets.EC2_USERNAME }}/ssuled-be/
+            
+            # 환경 변수 파일 복사
+            mkdir -p /home/${{ secrets.EC2_USERNAME }}/ssuled-be/env
+            cp -f deploy/.production.env /home/${{ secrets.EC2_USERNAME }}/ssuled-be/env/.production.env
+            
+            # 패키지 설치
+            cd /home/${{ secrets.EC2_USERNAME }}/ssuled-be
+            npm ci --production
+            
+            # PM2 서비스 재시작/시작
+            if pm2 list | grep -q 'ssuled-api'; then
+              pm2 restart ssuled-api --update-env
+            else
+              cd /home/${{ secrets.EC2_USERNAME }}/ssuled-be
+              NODE_ENV=production pm2 start dist/src/main.js --name ssuled-api
+            fi
+            
+            # PM2 설정 저장
+            pm2 save
+            
+            # 임시 파일 정리
+            rm -rf /home/${{ secrets.EC2_USERNAME }}/deploy
+            rm /home/${{ secrets.EC2_USERNAME }}/deploy.tar.gz
+          "
+
+      - name: Verify deployment
+        run: |
+          ssh ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} "
+            echo 'Checking application status...'
+            pm2 list
+            echo 'Deployment completed successfully!'
+          "

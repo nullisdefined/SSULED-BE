@@ -128,13 +128,8 @@ export function ApiCreatePost() {
     ApiBody({
       schema: {
         type: 'object',
-        required: ['userUuid', 'content'],
+        required: ['content'],
         properties: {
-          userUuid: {
-            type: 'string',
-            description: '조회할 사용자 UUID',
-            example: '123e4567-e89b-12d3-a456-426614174000',
-          },
           content: {
             type: 'string',
             description: '게시글 내용',
@@ -168,6 +163,11 @@ export function ApiCreatePost() {
             description: '운동한 시간 (분 단위)',
             example: 90,
           },
+          isPublic: {
+            type: 'boolean',
+            description: '게시글 공개 여부',
+            example: true,
+          },
         },
       },
     }),
@@ -177,10 +177,6 @@ export function ApiCreatePost() {
       schema: {
         type: 'object',
         properties: {
-          userUuid: {
-            type: 'string',
-            example: '123e4567-e89b-12d3-a456-426614174000',
-          },
           content: {
             type: 'string',
             example: '처음으로 헬스장에 가봤는데 너무 좋았어요!',
@@ -209,6 +205,10 @@ export function ApiCreatePost() {
           duration: {
             type: 'number',
             example: 90,
+          },
+          isPublic: {
+            type: 'boolean',
+            example: true,
           },
           createdAt: {
             type: 'string',
@@ -240,10 +240,7 @@ export function ApiCreatePost() {
         properties: {
           message: {
             type: 'array',
-            example: [
-              'content should not be empty',
-              'userUuid must be a UUID format',
-            ],
+            example: ['content should not be empty'],
           },
           error: {
             type: 'string',
@@ -278,13 +275,6 @@ export function ApiGetAllPosts() {
       description: '페이지당 게시글 수 (default: 24)',
       type: 'number',
       example: 24,
-    }),
-    ApiQuery({
-      name: 'userUuid',
-      required: false,
-      description: '사용자 UUID (임시)',
-      type: 'string',
-      example: '123e4567-e89b-12d3-a456-426614174000',
     }),
     ApiResponse({
       status: 200,
@@ -329,6 +319,10 @@ export function ApiGetAllPosts() {
                 duration: {
                   type: 'number',
                   example: 90,
+                },
+                isPublic: {
+                  type: 'boolean',
+                  example: true,
                 },
                 createdAt: {
                   type: 'string',
@@ -392,13 +386,6 @@ export function ApiGetPostById() {
       required: true,
       type: 'string',
     }),
-    ApiQuery({
-      name: 'userUuid',
-      description: '현재 사용자 UUID (좋아요 상태 확인용)',
-      example: '123e4567-e89b-12d3-a456-426614174000',
-      required: false,
-      type: 'string',
-    }),
     ApiResponse({
       status: 200,
       description: '게시글 조회 성공',
@@ -433,6 +420,10 @@ export function ApiGetPostById() {
           duration: {
             type: 'number',
             example: 90,
+          },
+          isPublic: {
+            type: 'boolean',
+            example: true,
           },
           createdAt: {
             type: 'string',
@@ -472,10 +463,6 @@ export function ApiGetPostById() {
                 content: {
                   type: 'string',
                   example: '오운완 좋아요!',
-                },
-                userUuid: {
-                  type: 'string',
-                  example: '123e4567-e89b-12d3-a456-426614174001',
                 },
                 userName: {
                   type: 'string',
@@ -575,6 +562,11 @@ export function ApiUpdatePost() {
             description: '운동한 시간 (분 단위)',
             example: 120,
           },
+          isPublic: {
+            type: 'boolean',
+            description: '게시글 공개 여부',
+            example: true,
+          },
         },
       },
     }),
@@ -616,6 +608,10 @@ export function ApiUpdatePost() {
           duration: {
             type: 'number',
             example: 120,
+          },
+          isPublic: {
+            type: 'boolean',
+            example: true,
           },
           updatedAt: {
             type: 'string',
@@ -680,12 +676,6 @@ export function ApiCreateComment() {
       schema: {
         type: 'object',
         properties: {
-          userUuid: {
-            type: 'string',
-            format: 'uuid',
-            description: '댓글 작성자 UUID',
-            example: '123e4567-e89b-12d3-a456-426614174000',
-          },
           postId: {
             type: 'integer',
             description: '댓글을 작성할 게시글 ID',
@@ -697,7 +687,7 @@ export function ApiCreateComment() {
             example: '오운완 축하합니다! 💪',
           },
         },
-        required: ['userUuid', 'postId', 'content'],
+        required: ['postId', 'content'],
       },
     }),
     ApiResponse({
@@ -713,10 +703,6 @@ export function ApiCreateComment() {
           content: {
             type: 'string',
             example: '오운완 축하합니다! 💪',
-          },
-          userUuid: {
-            type: 'string',
-            example: '123e4567-e89b-12d3-a456-426614174000',
           },
           postId: {
             type: 'integer',
@@ -746,7 +732,6 @@ export function ApiCreateComment() {
             example: [
               'content must be a string',
               'content should not be empty',
-              'userUuid must be a string',
               'postId must be a number',
             ],
           },
@@ -872,10 +857,6 @@ export function ApiUpdateComment() {
           content: {
             type: 'string',
             example: '정말 멋진 운동이네요! 👍',
-          },
-          userUuid: {
-            type: 'string',
-            example: '123e4567-e89b-12d3-a456-426614174000',
           },
           postId: {
             type: 'integer',
@@ -1025,10 +1006,6 @@ export function ApiGetAllComments() {
                 user: {
                   type: 'object',
                   properties: {
-                    userUuid: {
-                      type: 'string',
-                      example: '123e4567-e89b-12d3-a456-426614174001',
-                    },
                     nickname: {
                       type: 'string',
                       example: '재굴TV',
@@ -1444,13 +1421,6 @@ export function ApiCreateGroup() {
     ApiOperation({
       summary: '그룹 생성',
       description: '새로운 그룹을 생성합니다.',
-    }),
-    ApiQuery({
-      name: 'ownerUuid',
-      description: '방장 UUID',
-      required: true,
-      type: 'string',
-      example: '123e4567-e89b-12d3-a456-426614174000',
     }),
     ApiBody({
       schema: {
@@ -1969,13 +1939,6 @@ export function ApiJoinGroup() {
       type: 'string',
       example: '1',
     }),
-    ApiQuery({
-      name: 'userUuid',
-      description: '사용자 UUID',
-      required: true,
-      type: 'string',
-      example: '123e4567-e89b-12d3-a456-426614174000',
-    }),
     ApiBody({
       schema: {
         type: 'object',
@@ -2110,13 +2073,6 @@ export function ApiLeaveGroup() {
       summary: '그룹 탈퇴',
       description: '그룹에서 탈퇴합니다. 방장은 그룹을 탈퇴할 수 없습니다.',
     }),
-    ApiQuery({
-      name: 'userUuid',
-      description: '사용자 UUID',
-      required: true,
-      type: 'string',
-      example: '123e4567-e89b-12d3-a456-426614174000',
-    }),
     ApiResponse({
       status: 200,
       description: '그룹 탈퇴 성공',
@@ -2181,13 +2137,6 @@ export function ApiGetUserGroup() {
       summary: '사용자가 속한 그룹 조회',
       description:
         '사용자가 현재 속한 그룹을 조회합니다. 한 사용자는 최대 하나의 그룹에만 속할 수 있습니다.',
-    }),
-    ApiQuery({
-      name: 'userUuid',
-      description: '사용자 UUID',
-      required: true,
-      type: 'string',
-      example: '123e4567-e89b-12d3-a456-426614174000',
     }),
     ApiResponse({
       status: 200,
@@ -2618,6 +2567,307 @@ export function ApiUpdateNickname() {
           statusCode: 400,
           message: '닉네임은 최소 2자 이상이어야 합니다.',
           error: 'Bad Request',
+        },
+      },
+    }),
+  );
+}
+
+export function ApiGetPopularPosts() {
+  return applyDecorators(
+    ApiOperation({
+      summary: '인기 게시글 조회',
+      description:
+        '좋아요와 댓글 수를 기반으로 인기 게시글 목록을 조회합니다. (댓글 수는 가중치가 더 높습니다)',
+    }),
+    ApiQuery({
+      name: 'page',
+      required: false,
+      description: '페이지 번호 (default: 1)',
+      type: 'number',
+      example: 1,
+    }),
+    ApiQuery({
+      name: 'limit',
+      required: false,
+      description: '페이지당 항목 수 (default: 10)',
+      type: 'number',
+      example: 10,
+    }),
+    ApiResponse({
+      status: 200,
+      description: '인기 게시글 목록 조회 성공',
+      schema: {
+        type: 'object',
+        properties: {
+          data: {
+            type: 'array',
+            items: {
+              type: 'object',
+              properties: {
+                id: { type: 'number', example: 1 },
+                title: { type: 'string', example: '오늘의 운동 완료! 💪' },
+                content: { type: 'string', example: '하체 불태웠다🔥' },
+                imageUrl: {
+                  type: 'array',
+                  items: { type: 'string' },
+                  example: [
+                    'https://ssuled-bucket.s3.amazonaws.com/images/example.jpg',
+                  ],
+                },
+                bodyPart: {
+                  type: 'array',
+                  items: {
+                    type: 'string',
+                    enum: ['CHEST', 'BACK', 'LEGS', 'CORE'],
+                  },
+                  example: ['LEGS'],
+                },
+                duration: { type: 'number', example: 60 },
+                likeCount: { type: 'number', example: 42 },
+                commentCount: { type: 'number', example: 18 },
+                createdAt: {
+                  type: 'string',
+                  format: 'date-time',
+                  example: '2025-04-01T10:00:00.000Z',
+                },
+                updatedAt: {
+                  type: 'string',
+                  format: 'date-time',
+                  example: '2025-04-01T12:00:00.000Z',
+                },
+              },
+            },
+          },
+          meta: {
+            type: 'object',
+            properties: {
+              totalItems: { type: 'number', example: 100 },
+              itemsPerPage: { type: 'number', example: 10 },
+              totalPages: { type: 'number', example: 10 },
+              currentPage: { type: 'number', example: 1 },
+            },
+          },
+        },
+      },
+    }),
+  );
+}
+
+export function ApiDevToken() {
+  return applyDecorators(
+    ApiOperation({
+      summary: '개발용 토큰 발급 API',
+      description: '개발 및 테스트 환경에서 사용할 JWT 토큰을 발급합니다.',
+    }),
+    ApiBody({
+      schema: {
+        type: 'object',
+        properties: {
+          userUuid: {
+            type: 'string',
+            format: 'uuid',
+            example: '123e4567-e89b-12d3-a456-426614174000',
+          },
+        },
+        required: ['userUuid'],
+      },
+    }),
+    ApiResponse({
+      status: 200,
+      description: '토큰 발급 성공',
+      schema: {
+        type: 'object',
+        properties: {
+          ok: {
+            type: 'boolean',
+            example: true,
+          },
+          access_token: {
+            type: 'string',
+            example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
+          },
+          refresh_token: {
+            type: 'string',
+            example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
+          },
+          message: {
+            type: 'string',
+            example: '개발용 토큰이 생성되었습니다.',
+          },
+        },
+      },
+    }),
+    ApiResponse({
+      status: 500,
+      description: '토큰 발급 실패',
+      schema: {
+        type: 'object',
+        properties: {
+          ok: {
+            type: 'boolean',
+            example: false,
+          },
+          message: {
+            type: 'string',
+            example: '개발용 토큰 생성 실패',
+          },
+          error: {
+            type: 'string',
+            example: '사용자를 찾을 수 없습니다.',
+          },
+        },
+      },
+    }),
+    ApiResponse({
+      status: 403,
+      description: '프로덕션 환경에서 접근 시',
+      schema: {
+        type: 'object',
+        properties: {
+          ok: {
+            type: 'boolean',
+            example: false,
+          },
+          message: {
+            type: 'string',
+            example: '이 API는 개발 환경에서만 사용할 수 있습니다.',
+          },
+        },
+      },
+    }),
+  );
+}
+
+export function ApiTestAuth() {
+  return applyDecorators(
+    ApiOperation({
+      summary: '인증 테스트 API',
+      description: 'JWT 토큰 인증이 정상적으로 작동하는지 테스트합니다.',
+    }),
+    ApiBearerAuth(),
+    ApiResponse({
+      status: 200,
+      description: '인증 성공',
+      schema: {
+        type: 'object',
+        properties: {
+          ok: {
+            type: 'boolean',
+            example: true,
+          },
+          message: {
+            type: 'string',
+            example: '인증 성공',
+          },
+          userUuid: {
+            type: 'string',
+            format: 'uuid',
+            example: '123e4567-e89b-12d3-a456-426614174000',
+          },
+          timestamp: {
+            type: 'string',
+            format: 'date-time',
+            example: '2025-04-03T12:34:56.789Z',
+          },
+        },
+      },
+    }),
+    ApiResponse({
+      status: 401,
+      description: '인증 실패',
+      schema: {
+        type: 'object',
+        properties: {
+          statusCode: {
+            type: 'number',
+            example: 401,
+          },
+          message: {
+            type: 'string',
+            example: 'Unauthorized',
+          },
+          error: {
+            type: 'string',
+            example: 'Unauthorized',
+          },
+        },
+      },
+    }),
+  );
+}
+
+export function ApiVerifyToken() {
+  return applyDecorators(
+    ApiOperation({
+      summary: '토큰 직접 검증 API',
+      description: 'JWT 토큰을 직접 검증합니다.',
+    }),
+    ApiBody({
+      schema: {
+        type: 'object',
+        properties: {
+          token: {
+            type: 'string',
+            example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
+          },
+        },
+        required: ['token'],
+      },
+    }),
+    ApiResponse({
+      status: 200,
+      description: '토큰 검증 성공',
+      schema: {
+        type: 'object',
+        properties: {
+          ok: {
+            type: 'boolean',
+            example: true,
+          },
+          message: {
+            type: 'string',
+            example: '토큰 검증 성공',
+          },
+          decoded: {
+            type: 'object',
+            properties: {
+              userUuid: {
+                type: 'string',
+                format: 'uuid',
+                example: '123e4567-e89b-12d3-a456-426614174000',
+              },
+              iat: {
+                type: 'number',
+                example: 1712156121,
+              },
+              exp: {
+                type: 'number',
+                example: 1712159721,
+              },
+            },
+          },
+        },
+      },
+    }),
+    ApiResponse({
+      status: 401,
+      description: '토큰 검증 실패',
+      schema: {
+        type: 'object',
+        properties: {
+          ok: {
+            type: 'boolean',
+            example: false,
+          },
+          message: {
+            type: 'string',
+            example: '토큰 검증 실패',
+          },
+          error: {
+            type: 'string',
+            example: 'jwt expired',
+          },
         },
       },
     }),
