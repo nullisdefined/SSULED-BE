@@ -30,11 +30,16 @@
     "migration:revert:prod": "cross-env NODE_ENV=production node ./node_modules/typeorm/cli.js -d dist/config/orm.config.js migration:revert",
     "migration:show": "cross-env NODE_ENV=development npm run typeorm migration:show",
     "migration:show:prod": "cross-env NODE_ENV=production node ./node_modules/typeorm/cli.js -d dist/config/orm.config.js migration:show",
-    "db:seed": "ts-node -r tsconfig-paths/register ./node_modules/typeorm-extension/bin/cli.cjs seed:run -d config/orm.config.ts",
-    "db:create": "ts-node -r tsconfig-paths/register ./node_modules/typeorm-extension/bin/cli.cjs db:create -d config/orm.config.ts",
-    "db:drop": "ts-node -r tsconfig-paths/register ./node_modules/typeorm-extension/bin/cli.cjs db:drop -d config/orm.config.ts",
-    "db:sync": "ts-node -r tsconfig-paths/register ./scripts/db-sync.ts",
-    "db:refresh": "npm run db:drop && npm run db:create && npm run db:sync && npm run db:seed"
+    "db:seed": "cross-env NODE_ENV=development ts-node -r tsconfig-paths/register ./node_modules/typeorm-extension/bin/cli.cjs seed:run -d config/orm.config.ts",
+    "db:seed:prod": "cross-env NODE_ENV=production node ./node_modules/typeorm-extension/bin/cli.cjs seed:run -d dist/config/orm.config.js",
+    "db:create": "cross-env NODE_ENV=development ts-node -r tsconfig-paths/register ./node_modules/typeorm-extension/bin/cli.cjs db:create -d config/orm.config.ts",
+    "db:create:prod": "cross-env NODE_ENV=production node ./node_modules/typeorm-extension/bin/cli.cjs db:create -d dist/config/orm.config.js",
+    "db:drop": "cross-env NODE_ENV=development ts-node -r tsconfig-paths/register ./node_modules/typeorm-extension/bin/cli.cjs db:drop -d config/orm.config.ts",
+    "db:drop:prod": "cross-env NODE_ENV=production node ./node_modules/typeorm-extension/bin/cli.cjs db:drop -d dist/config/orm.config.js",
+    "db:sync": "cross-env NODE_ENV=development ts-node -r tsconfig-paths/register ./scripts/db-sync.ts",
+    "db:sync:prod": "cross-env NODE_ENV=production node dist/scripts/db-sync.js",
+    "db:refresh": "npm run db:drop && npm run db:create && npm run db:sync && npm run db:seed",
+    "db:refresh:prod": "npm run db:drop:prod && npm run db:create:prod && npm run db:sync:prod && npm run db:seed:prod"
   },
   "dependencies": {
     "@nestjs/common": "^10.4.15",

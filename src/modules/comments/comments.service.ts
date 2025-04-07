@@ -41,6 +41,7 @@ export class CommentsService {
 
     const comment = this.commentRepository.create({
       ...createCommentDto,
+      userUuid,
       userId,
     } as DeepPartial<Comment>);
 
@@ -73,6 +74,7 @@ export class CommentsService {
   async findAllComments(
     postId: number,
     findAllCommentsDto: FindAllCommentsDto,
+    userUuid?: string,
   ) {
     const { page, limit } = findAllCommentsDto;
 
@@ -100,6 +102,7 @@ export class CommentsService {
         id: comment.id,
         content: comment.content,
         postId: comment.postId,
+        isMine: userUuid ? comment.userUuid === userUuid : false,
         createdAt: comment.createdAt,
         updatedAt: comment.updatedAt,
         user: user
@@ -128,7 +131,7 @@ export class CommentsService {
    * @param postId 게시글 ID
    * @returns 댓글 목록
    */
-  async getCommentsByPostId(postId: number) {
+  async getCommentsByPostId(postId: number, userUuid?: string) {
     const comments = await this.commentRepository.find({
       where: { postId },
       order: { createdAt: 'ASC' },
@@ -149,6 +152,7 @@ export class CommentsService {
         id: comment.id,
         content: comment.content,
         userUuid: comment.userUuid,
+        isMine: userUuid ? comment.userUuid === userUuid : false,
         userName: user?.nickname || null,
         userProfileImage: user?.profileImage || null,
         createdAt: comment.createdAt,
@@ -162,7 +166,7 @@ export class CommentsService {
    * @param id 댓글 ID
    * @returns 댓글 정보
    */
-  async findOneComment(id: number) {
+  async findOneComment(id: number, userUuid?: string) {
     const comment = await this.commentRepository.findOne({ where: { id } });
     if (!comment) {
       throw new NotFoundException('해당 ID의 댓글을 찾을 수 없습니다.');
@@ -171,12 +175,20 @@ export class CommentsService {
     const {
       id: commentId,
       content,
-      userUuid,
+      userUuid: commentUserUuid,
       postId,
       createdAt,
       updatedAt,
     } = comment;
-    return { id: commentId, content, userUuid, postId, createdAt, updatedAt };
+    return {
+      id: commentId,
+      content,
+      userUuid: commentUserUuid,
+      postId,
+      isMine: userUuid ? commentUserUuid === userUuid : false,
+      createdAt,
+      updatedAt,
+    };
   }
 
   /**
@@ -201,7 +213,7 @@ export class CommentsService {
       updatedAt: new Date(),
     });
 
-    return this.findOneComment(id);
+    return this.findOneComment(id, userUuid);
   }
 
   /**
