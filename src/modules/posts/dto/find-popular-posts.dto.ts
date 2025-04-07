@@ -12,5 +12,5 @@ export class FindPopularPostsDto {
   @Min(1)
   @IsOptional()
   @Type(() => Number)
-  limit?: number = 10;
+  limit?: number = 24;
 }

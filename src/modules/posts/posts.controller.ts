@@ -47,11 +47,7 @@ export class PostsController {
     @Body() createPostDto: CreatePostDto,
     @UserUuid() userUuid: string,
   ) {
-    // userUuid를 createPostDto에 포함시키거나 서비스에 전달
-    return this.postsService.createPost({
-      ...createPostDto,
-      userUuid,
-    });
+    return this.postsService.createPost(createPostDto, userUuid);
   }
 
   /**
@@ -66,14 +62,13 @@ export class PostsController {
     @Query() findAllPostsDto: FindAllPostsDto,
     @UserUuid() userUuid: string,
   ) {
-    // userUuid를 dto에 포함시키거나 직접 전달
     return this.postsService.findAllPosts(findAllPostsDto, userUuid);
   }
 
   /**
    * 인기 게시글 조회
    * @param findPopularPostsDto 조회 옵션
-   * @param userUuid 사용자 UUID (옵션)
+   * @param userUuid 사용자 UUID
    * @returns 좋아요, 댓글 순 인기 게시글 목록
    */
   @Get('popular')
@@ -88,7 +83,7 @@ export class PostsController {
   /**
    * 게시글 상세 조회
    * @param postId 게시글 ID
-   * @param userUuid 사용자 UUID (옵션)
+   * @param userUuid 사용자 UUID
    * @returns 게시글 상세 정보
    */
   @Get(':postId')
@@ -111,10 +106,7 @@ export class PostsController {
     @Body() updatePostDto: UpdatePostDto,
     @UserUuid() userUuid: string,
   ) {
-    return this.postsService.updatePost(+postId, {
-      ...updatePostDto,
-      userUuid,
-    });
+    return this.postsService.updatePost(+postId, updatePostDto, userUuid);
   }
 
   /**
