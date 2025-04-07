@@ -259,8 +259,8 @@ export function ApiCreatePost() {
 export function ApiGetAllPosts() {
   return applyDecorators(
     ApiOperation({
-      summary: '모든 게시글 조회',
-      description: '모든 게시글 목록을 조회합니다.',
+      summary: '사용자 게시글 조회',
+      description: '한 사용자의 모든 게시글 목록을 조회합니다.',
     }),
     ApiQuery({
       name: 'page',
@@ -343,6 +343,16 @@ export function ApiGetAllPosts() {
                   type: 'number',
                   example: 5,
                   description: '댓글 수',
+                },
+                userUuid: {
+                  type: 'string',
+                  example: '123e4567-e89b-12d3-a456-426614174000',
+                  description: '게시글 작성자 UUID',
+                },
+                title: {
+                  type: 'string',
+                  example: '오늘의 운동',
+                  description: '게시글 제목 (없을 경우 작성 날짜가 기본값)',
                 },
               },
             },
@@ -449,6 +459,21 @@ export function ApiGetPostById() {
             type: 'boolean',
             example: true,
             description: '현재 사용자의 좋아요 여부',
+          },
+          userUuid: {
+            type: 'string',
+            example: '123e4567-e89b-12d3-a456-426614174000',
+            description: '게시글 작성자 UUID',
+          },
+          isMine: {
+            type: 'boolean',
+            example: true,
+            description: '현재 사용자의 게시글 여부',
+          },
+          title: {
+            type: 'string',
+            example: '오늘의 운동',
+            description: '게시글 제목 (없을 경우 작성 날짜가 기본값)',
           },
           comments: {
             type: 'array',
@@ -580,6 +605,14 @@ export function ApiUpdatePost() {
             type: 'number',
             example: 1,
           },
+          userUuid: {
+            type: 'string',
+            example: '123e4567-e89b-12d3-a456-426614174000',
+          },
+          title: {
+            type: 'string',
+            example: '오늘의 운동 기록',
+          },
           content: {
             type: 'string',
             example: '처음으로 헬스장에 가봤는데 너무 좋았어요! 오운완! 😎',
@@ -610,6 +643,10 @@ export function ApiUpdatePost() {
             example: 120,
           },
           isPublic: {
+            type: 'boolean',
+            example: true,
+          },
+          isMine: {
             type: 'boolean',
             example: true,
           },
@@ -993,6 +1030,10 @@ export function ApiGetAllComments() {
                   type: 'number',
                   example: 1,
                 },
+                isMine: {
+                  type: 'boolean',
+                  example: false,
+                },
                 createdAt: {
                   type: 'string',
                   format: 'date-time',
@@ -1101,6 +1142,10 @@ export function ApiGetComment() {
           postId: {
             type: 'number',
             example: 1,
+          },
+          isMine: {
+            type: 'boolean',
+            example: false,
           },
           createdAt: {
             type: 'string',
@@ -2232,7 +2277,7 @@ export function ApiGetGroupPosts() {
     ApiQuery({
       name: 'limit',
       required: false,
-      description: '페이지당 항목 수 (default: 10)',
+      description: '페이지당 항목 수 (default: 24)',
       type: 'number',
     }),
     ApiResponse({
@@ -2262,6 +2307,10 @@ export function ApiGetGroupPosts() {
                 userUuid: {
                   type: 'string',
                   example: '123e4567-e89b-12d3-a456-426614174000',
+                },
+                isMine: {
+                  type: 'boolean',
+                  example: true,
                 },
                 createdAt: {
                   type: 'string',
@@ -2293,7 +2342,7 @@ export function ApiGetGroupPosts() {
               },
               itemsPerPage: {
                 type: 'number',
-                example: 10,
+                example: 24,
               },
               totalPages: {
                 type: 'number',
@@ -2577,8 +2626,7 @@ export function ApiGetPopularPosts() {
   return applyDecorators(
     ApiOperation({
       summary: '인기 게시글 조회',
-      description:
-        '좋아요와 댓글 수를 기반으로 인기 게시글 목록을 조회합니다. (댓글 수는 가중치가 더 높습니다)',
+      description: '좋아요와 댓글 수를 기반으로 인기 게시글 목록을 조회합니다.',
     }),
     ApiQuery({
       name: 'page',
@@ -2590,9 +2638,9 @@ export function ApiGetPopularPosts() {
     ApiQuery({
       name: 'limit',
       required: false,
-      description: '페이지당 항목 수 (default: 10)',
+      description: '페이지당 항목 수 (default: 24)',
       type: 'number',
-      example: 10,
+      example: 24,
     }),
     ApiResponse({
       status: 200,
@@ -2626,6 +2674,7 @@ export function ApiGetPopularPosts() {
                 duration: { type: 'number', example: 60 },
                 likeCount: { type: 'number', example: 42 },
                 commentCount: { type: 'number', example: 18 },
+                isMine: { type: 'boolean', example: false },
                 createdAt: {
                   type: 'string',
                   format: 'date-time',
@@ -2643,7 +2692,7 @@ export function ApiGetPopularPosts() {
             type: 'object',
             properties: {
               totalItems: { type: 'number', example: 100 },
-              itemsPerPage: { type: 'number', example: 10 },
+              itemsPerPage: { type: 'number', example: 24 },
               totalPages: { type: 'number', example: 10 },
               currentPage: { type: 'number', example: 1 },
             },

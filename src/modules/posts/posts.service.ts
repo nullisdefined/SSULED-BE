@@ -34,9 +34,10 @@ export class PostsService {
    * @param createPostDto 게시글 생성 정보
    * @returns 생성된 게시글 정보
    */
-  async createPost(createPostDto: CreatePostDto) {
+  async createPost(createPostDto: CreatePostDto, userUuid: string) {
     const post = this.postRepository.create({
       ...createPostDto,
+      userUuid,
     });
     return this.postRepository.save(post);
   }
@@ -106,7 +107,10 @@ export class PostsService {
     }
 
     const likeCount = await this.likesService.getLikeCountByPostId(id);
-    const comments = await this.commentsService.getCommentsByPostId(id);
+    const comments = await this.commentsService.getCommentsByPostId(
+      id,
+      userUuid,
+    );
     const commentCount = comments.length;
     const likeStatus = userUuid
       ? await this.likesService.checkLikeStatus(userUuid, id)
@@ -118,6 +122,7 @@ export class PostsService {
       commentCount,
       userLiked: likeStatus?.liked ?? false,
       comments,
+      isMine: userUuid ? post.userUuid === userUuid : false,
     };
   }
 
@@ -127,20 +132,18 @@ export class PostsService {
    * @param updatePostDto 게시글 수정 정보
    * @returns 수정된 게시글 정보
    */
-  async updatePost(id: number, updatePostDto: UpdatePostDto) {
+  async updatePost(id: number, updatePostDto: UpdatePostDto, userUuid: string) {
     const post = await this.findOnePost(id);
 
     // 게시글 수정 권한 체크
-    if (post.userUuid !== updatePostDto.userUuid) {
+    if (post.userUuid !== userUuid) {
       throw new UnauthorizedException('게시글을 수정할 권한이 없습니다.');
     }
 
     // userUuid는 변경하지 않도록 제외
     const updateData = { ...updatePostDto };
-    delete updateData.userUuid;
-
     await this.postRepository.update(id, updateData);
-    return this.findOnePost(id);
+    return this.findOnePost(id, userUuid);
   }
 
   /**
@@ -218,6 +221,7 @@ export class PostsService {
         ...post,
         likeCount: likeCounts.get(post.id) || 0,
         commentCount: commentCounts.get(post.id) || 0,
+        isMine: post.userUuid === userUuid,
       };
     });
 
@@ -286,6 +290,7 @@ export class PostsService {
       ...post,
       likeCount: likeCounts.get(post.id) || 0,
       commentCount: commentCounts.get(post.id) || 0,
+      isMine: post.userUuid === userUuid,
     }));
 
     const sortedPosts = postsWithCounts.sort((a, b) => {

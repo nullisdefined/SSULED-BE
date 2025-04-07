@@ -57,8 +57,13 @@ export class CommentsController {
   findAllComments(
     @Param('postId') postId: string,
     @Query() findAllCommentsDto: FindAllCommentsDto,
+    @UserUuid() userUuid: string,
   ) {
-    return this.commentsService.findAllComments(+postId, findAllCommentsDto);
+    return this.commentsService.findAllComments(
+      +postId,
+      findAllCommentsDto,
+      userUuid,
+    );
   }
 
   /**
@@ -68,8 +73,11 @@ export class CommentsController {
    */
   @Get(':commentId')
   @ApiGetComment()
-  findOneComment(@Param('commentId') commentId: string) {
-    return this.commentsService.findOneComment(+commentId);
+  findOneComment(
+    @Param('commentId') commentId: string,
+    @UserUuid() userUuid: string,
+  ) {
+    return this.commentsService.findOneComment(+commentId, userUuid);
   }
 
   /**

@@ -9,10 +9,6 @@ import {
 } from 'class-validator';
 
 export class CreatePostDto {
-  // temporary
-  @IsString()
-  userUuid: string;
-
   @IsOptional()
   @IsString()
   title?: string;
