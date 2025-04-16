@@ -7,6 +7,8 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { Post } from '@/entities/post.entity';
+
 @Injectable()
 export class UsersService {
   constructor(
@@ -14,6 +16,8 @@ export class UsersService {
     private userRepository: Repository<User>,
     @InjectRepository(Auth)
     private authRepository: Repository<Auth>,
+    @InjectRepository(Post)
+    private postRepository: Repository<Post>,
   ) {}
 
   findOneBySocialId(socialId: string) {
