@@ -3,6 +3,11 @@ import { UserUuid } from '@/decorators/user-uuid.decorator';
 import { Body, Controller, Delete, Post, UseGuards } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import {
+  ApiLogout,
+  ApiUpdateIntroduction,
+  ApiUpdateNickname,
+} from '@/decorators/swagger.decorator';
 
 @ApiTags('user')
 @ApiBearerAuth('JWT-auth')
@@ -12,10 +17,14 @@ export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Post('logout')
+  @UseGuards(JwtAuthGuard)
+  @ApiLogout()
   async logout(@UserUuid() userUuid: string) {
     return this.usersService.logout(userUuid);
   }
 
+  @ApiUpdateNickname()
+  @UseGuards(JwtAuthGuard)
   @Post('nickname')
   async updateNickname(
     @Body('newNickname') newNickname: string,
@@ -25,6 +34,7 @@ export class UsersController {
   }
 
   @Post('introduction')
+  @ApiUpdateIntroduction()
   @UseGuards(JwtAuthGuard)
   async updateIntroduction(
     @Body('newIntroduction') newIntroduction: string,

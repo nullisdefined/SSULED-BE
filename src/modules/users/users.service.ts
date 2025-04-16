@@ -74,7 +74,6 @@ export class UsersService {
     );
 
     return {
-      ok: true,
       message: '로그아웃 성공',
     };
   }
@@ -99,7 +98,7 @@ export class UsersService {
     user.nickname = newNickname;
     await this.userRepository.save(user);
 
-    return { ok: true, nickname: newNickname, message: '닉네임 변경 성공' };
+    return { nickname: newNickname, message: '닉네임 변경 성공' };
   }
 
   async checkUserExists(userUuid: string): Promise<boolean> {
@@ -119,7 +118,7 @@ export class UsersService {
     user.introduction = newIntroduction;
     await this.userRepository.save(user);
 
-    return { ok: true, message: '소개글 변경 성공!' };
+    return { message: '소개글 변경 성공!' };
   }
 
   async getUserByIds(idArray: string[]) {
@@ -152,6 +151,6 @@ export class UsersService {
     await this.authRepository.delete({ userId });
     await this.userRepository.delete({ userUuid });
 
-    return { ok: true, message: '회원 탈퇴 성공!' };
+    return { message: '회원 탈퇴 성공!' };
   }
 }
