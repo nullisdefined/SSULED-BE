@@ -1,6 +1,6 @@
 import { JwtAuthGuard } from '@/auth/guards/jwt-auth.guard';
 import { UserUuid } from '@/decorators/user-uuid.decorator';
-import { Body, Controller, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Post, UseGuards } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
@@ -31,5 +31,11 @@ export class UsersController {
     @UserUuid() UserUuid: string,
   ) {
     return this.usersService.updateIntroduction(UserUuid, newIntroduction);
+  }
+
+  @Delete('member')
+  @UseGuards(JwtAuthGuard)
+  async deleteAccountn(@UserUuid() UserUuid: string) {
+    return this.usersService.deleteUser(UserUuid);
   }
 }

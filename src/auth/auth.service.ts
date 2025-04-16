@@ -263,13 +263,13 @@ export class AuthService {
       // 액세스 토큰 발급
       const access_token = await this.jwtService.sign(payload, {
         secret: process.env.JWT_ACCESS_TOKEN_SECRET,
-        expiresIn: `${process.env.JWT_ACCESS_TOKEN_EXPIRES_IN}`,
+        expiresIn: '30d',
       });
 
       // 리프레시 토큰 발급
       const refresh_token = await this.jwtService.sign(payload, {
         secret: process.env.JWT_REFRESH_TOKEN_SECRET,
-        expiresIn: `${process.env.JWT_REFRESH_TOKEN_EXPIRES_IN}`,
+        expiresIn: '30d',
       });
 
       // 리프레시 토큰 해싱 및 저장
