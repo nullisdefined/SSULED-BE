@@ -357,6 +357,20 @@ export function ApiGetAllPosts() {
               },
             },
           },
+          user: {
+            type: 'object',
+            properties: {
+              nickname: {
+                type: 'string',
+                example: '재굴TV',
+              },
+              profileImage: {
+                type: 'string',
+                example:
+                  'https://ssuled-bucket.s3.amazonaws.com/profiles/user1.jpg',
+              },
+            },
+          },
           meta: {
             type: 'object',
             properties: {
@@ -474,6 +488,20 @@ export function ApiGetPostById() {
             type: 'string',
             example: '오늘의 운동',
             description: '게시글 제목 (없을 경우 작성 날짜가 기본값)',
+          },
+          user: {
+            type: 'object',
+            properties: {
+              nickname: {
+                type: 'string',
+                example: '재굴TV',
+              },
+              profileImage: {
+                type: 'string',
+                example:
+                  'https://ssuled-bucket.s3.amazonaws.com/profiles/user1.jpg',
+              },
+            },
           },
           comments: {
             type: 'array',
@@ -2330,6 +2358,20 @@ export function ApiGetGroupPosts() {
                   type: 'number',
                   example: 3,
                 },
+              },
+            },
+          },
+          user: {
+            type: 'object',
+            properties: {
+              nickname: {
+                type: 'string',
+                example: '재굴TV',
+              },
+              profileImage: {
+                type: 'string',
+                example:
+                  'https://ssuled-bucket.s3.amazonaws.com/profiles/user1.jpg',
               },
             },
           },

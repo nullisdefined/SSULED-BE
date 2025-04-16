@@ -16,6 +16,8 @@ import { CommentsService } from '../comments/comments.service';
 import { GroupService } from '../group/group.service';
 import { FindPopularPostsDto } from './dto/find-popular-posts.dto';
 import { FindGroupPostsDto } from './dto/find-group-posts.dto';
+import { User } from '@/entities/user.entity';
+import { UsersService } from '../users/users.service';
 
 @Injectable()
 export class PostsService {
@@ -27,6 +29,9 @@ export class PostsService {
     private commentsService: CommentsService,
     @Inject(forwardRef(() => GroupService))
     private groupService: GroupService,
+    @InjectRepository(User)
+    private userRepository: Repository<User>,
+    private userService: UsersService,
   ) {}
 
   /**
@@ -67,12 +72,25 @@ export class PostsService {
     const commentCounts =
       await this.commentsService.getCommentCountsByPostIds(postIds);
 
+    // 사용자 정보 조회
+    const userId = await this.userService.getUserIdByUuid(userUuid);
+    const user = await this.userRepository.findOne({
+      where: { id: userId },
+      select: ['id', 'nickname', 'profileImage'],
+    });
+
     // 좋아요 수, 댓글 수 추가
     const postsWithLikeAndCommentCounts = posts.map((post) => {
       return {
         ...post,
         likeCount: likeCounts.get(post.id) || 0,
         commentCount: commentCounts.get(post.id) || 0,
+        user: user
+          ? {
+              nickname: user.nickname,
+              profileImage: user.profileImage,
+            }
+          : null,
       };
     });
 
@@ -106,6 +124,13 @@ export class PostsService {
       }
     }
 
+    // 사용자 정보 조회
+    const userId = await this.userService.getUserIdByUuid(post.userUuid);
+    const user = await this.userRepository.findOne({
+      where: { id: userId },
+      select: ['id', 'nickname', 'profileImage'],
+    });
+
     const likeCount = await this.likesService.getLikeCountByPostId(id);
     const comments = await this.commentsService.getCommentsByPostId(
       id,
@@ -123,6 +148,12 @@ export class PostsService {
       userLiked: likeStatus?.liked ?? false,
       comments,
       isMine: userUuid ? post.userUuid === userUuid : false,
+      user: user
+        ? {
+            nickname: user.nickname,
+            profileImage: user.profileImage,
+          }
+        : null,
     };
   }
 
@@ -216,12 +247,35 @@ export class PostsService {
     const commentCounts =
       await this.commentsService.getCommentCountsByPostIds(postIds);
 
+    // 게시글 작성자들의 UUID를 가져옴
+    const postUserUuids = [...new Set(posts.map((post) => post.userUuid))];
+
+    // 모든 작성자 정보를 한 번에 조회
+    const userIds = await Promise.all(
+      postUserUuids.map((uuid) => this.userService.getUserIdByUuid(uuid)),
+    );
+
+    const users = await this.userRepository.find({
+      where: { id: In(userIds.filter((id) => id !== null)) },
+      select: ['id', 'userUuid', 'nickname', 'profileImage'],
+    });
+
+    // UUID로 사용자 정보를 매핑하는 Map 생성
+    const userMap = new Map();
+    users.forEach((user) => {
+      userMap.set(user.userUuid, {
+        nickname: user.nickname,
+        profileImage: user.profileImage,
+      });
+    });
+
     const postsWithLikeAndCommentCounts = posts.map((post) => {
       return {
         ...post,
         likeCount: likeCounts.get(post.id) || 0,
         commentCount: commentCounts.get(post.id) || 0,
         isMine: post.userUuid === userUuid,
+        user: userMap.get(post.userUuid) || null,
       };
     });
 
@@ -286,11 +340,34 @@ export class PostsService {
     const commentCounts =
       await this.commentsService.getCommentCountsByPostIds(postIds);
 
+    // 게시글 작성자들의 UUID를 가져옴
+    const postUserUuids = [...new Set(posts.map((post) => post.userUuid))];
+
+    // 모든 작성자 정보를 한 번에 조회
+    const userIds = await Promise.all(
+      postUserUuids.map((uuid) => this.userService.getUserIdByUuid(uuid)),
+    );
+
+    const users = await this.userRepository.find({
+      where: { id: In(userIds.filter((id) => id !== null)) },
+      select: ['id', 'userUuid', 'nickname', 'profileImage'],
+    });
+
+    // UUID로 사용자 정보를 매핑하는 Map 생성
+    const userMap = new Map();
+    users.forEach((user) => {
+      userMap.set(user.userUuid, {
+        nickname: user.nickname,
+        profileImage: user.profileImage,
+      });
+    });
+
     const postsWithCounts = posts.map((post) => ({
       ...post,
       likeCount: likeCounts.get(post.id) || 0,
       commentCount: commentCounts.get(post.id) || 0,
       isMine: post.userUuid === userUuid,
+      user: userMap.get(post.userUuid) || null,
     }));
 
     const sortedPosts = postsWithCounts.sort((a, b) => {

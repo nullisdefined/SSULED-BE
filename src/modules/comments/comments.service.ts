@@ -153,8 +153,8 @@ export class CommentsService {
         content: comment.content,
         userUuid: comment.userUuid,
         isMine: userUuid ? comment.userUuid === userUuid : false,
-        userName: user?.nickname || null,
-        userProfileImage: user?.profileImage || null,
+        nickname: user?.nickname || null,
+        profileImage: user?.profileImage || null,
         createdAt: comment.createdAt,
         updatedAt: comment.updatedAt,
       };
