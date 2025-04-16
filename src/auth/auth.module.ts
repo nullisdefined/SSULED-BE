@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { Auth } from '@/entities/auth.entity';
@@ -9,11 +9,13 @@ import { PassportModule } from '@nestjs/passport';
 import { JwtModule } from '@nestjs/jwt';
 import { JwtStrategy } from './strategy/jwt.strategy';
 import { ConfigModule } from '@nestjs/config';
+import { Post } from '@/entities/post.entity';
+import { UsersModule } from '@/modules/users/users.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot(),
-    TypeOrmModule.forFeature([Auth, User]),
+    TypeOrmModule.forFeature([Auth, User, Post]),
     PassportModule,
     JwtModule.register({
       secret: process.env.JWT_ACCESS_TOKEN_SECRET,
@@ -21,6 +23,7 @@ import { ConfigModule } from '@nestjs/config';
         expiresIn: process.env.JWT_ACCESS_TOKEN_EXPIRES_IN,
       },
     }),
+    forwardRef(() => UsersModule),
   ],
   controllers: [AuthController],
   providers: [AuthService, UsersService, JwtStrategy],
