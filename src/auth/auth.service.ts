@@ -100,13 +100,15 @@ export class AuthService {
 
       const kakaoUser = userResponse.data;
 
+      const randomId = customAlphabet(
+        '0123456789abcdefghijklmnopqrstuvwxyz',
+        4,
+      );
+
       const user = {
         socialId: kakaoUser.id.toString(),
         socialNickname: kakaoUser.properties?.nickname || '',
-        nickname: `익명_${customAlphabet(
-          '0123456789abcdefghijklmnopqrstuvwxyz',
-          4,
-        )}`,
+        nickname: `익명_${randomId()}`,
         profileImage: kakaoUser.properties?.profile_image || '',
         socialProvider: SocialProvider.KAKAO,
         introduction: null,
@@ -148,14 +150,15 @@ export class AuthService {
       });
 
       const profile = userRes.data.response;
+      const randomId = customAlphabet(
+        '0123456789abcdefghijklmnopqrstuvwxyz',
+        4,
+      );
 
       const user = {
         socialId: profile.id,
         socialNickname: profile.nickname || '',
-        nickname: `익명_${customAlphabet(
-          '0123456789abcdefghijklmnopqrstuvwxyz',
-          4,
-        )}`,
+        nickname: `익명_${randomId()}`,
         profileImage: profile.profile_image || '',
         socialProvider: SocialProvider.NAVER,
         introduction: null,

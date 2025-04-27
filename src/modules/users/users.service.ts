@@ -1,8 +1,4 @@
 import { Auth } from '@/entities/auth.entity';
-import { Comment } from '@/entities/comment.entity';
-import { Group } from '@/entities/group.entity';
-import { Like } from '@/entities/like.entity';
-import { Post } from '@/entities/post.entity';
 import { User } from '@/entities/user.entity';
 import {
   BadRequestException,
@@ -18,14 +14,6 @@ export class UsersService {
     private userRepository: Repository<User>,
     @InjectRepository(Auth)
     private authRepository: Repository<Auth>,
-    @InjectRepository(Post)
-    private postRepository: Repository<Post>,
-    @InjectRepository(Comment)
-    private commentRepository: Repository<Comment>,
-    @InjectRepository(Like)
-    private likeRepository: Repository<Like>,
-    @InjectRepository(Group)
-    private groupRepository: Repository<Group>,
   ) {}
 
   findOneBySocialId(socialId: string) {
@@ -132,25 +120,36 @@ export class UsersService {
     return users.filter((user) => user !== null);
   }
 
-  // 회원 탈퇴
-  async deleteUser(userUuid: string) {
-    const userId = await this.getUserIdByUuid(userUuid);
+  // // 회원 탈퇴
+  // async deleteUser(userUuid: string) {
+  //   const userId = await this.getUserIdByUuid(userUuid);
 
-    if (!userId) {
-      throw new NotFoundException('사용자를 찾을 수 없습니다.');
-    }
+  //   if (!userId) {
+  //     throw new NotFoundException('사용자를 찾을 수 없습니다.');
+  //   }
 
-    // 사용자 관련 데이터 삭제
-    await this.postRepository.delete({ userUuid });
-    await this.commentRepository.delete({ userUuid });
-    await this.likeRepository.delete({ userUuid });
-    await this.groupRepository.delete({ ownerUuid: userUuid });
-    // 자신이 속한 그룹에서 삭제
+  //   // 사용자 관련 데이터 삭제
+  //   // await this.postRepository.delete({ userUuid });
+  //   await this.commentRepository.delete({ userUuid });
+  //   await this.likeRepository.delete({ userUuid });
+  //   await this.groupRepository.delete({ ownerUuid: userUuid });
+  //   // 자신이 속한 그룹에서 삭제
 
-    // 사용자 삭제
-    await this.authRepository.delete({ userId });
-    await this.userRepository.delete({ userUuid });
+  //   // 사용자 삭제
+  //   await this.authRepository.delete({ userId });
+  //   await this.userRepository.delete({ userUuid });
 
-    return { message: '회원 탈퇴 성공!' };
+  //   return { message: '회원 탈퇴 성공!' };
+  // }
+
+  async getUserInfo(userUuid: string) {
+    const user = await this.userRepository.findOne({
+      where: { userUuid },
+    });
+    return {
+      userName: user.nickname,
+      userImage: user.profileImage,
+      userIntroduction: user.introduction,
+    };
   }
 }
