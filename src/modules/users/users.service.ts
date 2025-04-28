@@ -66,7 +66,6 @@ export class UsersService {
     );
 
     return {
-      ok: true,
       message: '로그아웃 성공',
     };
   }
@@ -91,7 +90,7 @@ export class UsersService {
     user.nickname = newNickname;
     await this.userRepository.save(user);
 
-    return { ok: true, nickname: newNickname, message: '닉네임 변경 성공' };
+    return { nickname: newNickname, message: '닉네임 변경 성공' };
   }
 
   async checkUserExists(userUuid: string): Promise<boolean> {
@@ -111,7 +110,7 @@ export class UsersService {
     user.introduction = newIntroduction;
     await this.userRepository.save(user);
 
-    return { ok: true, message: '소개글 변경 성공!' };
+    return { message: '소개글 변경 성공!' };
   }
 
   async getUserByIds(idArray: string[]) {
@@ -123,5 +122,38 @@ export class UsersService {
     );
 
     return users.filter((user) => user !== null);
+  }
+
+  // // 회원 탈퇴
+  // async deleteUser(userUuid: string) {
+  //   const userId = await this.getUserIdByUuid(userUuid);
+
+  //   if (!userId) {
+  //     throw new NotFoundException('사용자를 찾을 수 없습니다.');
+  //   }
+
+  //   // 사용자 관련 데이터 삭제
+  //   // await this.postRepository.delete({ userUuid });
+  //   await this.commentRepository.delete({ userUuid });
+  //   await this.likeRepository.delete({ userUuid });
+  //   await this.groupRepository.delete({ ownerUuid: userUuid });
+  //   // 자신이 속한 그룹에서 삭제
+
+  //   // 사용자 삭제
+  //   await this.authRepository.delete({ userId });
+  //   await this.userRepository.delete({ userUuid });
+
+  //   return { message: '회원 탈퇴 성공!' };
+  // }
+
+  async getUserInfo(userUuid: string) {
+    const user = await this.userRepository.findOne({
+      where: { userUuid },
+    });
+    return {
+      userName: user.nickname,
+      userImage: user.profileImage,
+      userIntroduction: user.introduction,
+    };
   }
 }
