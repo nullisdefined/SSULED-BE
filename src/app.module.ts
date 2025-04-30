@@ -15,6 +15,7 @@ import { CommentsModule } from './modules/comments/comments.module';
 import { LikesModule } from './modules/likes/likes.module';
 import { UsersModule } from './modules/users/users.module';
 import { GroupModule } from './modules/group/group.module';
+import { StatisticsModule } from './modules/statistics/statistics.module';
 
 @Module({
   imports: [
@@ -37,6 +38,7 @@ import { GroupModule } from './modules/group/group.module';
     LikesModule,
     UsersModule,
     GroupModule,
+    StatisticsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

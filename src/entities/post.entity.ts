@@ -1,4 +1,3 @@
-import { BodyPartEnum } from '@/types/body-part.enum';
 import {
   Entity,
   PrimaryGeneratedColumn,
@@ -23,12 +22,6 @@ export class Post {
 
   @Column({ name: 'image_url', type: 'simple-array' })
   imageUrl: string[];
-
-  @Column({ name: 'body_part', type: 'simple-array' })
-  bodyPart: BodyPartEnum[];
-
-  @Column({ name: 'duration', type: 'integer' })
-  duration: number;
 
   @Column({ name: 'is_public', type: 'boolean', default: true })
   isPublic: boolean;
