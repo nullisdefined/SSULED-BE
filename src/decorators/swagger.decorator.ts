@@ -3155,3 +3155,56 @@ export function ApiGetQuarterlyGroupRanking() {
     }),
   );
 }
+
+export function ApiUpdateIntroduction() {
+  return applyDecorators(
+    ApiOperation({
+      summary: '소개글 수정',
+      description: '해당 유저의 소개글을 새로 수정합니다.',
+    }),
+    ApiParam({
+      name: 'userUuid',
+      type: 'string',
+      description: '소개글을 수정할 대상 유저의 UUID',
+      example: '123e4567-e89b-12d3-a456-426614174000',
+    }),
+    ApiBody({
+      schema: {
+        type: 'object',
+        properties: {
+          newIntroduction: {
+            type: 'string',
+            example: '안녕하세요. 새로운 소개글입니다!',
+          },
+        },
+        required: ['newIntroduction'],
+      },
+    }),
+    ApiResponse({
+      status: 200,
+      description: '소개글 변경 성공',
+      schema: {
+        type: 'object',
+        properties: {
+          message: {
+            type: 'string',
+            example: '소개글 변경 성공!',
+          },
+        },
+      },
+    }),
+    ApiResponse({
+      status: 404,
+      description: '유저를 찾을 수 없음',
+      schema: {
+        type: 'object',
+        properties: {
+          message: {
+            type: 'string',
+            example: '사용자를 찾을 수 없습니다.',
+          },
+        },
+      },
+    }),
+  );
+}
