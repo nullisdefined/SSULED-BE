@@ -100,13 +100,15 @@ export class AuthService {
 
       const kakaoUser = userResponse.data;
 
+      const randomId = customAlphabet(
+        '0123456789abcdefghijklmnopqrstuvwxyz',
+        4,
+      );
+
       const user = {
         socialId: kakaoUser.id.toString(),
         socialNickname: kakaoUser.properties?.nickname || '',
-        nickname: `익명_${customAlphabet(
-          '0123456789abcdefghijklmnopqrstuvwxyz',
-          4,
-        )}`,
+        nickname: `익명_${randomId()}`,
         profileImage: kakaoUser.properties?.profile_image || '',
         socialProvider: SocialProvider.KAKAO,
         introduction: null,
@@ -114,9 +116,7 @@ export class AuthService {
       return await this.handleSocialLogin(user, res);
     } catch (error) {
       console.log(error);
-      return res
-        .status(401)
-        .json({ ok: false, message: '카카오 로그인 실패', error });
+      return res.status(401).json({ message: '카카오 로그인 실패', error });
     }
   }
 
@@ -150,14 +150,15 @@ export class AuthService {
       });
 
       const profile = userRes.data.response;
+      const randomId = customAlphabet(
+        '0123456789abcdefghijklmnopqrstuvwxyz',
+        4,
+      );
 
       const user = {
         socialId: profile.id,
         socialNickname: profile.nickname || '',
-        nickname: `익명_${customAlphabet(
-          '0123456789abcdefghijklmnopqrstuvwxyz',
-          4,
-        )}`,
+        nickname: `익명_${randomId()}`,
         profileImage: profile.profile_image || '',
         socialProvider: SocialProvider.NAVER,
         introduction: null,
@@ -166,9 +167,7 @@ export class AuthService {
       return this.handleSocialLogin(user, res);
     } catch (error) {
       console.log(error);
-      return res
-        .status(401)
-        .json({ ok: false, message: '네이버 로그인 실패', error });
+      return res.status(401).json({ message: '네이버 로그인 실패', error });
     }
   }
 
@@ -177,7 +176,7 @@ export class AuthService {
     const refreshToken = req.headers['authorization']?.replace('Bearer ', '');
 
     if (!refreshToken) {
-      return res.status(401).json({ ok: false, message: '리프레시 토큰 없음' });
+      return res.status(401).json({ message: '리프레시 토큰 없음' });
     }
 
     try {
@@ -198,9 +197,7 @@ export class AuthService {
       });
 
       if (!auth || !(await bcrypt.compare(auth.refreshToken, refreshToken))) {
-        return res
-          .status(401)
-          .json({ ok: false, message: '리프레시 토큰 불일치' });
+        return res.status(401).json({ message: '리프레시 토큰 불일치' });
       }
 
       // 3. 새 accessToken 발급
@@ -248,7 +245,7 @@ export class AuthService {
       console.log(error);
       return res
         .status(401)
-        .json({ ok: false, message: '리프레시 토큰 만료 혹은 잘못됨' });
+        .json({ message: '리프레시 토큰 만료 혹은 잘못됨' });
     }
   }
 
@@ -263,13 +260,13 @@ export class AuthService {
       // 액세스 토큰 발급
       const access_token = await this.jwtService.sign(payload, {
         secret: process.env.JWT_ACCESS_TOKEN_SECRET,
-        expiresIn: `${process.env.JWT_ACCESS_TOKEN_EXPIRES_IN}`,
+        expiresIn: '30d',
       });
 
       // 리프레시 토큰 발급
       const refresh_token = await this.jwtService.sign(payload, {
         secret: process.env.JWT_REFRESH_TOKEN_SECRET,
-        expiresIn: `${process.env.JWT_REFRESH_TOKEN_EXPIRES_IN}`,
+        expiresIn: '30d',
       });
 
       // 리프레시 토큰 해싱 및 저장
@@ -301,7 +298,6 @@ export class AuthService {
     } catch (error) {
       console.error('개발용 토큰 생성 에러:', error);
       return res.status(500).json({
-        ok: false,
         message: '개발용 토큰 생성 실패',
         error: error.message,
       });
