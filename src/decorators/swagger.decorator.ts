@@ -2964,3 +2964,201 @@ export function ApiVerifyToken() {
     }),
   );
 }
+
+export function ApiGetQuarterlyUserStatistics() {
+  return applyDecorators(
+    ApiOperation({
+      summary: '분기별 개인 통계 조회',
+      description:
+        '특정 연도와 분기를 기준으로 사용자의 운동 통계를 조회합니다.',
+    }),
+    ApiQuery({
+      name: 'year',
+      required: true,
+      type: 'number',
+      example: 2025,
+    }),
+    ApiQuery({
+      name: 'quarter',
+      required: true,
+      type: 'number',
+      example: 2,
+    }),
+    ApiResponse({
+      status: 200,
+      description: '개인 통계 조회 성공',
+      schema: {
+        type: 'object',
+        properties: {
+          year: { type: 'number', example: 2025 },
+          quarter: { type: 'number', example: 2 },
+          timeZone: {
+            type: 'object',
+            properties: {
+              morning: { type: 'number', example: 4 },
+              daytime: { type: 'number', example: 10 },
+              evening: { type: 'number', example: 6 },
+              night: { type: 'number', example: 2 },
+            },
+          },
+          bodyPart: {
+            type: 'object',
+            properties: {
+              CHEST: { type: 'number', example: 2 },
+              BACK: { type: 'number', example: 3 },
+              LEGS: { type: 'number', example: 5 },
+              CORE: { type: 'number', example: 1 },
+              SPORTS: { type: 'number', example: 0 },
+              SHOULDERS_ARMS: { type: 'number', example: 4 },
+              CARDIO: { type: 'number', example: 2 },
+              OTHER: { type: 'number', example: 0 },
+            },
+          },
+          streak: {
+            type: 'object',
+            properties: {
+              currentStreak: { type: 'number', example: 4 },
+              longestStreak: { type: 'number', example: 12 },
+            },
+          },
+        },
+      },
+    }),
+  );
+}
+
+export function ApiGroupStreaks() {
+  return applyDecorators(
+    ApiOperation({
+      summary: '그룹 스트릭 통계 조회',
+      description:
+        '특정 연도와 월을 기준으로 해당 월이 포함된 분기의 통계를 조회합니다. 분기에 포함된 모든 날짜가 포함되며, 각 날짜마다 참여 인원 수가 value로 포함됩니다.',
+    }),
+    ApiParam({
+      name: 'groupId',
+      required: true,
+      type: 'string',
+      description: '그룹 ID',
+    }),
+    ApiQuery({
+      name: 'year',
+      required: true,
+      type: 'number',
+      example: 2025,
+    }),
+    ApiQuery({
+      name: 'month',
+      required: true,
+      type: 'number',
+      example: 4,
+    }),
+    ApiResponse({
+      status: 200,
+      description: '그룹 통계 조회 성공',
+      schema: {
+        type: 'object',
+        properties: {
+          data: {
+            type: 'array',
+            description: '분기에 포함된 모든 날짜별 참여 인원 수',
+            items: {
+              type: 'object',
+              properties: {
+                day: { type: 'string', example: '2025-04-01' },
+                value: { type: 'number', example: 7 },
+              },
+            },
+            example: [
+              { day: '2025-04-01', value: 7 },
+              { day: '2025-04-02', value: 4 },
+              { day: '2025-04-03', value: 0 },
+              { day: '2025-04-04', value: 6 },
+              { day: '2025-04-05', value: 0 },
+            ],
+          },
+          groupInfo: {
+            type: 'object',
+            properties: {
+              maxMember: { type: 'number', example: 15 },
+              startDate: { type: 'string', example: '2025-04-01' },
+              endDate: { type: 'string', example: '2025-06-30' },
+            },
+          },
+        },
+      },
+    }),
+  );
+}
+
+export function ApiGetQuarterlyGroupRanking() {
+  return applyDecorators(
+    ApiOperation({
+      summary: '분기별 그룹 랭킹 조회',
+      description: '특정 연도와 분기에 대해 상위 3개의 팀 랭킹을 조회합니다.',
+    }),
+    ApiQuery({
+      name: 'year',
+      required: true,
+      type: 'number',
+      example: 2025,
+      description: '조회할 연도',
+    }),
+    ApiQuery({
+      name: 'quarter',
+      required: true,
+      type: 'number',
+      example: 2,
+      description: '조회할 분기 (1~4)',
+    }),
+    ApiResponse({
+      status: 200,
+      description: '그룹 랭킹 조회 성공',
+      schema: {
+        type: 'object',
+        properties: {
+          year: { type: 'number', example: 2025 },
+          quarter: { type: 'number', example: 2 },
+          isFinal: { type: 'boolean', example: false },
+          teams: {
+            type: 'array',
+            description: '상위 3개의 팀 랭킹 정보',
+            items: {
+              type: 'object',
+              properties: {
+                groupId: { type: 'number', example: 3 },
+                groupTitle: { type: 'string', example: '슈레드' },
+                score: { type: 'number', example: 91.2 },
+                commits: { type: 'number', example: 74 },
+              },
+            },
+          },
+        },
+        example: {
+          year: 2025,
+          quarter: 2,
+          isFinal: false,
+          teams: [
+            {
+              groupId: 3,
+              groupTitle: '슈레드',
+              score: 91.2,
+              commits: 74,
+            },
+            {
+              groupId: 7,
+              groupTitle: 'SSULED',
+              score: 87.8,
+              commits: 69,
+            },
+            {
+              groupId: 12,
+              groupTitle: '조명은LED',
+              score: 84.5,
+              commits: 64,
+            },
+          ],
+        },
+      },
+    }),
+  );
+}

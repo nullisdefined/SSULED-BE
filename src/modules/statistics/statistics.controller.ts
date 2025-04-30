@@ -1,14 +1,51 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get, Query, UseGuards } from '@nestjs/common';
 import { StatisticsService } from './statistics.service';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import {
+  ApiGroupStreaks,
+  ApiGetQuarterlyGroupRanking,
+  ApiGetQuarterlyUserStatistics,
+} from '@/decorators/swagger.decorator';
+import { JwtAuthGuard } from '@/auth/guards/jwt-auth.guard';
+import { UserUuid } from '@/decorators/user-uuid.decorator';
 
-@ApiTags('Statistics')
+@ApiTags('statistics')
+@ApiBearerAuth('JWT-auth')
 @Controller('statistics')
+@UseGuards(JwtAuthGuard)
 export class StatisticsController {
   constructor(private readonly statisticsService: StatisticsService) {}
 
-  @Get('')
-  async getStatistics() {
-    return 'Hello World';
+  @Get('/user/stats')
+  @ApiGetQuarterlyUserStatistics()
+  getUserStatistics(
+    @Query('year') year: number,
+    @Query('quarter') quarter: number,
+    @UserUuid() userUuid: string,
+  ) {
+    return this.statisticsService.getUserQuarterlyStats(
+      userUuid,
+      year,
+      quarter,
+    );
+  }
+
+  @Get('/group/streaks')
+  @ApiGroupStreaks()
+  getGroupStreaks(
+    @Query('groupId') groupId: number,
+    @Query('year') year: number,
+    @Query('month') month: number,
+  ) {
+    return this.statisticsService.getGroupStreaks(groupId, year, month);
+  }
+
+  @Get('/group/ranking')
+  @ApiGetQuarterlyGroupRanking()
+  getGroupRanking(
+    @Query('year') year: number,
+    @Query('quarter') quarter: number,
+  ) {
+    return this.statisticsService.getGroupRanking(year, quarter);
   }
 }

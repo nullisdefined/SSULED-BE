@@ -5,6 +5,7 @@ import { DataSource } from 'typeorm';
 import { Logger } from 'winston';
 import { LoggerService } from '@/utils/logger.service';
 import { BodyPartEnum } from '@/types/body-part.enum';
+import { WorkoutLog } from '@/entities/workout-log.entity';
 
 export class PostSeeder implements Seeder {
   private readonly logger: Logger = LoggerService.getInstance().logger;
@@ -12,7 +13,7 @@ export class PostSeeder implements Seeder {
   public async run(dataSource: DataSource): Promise<void> {
     const postRepository = dataSource.getRepository(Post);
     const userRepository = dataSource.getRepository(User);
-
+    const workoutLogRepository = dataSource.getRepository(WorkoutLog);
     // 사용자 목록 가져오기
     const users = await userRepository.find();
 
@@ -88,11 +89,25 @@ export class PostSeeder implements Seeder {
     ];
 
     for (const postData of posts) {
-      // 새 게시글 생성
-      const post = postRepository.create(postData);
-      await postRepository.save(post);
+      // 1. 게시글 저장
+      const { bodyPart, duration, ...postFields } = postData;
+      const post = postRepository.create(postFields);
+      const savedPost = await postRepository.save(post);
 
-      this.logger.info(`게시글 '${post.title}' 생성 완료`);
+      // 2. 운동 로그 저장 (bodyPart 여러 개일 경우 각각 저장)
+      for (const part of bodyPart) {
+        const workoutLog = workoutLogRepository.create({
+          userUuid: postData.userUuid,
+          bodyPart: [part],
+          duration: Math.round(duration / bodyPart.length),
+          postId: savedPost.id,
+        });
+        await workoutLogRepository.save(workoutLog);
+      }
+
+      this.logger.info(
+        `게시글 '${savedPost.title}' 생성 및 운동 로그 추가 완료`,
+      );
     }
   }
 }

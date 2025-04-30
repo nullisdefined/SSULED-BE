@@ -11,6 +11,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { In, Repository } from 'typeorm';
 import { FindAllPostsDto } from './dto/find-all-posts.dto';
 import { Post } from '@/entities/post.entity';
+import { WorkoutLog } from '@/entities/workout-log.entity';
 import { LikesService } from '@/modules/likes/likes.service';
 import { CommentsService } from '../comments/comments.service';
 import { GroupService } from '../group/group.service';
@@ -24,6 +25,8 @@ export class PostsService {
   constructor(
     @InjectRepository(Post)
     private postRepository: Repository<Post>,
+    @InjectRepository(WorkoutLog)
+    private workoutLogRepository: Repository<WorkoutLog>,
     private likesService: LikesService,
     @Inject(forwardRef(() => CommentsService))
     private commentsService: CommentsService,
@@ -40,11 +43,31 @@ export class PostsService {
    * @returns 생성된 게시글 정보
    */
   async createPost(createPostDto: CreatePostDto, userUuid: string) {
+    const { title, content, imageUrl, isPublic, bodyPart, duration } =
+      createPostDto;
+
     const post = this.postRepository.create({
-      ...createPostDto,
+      title,
+      content,
+      imageUrl,
+      isPublic,
       userUuid,
     });
-    return this.postRepository.save(post);
+    const savedPost = await this.postRepository.save(post);
+
+    if (duration && bodyPart?.length > 0) {
+      for (const part of bodyPart) {
+        const log = this.workoutLogRepository.create({
+          userUuid,
+          bodyPart: [part],
+          duration: Math.round(duration / bodyPart.length),
+          postId: savedPost.id,
+        });
+        await this.workoutLogRepository.save(log);
+      }
+    }
+
+    return savedPost;
   }
 
   /**
@@ -166,14 +189,29 @@ export class PostsService {
   async updatePost(id: number, updatePostDto: UpdatePostDto, userUuid: string) {
     const post = await this.findOnePost(id);
 
-    // 게시글 수정 권한 체크
     if (post.userUuid !== userUuid) {
       throw new UnauthorizedException('게시글을 수정할 권한이 없습니다.');
     }
 
-    // userUuid는 변경하지 않도록 제외
     const updateData = { ...updatePostDto };
     await this.postRepository.update(id, updateData);
+
+    if (updatePostDto.bodyPart && updatePostDto.duration) {
+      await this.workoutLogRepository.delete({ postId: id });
+
+      for (const part of updatePostDto.bodyPart) {
+        const log = this.workoutLogRepository.create({
+          userUuid,
+          bodyPart: [part],
+          duration: Math.round(
+            updatePostDto.duration / updatePostDto.bodyPart.length,
+          ),
+          postId: id,
+        });
+        await this.workoutLogRepository.save(log);
+      }
+    }
+
     return this.findOnePost(id, userUuid);
   }
 
@@ -191,7 +229,8 @@ export class PostsService {
       throw new UnauthorizedException('게시글을 삭제할 권한이 없습니다.');
     }
 
-    this.postRepository.delete(id);
+    await this.workoutLogRepository.delete({ postId: id });
+    await this.postRepository.delete(id);
     return {
       message: '게시글이 성공적으로 삭제되었습니다.',
     };
