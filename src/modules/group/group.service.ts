@@ -22,7 +22,7 @@ export class GroupService {
    * @param userUuid 사용자 UUID
    * @returns 사용자가 소속된 그룹 또는 null
    */
-  private async findUserGroup(userUuid: string): Promise<Group | null> {
+  async findUserGroup(userUuid: string): Promise<Group | null> {
     // memberUuid 배열에 사용자 UUID가 포함된 그룹 찾기
     const groups = await this.groupRepository.find({
       where: {},

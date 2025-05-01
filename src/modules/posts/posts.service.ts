@@ -20,6 +20,8 @@ import { FindGroupPostsDto } from './dto/find-group-posts.dto';
 import { User } from '@/entities/user.entity';
 import { UsersService } from '../users/users.service';
 import { QuarterlyStatistics } from '@/entities/quarterly-statistics.entity';
+import { QuarterlyRanking } from '@/entities/quarterly-ranking.entity';
+import { RankingType } from '@/types/ranking.enum';
 
 @Injectable()
 export class PostsService {
@@ -30,6 +32,8 @@ export class PostsService {
     private workoutLogRepository: Repository<WorkoutLog>,
     @InjectRepository(QuarterlyStatistics)
     private quarterlyStatisticsRepository: Repository<QuarterlyStatistics>,
+    @InjectRepository(QuarterlyRanking)
+    private quarterlyRankingRepository: Repository<QuarterlyRanking>,
     private likesService: LikesService,
     @Inject(forwardRef(() => CommentsService))
     private commentsService: CommentsService,
@@ -93,6 +97,37 @@ export class PostsService {
 
     // 오늘 올린 post가 없다면 그룹 통계에 집계
     if (!alreadyPostedToday) {
+      const isGroup = await this.groupService.findUserGroup(userUuid);
+      if (isGroup) {
+        const groupId = isGroup.id;
+
+        const group = await this.groupService.findOneGroup(groupId);
+        const currentMembers = group.memberUuid.length;
+        const score = (1 / currentMembers) * 100;
+
+        let ranking = await this.quarterlyRankingRepository.findOne({
+          where: { groupId, year, quarter },
+        });
+
+        if (!ranking) {
+          ranking = this.quarterlyRankingRepository.create({
+            type: RankingType.GROUP,
+            groupId,
+            year,
+            quarter,
+            streak: 0,
+            rate: 0,
+            commits: 1,
+            score,
+            isFinal: false,
+          });
+        } else {
+          ranking.commits += 1;
+          ranking.score += score;
+        }
+
+        await this.quarterlyRankingRepository.save(ranking);
+      }
     }
 
     // 개인 통계 집계

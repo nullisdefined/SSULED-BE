@@ -10,10 +10,17 @@ import { User } from '@/entities/user.entity';
 import { UsersModule } from '../users/users.module';
 import { WorkoutLog } from '@/entities/workout-log.entity';
 import { QuarterlyStatistics } from '@/entities/quarterly-statistics.entity';
+import { QuarterlyRanking } from '@/entities/quarterly-ranking.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Post, User, WorkoutLog, QuarterlyStatistics]),
+    TypeOrmModule.forFeature([
+      Post,
+      User,
+      WorkoutLog,
+      QuarterlyStatistics,
+      QuarterlyRanking,
+    ]),
     forwardRef(() => LikesModule),
     forwardRef(() => CommentsModule),
     forwardRef(() => GroupModule),
