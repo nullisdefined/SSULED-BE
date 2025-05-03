@@ -8,7 +8,7 @@ import {
 import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { In, Repository } from 'typeorm';
+import { Between, In, Repository } from 'typeorm';
 import { FindAllPostsDto } from './dto/find-all-posts.dto';
 import { Post } from '@/entities/post.entity';
 import { WorkoutLog } from '@/entities/workout-log.entity';
@@ -19,6 +19,9 @@ import { FindPopularPostsDto } from './dto/find-popular-posts.dto';
 import { FindGroupPostsDto } from './dto/find-group-posts.dto';
 import { User } from '@/entities/user.entity';
 import { UsersService } from '../users/users.service';
+import { QuarterlyStatistics } from '@/entities/quarterly-statistics.entity';
+import { QuarterlyRanking } from '@/entities/quarterly-ranking.entity';
+import { RankingType } from '@/types/ranking.enum';
 
 @Injectable()
 export class PostsService {
@@ -27,6 +30,10 @@ export class PostsService {
     private postRepository: Repository<Post>,
     @InjectRepository(WorkoutLog)
     private workoutLogRepository: Repository<WorkoutLog>,
+    @InjectRepository(QuarterlyStatistics)
+    private quarterlyStatisticsRepository: Repository<QuarterlyStatistics>,
+    @InjectRepository(QuarterlyRanking)
+    private quarterlyRankingRepository: Repository<QuarterlyRanking>,
     private likesService: LikesService,
     @Inject(forwardRef(() => CommentsService))
     private commentsService: CommentsService,
@@ -46,6 +53,22 @@ export class PostsService {
     const { title, content, imageUrl, isPublic, bodyPart, duration } =
       createPostDto;
 
+    // 오늘 작성한 글 있는지 확인
+    const todayStart = new Date();
+    todayStart.setHours(0, 0, 0, 0);
+    const todayEnd = new Date();
+    todayEnd.setHours(23, 59, 59, 999);
+    const now = new Date();
+    const year = now.getFullYear();
+    const quarter = Math.floor(now.getMonth() / 3) + 1;
+
+    const alreadyPostedToday = await this.postRepository.exists({
+      where: {
+        userUuid,
+        createdAt: Between(todayStart, todayEnd),
+      },
+    });
+
     const post = this.postRepository.create({
       title,
       content,
@@ -54,6 +77,98 @@ export class PostsService {
       userUuid,
     });
     const savedPost = await this.postRepository.save(post);
+
+    // kst 시간대 구분 함수
+    function getCurrentKSTTimeZoneLabel():
+      | 'dawn'
+      | 'morning'
+      | 'afternoon'
+      | 'night' {
+      const utcNow = new Date();
+      const kstNow = new Date(utcNow.getTime() + 9 * 60 * 60 * 1000); // + 9시간 보정
+      const hour = kstNow.getUTCHours(); // 보정된 시간 기준으로 getUTCHours()
+
+      if (hour < 6) return 'dawn';
+      if (hour < 12) return 'morning';
+      if (hour < 18) return 'afternoon';
+      return 'night';
+    }
+    const timeZoneLabel = getCurrentKSTTimeZoneLabel();
+
+    // 오늘 올린 post가 없다면 그룹 통계에 집계
+    if (!alreadyPostedToday) {
+      const isGroup = await this.groupService.findUserGroup(userUuid);
+      if (isGroup) {
+        const groupId = isGroup.id;
+
+        const group = await this.groupService.findOneGroup(groupId);
+        const currentMembers = group.memberUuid.length;
+        const score = (1 / currentMembers) * 100;
+
+        let ranking = await this.quarterlyRankingRepository.findOne({
+          where: { groupId, year, quarter },
+        });
+
+        if (!ranking) {
+          ranking = this.quarterlyRankingRepository.create({
+            type: RankingType.GROUP,
+            groupId,
+            year,
+            quarter,
+            streak: 0,
+            rate: 0,
+            commits: 1,
+            score,
+            isFinal: false,
+          });
+        } else {
+          ranking.commits += 1;
+          ranking.score += score;
+        }
+
+        await this.quarterlyRankingRepository.save(ranking);
+      }
+    }
+
+    // 개인 통계 집계
+    let stat = await this.quarterlyStatisticsRepository.findOne({
+      where: { userUuid, year, quarter },
+    });
+
+    if (!stat) {
+      // 처음이면 통계 엔트리 생성
+      const initialBodyPart = {};
+      for (const part of bodyPart) {
+        initialBodyPart[part] = 1;
+      }
+      const initalTimeZone = { dawn: 0, morning: 0, afternoon: 0, night: 0 };
+      initalTimeZone[timeZoneLabel] = 1;
+
+      stat = this.quarterlyStatisticsRepository.create({
+        userUuid,
+        year,
+        quarter,
+        timeZone: initalTimeZone,
+        bodyPart: initialBodyPart,
+        currentStreak: alreadyPostedToday ? 0 : 1,
+        longestStreak: alreadyPostedToday ? 0 : 1,
+      });
+    } else {
+      for (const part of bodyPart) {
+        stat.bodyPart[part] = (stat.bodyPart[part] || 0) + 1;
+      }
+
+      stat.timeZone[timeZoneLabel] = (stat.timeZone[timeZoneLabel] || 0) + 1;
+
+      if (!alreadyPostedToday) {
+        stat.currentStreak += 1;
+        if (stat.currentStreak > stat.longestStreak) {
+          stat.longestStreak = stat.currentStreak;
+        }
+      }
+    }
+
+    await this.quarterlyStatisticsRepository.save(stat);
 
     if (duration && bodyPart?.length > 0) {
       for (const part of bodyPart) {
