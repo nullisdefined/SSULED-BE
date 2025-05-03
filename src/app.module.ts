@@ -20,8 +20,8 @@ import { StatisticsModule } from './modules/statistics/statistics.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
+      envFilePath: `env/.${process.env.NODE_ENV || 'development'}.env`,
       isGlobal: true,
-      envFilePath: `env/.${process.env.NODE_ENV}.env`,
     }),
     WinstonModule.forRoot(winstonConfig),
     TypeOrmModule.forRootAsync({
