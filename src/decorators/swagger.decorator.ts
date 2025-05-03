@@ -2573,10 +2573,6 @@ export function ApiLogout() {
       schema: {
         type: 'object',
         properties: {
-          ok: {
-            type: 'boolean',
-            example: true,
-          },
           message: {
             type: 'string',
             example: '로그아웃 완료',
@@ -2763,10 +2759,6 @@ export function ApiDevToken() {
       schema: {
         type: 'object',
         properties: {
-          ok: {
-            type: 'boolean',
-            example: true,
-          },
           access_token: {
             type: 'string',
             example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
@@ -2788,10 +2780,6 @@ export function ApiDevToken() {
       schema: {
         type: 'object',
         properties: {
-          ok: {
-            type: 'boolean',
-            example: false,
-          },
           message: {
             type: 'string',
             example: '개발용 토큰 생성 실패',
@@ -2809,10 +2797,6 @@ export function ApiDevToken() {
       schema: {
         type: 'object',
         properties: {
-          ok: {
-            type: 'boolean',
-            example: false,
-          },
           message: {
             type: 'string',
             example: '이 API는 개발 환경에서만 사용할 수 있습니다.',
@@ -2836,10 +2820,6 @@ export function ApiTestAuth() {
       schema: {
         type: 'object',
         properties: {
-          ok: {
-            type: 'boolean',
-            example: true,
-          },
           message: {
             type: 'string',
             example: '인증 성공',
@@ -2905,10 +2885,6 @@ export function ApiVerifyToken() {
       schema: {
         type: 'object',
         properties: {
-          ok: {
-            type: 'boolean',
-            example: true,
-          },
           message: {
             type: 'string',
             example: '토큰 검증 성공',
@@ -2940,10 +2916,6 @@ export function ApiVerifyToken() {
       schema: {
         type: 'object',
         properties: {
-          ok: {
-            type: 'boolean',
-            example: false,
-          },
           message: {
             type: 'string',
             example: '토큰 검증 실패',

@@ -33,12 +33,12 @@ export class AuthService {
     const findUserPayload = { userUuid: findUser.userUuid };
     const access_token = await this.jwtService.sign(findUserPayload, {
       secret: process.env.JWT_ACCESS_TOKEN_SECRET,
-      expiresIn: `${process.env.JWT_ACCESS_TOKEN_EXPIRES_IN}`,
+      expiresIn: process.env.JWT_ACCESS_TOKEN_EXPIRES_IN,
     });
 
     const refresh_token = await this.jwtService.sign(findUserPayload, {
       secret: process.env.JWT_REFRESH_TOKEN_SECRET,
-      expiresIn: `${process.env.JWT_REFRESH_TOKEN_EXPIRES_IN}`,
+      expiresIn: process.env.JWT_REFRESH_TOKEN_EXPIRES_IN,
     });
 
     const userId = await this.userService.getUserIdByUuid(findUser.userUuid);
@@ -49,7 +49,7 @@ export class AuthService {
     const hashedRefreshToken = await bcrypt.hash(refresh_token, 10);
 
     if (existingAuth) {
-      existingAuth.refreshToken = refresh_token;
+      existingAuth.refreshToken = hashedRefreshToken;
       await this.authRepository.save(existingAuth);
     } else {
       const newAuth = await this.authRepository.create({
@@ -60,7 +60,6 @@ export class AuthService {
     }
 
     return res.json({
-      ok: true,
       access_token,
       refresh_token,
       message: '로그인 성공',
@@ -173,7 +172,9 @@ export class AuthService {
 
   // refreshToken으로 accessToken 재발급
   async RefreshToken(req: Request, res: Response) {
+    console.log('req.headers: ', req.headers);
     const refreshToken = req.headers['authorization']?.replace('Bearer ', '');
+    console.log('refreshToken:', refreshToken);
 
     if (!refreshToken) {
       return res.status(401).json({ message: '리프레시 토큰 없음' });
@@ -185,18 +186,22 @@ export class AuthService {
         secret: process.env.JWT_REFRESH_TOKEN_SECRET,
       });
 
+      console.log('payload:', payload);
+
       const userId = await this.userService.getUserIdByUuid(payload.userUuid);
 
       if (!userId) {
-        return res.status(401).json({ ok: false, message: '유효하지 않음' });
+        console.log('에러나옴');
+        return res.status(401).json({ message: '유효하지 않음' });
       }
 
       // 2. DB에 저장된 refreshToken과 비교
       const auth = await this.authRepository.findOne({
         where: { userId },
       });
+      console.log('auth.refereshToken:', auth.refreshToken);
 
-      if (!auth || !(await bcrypt.compare(auth.refreshToken, refreshToken))) {
+      if (!auth || !(await bcrypt.compare(refreshToken, auth.refreshToken))) {
         return res.status(401).json({ message: '리프레시 토큰 불일치' });
       }
 
@@ -233,7 +238,6 @@ export class AuthService {
       }
 
       return res.json({
-        ok: true,
         message: newRefreshToken
           ? 'accessToken 및 refreshToken 재발급 완료'
           : 'accessToken 재발급 완료',
