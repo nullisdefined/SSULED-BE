@@ -6,6 +6,7 @@ import { QuarterlyStatistics } from '@/entities/quarterly-statistics.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Group } from '@/entities/group.entity';
 import { Post } from '@/entities/post.entity';
+import { DailyGroupActivity } from '@/entities/daily_group_activiry.entity';
 @Module({
   imports: [
     TypeOrmModule.forFeature([
@@ -13,6 +14,7 @@ import { Post } from '@/entities/post.entity';
       QuarterlyStatistics,
       Group,
       Post,
+      DailyGroupActivity,
     ]),
   ],
   controllers: [StatisticsController],

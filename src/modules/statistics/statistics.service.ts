@@ -1,10 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { In, Repository } from 'typeorm';
+import { Between, In, Repository } from 'typeorm';
 import { QuarterlyRanking } from '@/entities/quarterly-ranking.entity';
 import { QuarterlyStatistics } from '@/entities/quarterly-statistics.entity';
 import { Group } from '@/entities/group.entity';
 import { Post } from '@/entities/post.entity';
+import { DailyGroupActivity } from '@/entities/daily_group_activiry.entity';
 
 @Injectable()
 export class StatisticsService {
@@ -17,8 +18,11 @@ export class StatisticsService {
     private readonly groupRepository: Repository<Group>,
     @InjectRepository(Post)
     private readonly postRepository: Repository<Post>,
+    @InjectRepository(DailyGroupActivity)
+    private readonly dailyGroupActivity: Repository<DailyGroupActivity>,
   ) {}
 
+  // 개인 통계
   async getGroupRanking(year: number, quarter: number) {
     const rankings = await this.quarterlyRankingRepository.find({
       where: { year, quarter },
@@ -51,52 +55,99 @@ export class StatisticsService {
   }
 
   async getUserQuarterlyStats(userUuid: string, year: number, quarter: number) {
-    return this.quarterlyStatisticsRepository.findOne({
-      where: { userUuid, year, quarter },
-    });
-  }
+    // 분기 시작/끝 날짜 계산
+    const quarterStartMonth = (quarter - 1) * 3 + 1;
+    const startDate = new Date(Date.UTC(year, quarterStartMonth, 1));
+    const endDate = new Date(Date.UTC(year, quarterStartMonth + 3, 0)); // 말일
 
-  async getGroupStreaks(groupId: number, year: number, month: number) {
-    const quarter = Math.ceil(month / 3);
-    const startMonth = (quarter - 1) * 3 + 1;
-    const startDate = new Date(
-      `${year}-${String(startMonth).padStart(2, '0')}-01`,
-    );
-    const endDate = new Date(startDate);
-    endDate.setMonth(endDate.getMonth() + 3);
-    endDate.setDate(endDate.getDate() - 1);
-
-    // 날짜별 참여 인원 수 조회
-    const posts = await this.postRepository
-      .createQueryBuilder('post')
-      .select("TO_CHAR(post.created_at, 'YYYY-MM-DD')", 'day')
-      .addSelect('COUNT(DISTINCT post.user_uuid)', 'value')
-      .where('post.created_at BETWEEN :start AND :end', {
-        start: startDate.toISOString(),
-        end: endDate.toISOString(),
-      })
-      .andWhere('post.user_uuid = ANY(:members)', {
-        members:
-          (await this.groupRepository.findOne({ where: { id: groupId } }))
-            ?.memberUuid || [],
-      })
-      .groupBy('day')
-      .getRawMany();
-
-    // 전체 날짜 생성
+    // 날짜 문자열 배열 생성
     const allDates: string[] = [];
-    const current = new Date(startDate);
-    while (current <= endDate) {
-      allDates.push(current.toISOString().slice(0, 10));
-      current.setDate(current.getDate() + 1);
+    for (
+      let d = new Date(startDate);
+      d <= endDate;
+      d.setUTCDate(d.getUTCDate() + 1)
+    ) {
+      allDates.push(d.toISOString().slice(0, 10));
     }
 
-    // 데이터 매핑
-    const postMap = new Map(posts.map((p) => [p.day, Number(p.value)]));
+    // 작성한 post들 가져오기
+    const posts = await this.postRepository.find({
+      where: {
+        userUuid,
+        createdAt: Between(startDate, endDate),
+      },
+    });
 
-    const data = allDates.map((day) => ({
+    const postedDates = new Set(
+      posts.map((p) => p.createdAt.toISOString().slice(0, 10)),
+    );
+
+    const data = allDates.map((date) => ({
+      date,
+      didWorkout: postedDates.has(date),
+    }));
+
+    // 통계 데이터 가져오기
+    const stat = await this.quarterlyStatisticsRepository.findOne({
+      where: { userUuid, year, quarter },
+    });
+
+    const streakInfo = {
+      currentStreak: stat?.currentStreak ?? 0,
+      longestStreak: stat?.longestStreak ?? 0,
+      startDate: allDates[0],
+      endDate: allDates[allDates.length - 1],
+    };
+
+    const day = {
+      dawn: stat?.timeZone?.dawn ?? 0,
+      morning: stat?.timeZone?.morning ?? 0,
+      afternoon: stat?.timeZone?.afternoon ?? 0,
+      night: stat?.timeZone?.night ?? 0,
+    };
+
+    const exercise = {
+      chest: stat?.bodyPart?.chest ?? 0,
+      back: stat?.bodyPart?.back ?? 0,
+      legs: stat?.bodyPart?.legs ?? 0,
+      core: stat?.bodyPart?.core ?? 0,
+      sports: stat?.bodyPart?.sports ?? 0,
+      shoulders_arms: stat?.bodyPart?.shoulders_arms ?? 0,
+      cardio: stat?.bodyPart?.cardio ?? 0,
+      other: stat?.bodyPart?.other ?? 0,
+    };
+
+    return { data, streakInfo, day, exercise };
+  }
+
+  async getGroupStreaks(groupId: number, year: number, quarter: number) {
+    const startMonth = (quarter - 1) * 3;
+    const startDate = new Date(Date.UTC(year, startMonth, 1));
+    const endDate = new Date(Date.UTC(year, startMonth + 3, 0));
+
+    const dateRange: string[] = [];
+    const cursor = new Date(startDate);
+    while (cursor <= endDate) {
+      dateRange.push(cursor.toISOString().slice(0, 10));
+      cursor.setUTCDate(cursor.getUTCDate() + 1);
+    }
+
+    // daily_group_activity에서 groupId와 날짜 조건으로 조회
+    const records = await this.dailyGroupActivity.find({
+      where: {
+        groupId,
+        date: Between(
+          startDate.toISOString().slice(0, 10),
+          endDate.toISOString().slice(0, 10),
+        ),
+      },
+    });
+
+    const valueMap = new Map(records.map((r) => [r.date, r.value]));
+
+    const data = dateRange.map((day) => ({
       day,
-      value: postMap.get(day) || 0,
+      value: valueMap.get(day) || 0,
     }));
 
     const group = await this.groupRepository.findOne({
@@ -107,9 +158,9 @@ export class StatisticsService {
     return {
       data,
       groupInfo: {
-        maxMember: group?.maxMember ?? 0,
-        startDate: startDate.toISOString().slice(0, 10),
-        endDate: endDate.toISOString().slice(0, 10),
+        totalMembers: group?.maxMember ?? 0,
+        startDate: dateRange[0],
+        endDate: dateRange[dateRange.length - 1],
       },
     };
   }

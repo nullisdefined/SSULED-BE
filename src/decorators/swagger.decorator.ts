@@ -2930,131 +2930,6 @@ export function ApiVerifyToken() {
   );
 }
 
-export function ApiGetQuarterlyUserStatistics() {
-  return applyDecorators(
-    ApiOperation({
-      summary: '분기별 개인 통계 조회',
-      description:
-        '특정 연도와 분기를 기준으로 사용자의 운동 통계를 조회합니다.',
-    }),
-    ApiQuery({
-      name: 'year',
-      required: true,
-      type: 'number',
-      example: 2025,
-    }),
-    ApiQuery({
-      name: 'quarter',
-      required: true,
-      type: 'number',
-      example: 2,
-    }),
-    ApiResponse({
-      status: 200,
-      description: '개인 통계 조회 성공',
-      schema: {
-        type: 'object',
-        properties: {
-          year: { type: 'number', example: 2025 },
-          quarter: { type: 'number', example: 2 },
-          timeZone: {
-            type: 'object',
-            properties: {
-              morning: { type: 'number', example: 4 },
-              daytime: { type: 'number', example: 10 },
-              evening: { type: 'number', example: 6 },
-              night: { type: 'number', example: 2 },
-            },
-          },
-          bodyPart: {
-            type: 'object',
-            properties: {
-              CHEST: { type: 'number', example: 2 },
-              BACK: { type: 'number', example: 3 },
-              LEGS: { type: 'number', example: 5 },
-              CORE: { type: 'number', example: 1 },
-              SPORTS: { type: 'number', example: 0 },
-              SHOULDERS_ARMS: { type: 'number', example: 4 },
-              CARDIO: { type: 'number', example: 2 },
-              OTHER: { type: 'number', example: 0 },
-            },
-          },
-          streak: {
-            type: 'object',
-            properties: {
-              currentStreak: { type: 'number', example: 4 },
-              longestStreak: { type: 'number', example: 12 },
-            },
-          },
-        },
-      },
-    }),
-  );
-}
-
-export function ApiGroupStreaks() {
-  return applyDecorators(
-    ApiOperation({
-      summary: '그룹 스트릭 통계 조회',
-      description:
-        '특정 연도와 월을 기준으로 해당 월이 포함된 분기의 통계를 조회합니다. 분기에 포함된 모든 날짜가 포함되며, 각 날짜마다 참여 인원 수가 value로 포함됩니다.',
-    }),
-    ApiParam({
-      name: 'groupId',
-      required: true,
-      type: 'string',
-      description: '그룹 ID',
-    }),
-    ApiQuery({
-      name: 'year',
-      required: true,
-      type: 'number',
-      example: 2025,
-    }),
-    ApiQuery({
-      name: 'month',
-      required: true,
-      type: 'number',
-      example: 4,
-    }),
-    ApiResponse({
-      status: 200,
-      description: '그룹 통계 조회 성공',
-      schema: {
-        type: 'object',
-        properties: {
-          data: {
-            type: 'array',
-            description: '분기에 포함된 모든 날짜별 참여 인원 수',
-            items: {
-              type: 'object',
-              properties: {
-                day: { type: 'string', example: '2025-04-01' },
-                value: { type: 'number', example: 7 },
-              },
-            },
-            example: [
-              { day: '2025-04-01', value: 7 },
-              { day: '2025-04-02', value: 4 },
-              { day: '2025-04-03', value: 0 },
-              { day: '2025-04-04', value: 6 },
-              { day: '2025-04-05', value: 0 },
-            ],
-          },
-          groupInfo: {
-            type: 'object',
-            properties: {
-              maxMember: { type: 'number', example: 15 },
-              startDate: { type: 'string', example: '2025-04-01' },
-              endDate: { type: 'string', example: '2025-06-30' },
-            },
-          },
-        },
-      },
-    }),
-  );
-}
-
 export function ApiGetQuarterlyGroupRanking() {
   return applyDecorators(
     ApiOperation({
@@ -3174,6 +3049,164 @@ export function ApiUpdateIntroduction() {
           message: {
             type: 'string',
             example: '사용자를 찾을 수 없습니다.',
+          },
+        },
+      },
+    }),
+  );
+}
+
+export function ApiGetQuarterlyUserStatistics() {
+  return applyDecorators(
+    ApiOperation({
+      summary: '분기별 사용자 운동 통계 조회',
+      description:
+        '지정된 연도와 분기에 대한 사용자의 운동 통계 데이터를 조회합니다.',
+    }),
+    ApiQuery({
+      name: 'year',
+      type: Number,
+      required: true,
+      example: 2025,
+      description: '통계를 조회할 연도',
+    }),
+    ApiQuery({
+      name: 'quarter',
+      type: Number,
+      required: true,
+      example: 2,
+      description: '통계를 조회할 분기 (1~4)',
+    }),
+    ApiResponse({
+      status: 200,
+      description: '운동 통계 조회 성공',
+      schema: {
+        type: 'object',
+        properties: {
+          data: {
+            type: 'array',
+            items: {
+              type: 'object',
+              properties: {
+                date: { type: 'string', example: '2025-04-01' },
+                didWorkout: { type: 'boolean', example: true },
+              },
+            },
+          },
+          streakInfo: {
+            type: 'object',
+            properties: {
+              currentStreak: { type: 'number', example: 3 },
+              longestStreak: { type: 'number', example: 7 },
+              startDate: { type: 'string', example: '2025-04-01' },
+              endDate: { type: 'string', example: '2025-06-30' },
+            },
+          },
+          day: {
+            type: 'object',
+            properties: {
+              dawn: { type: 'number', example: 1 },
+              morning: { type: 'number', example: 5 },
+              afternoon: { type: 'number', example: 4 },
+              night: { type: 'number', example: 2 },
+            },
+          },
+          exercise: {
+            type: 'object',
+            properties: {
+              chest: { type: 'number', example: 5 },
+              back: { type: 'number', example: 3 },
+              legs: { type: 'number', example: 7 },
+              core: { type: 'number', example: 2 },
+              sports: { type: 'number', example: 1 },
+              shoulders_arms: { type: 'number', example: 4 },
+              cardio: { type: 'number', example: 6 },
+              other: { type: 'number', example: 0 },
+            },
+          },
+        },
+      },
+    }),
+    ApiResponse({
+      status: 404,
+      description: '사용자 통계 데이터가 존재하지 않음',
+      schema: {
+        type: 'object',
+        properties: {
+          message: {
+            type: 'string',
+            example: '해당 분기의 사용자 통계를 찾을 수 없습니다.',
+          },
+        },
+      },
+    }),
+  );
+}
+
+export function ApiGroupStreaks() {
+  return applyDecorators(
+    ApiOperation({
+      summary: '그룹 분기별 날짜별 참여 인원 통계 조회',
+      description:
+        '지정된 연도와 분기에 대해 그룹의 날짜별 활동 인원 수를 반환합니다.',
+    }),
+    ApiQuery({
+      name: 'groupId',
+      type: Number,
+      required: true,
+      example: 1,
+      description: '조회할 그룹 ID',
+    }),
+    ApiQuery({
+      name: 'year',
+      type: Number,
+      required: true,
+      example: 2025,
+      description: '조회할 연도',
+    }),
+    ApiQuery({
+      name: 'quarter',
+      type: Number,
+      required: true,
+      example: 2,
+      description: '조회할 분기 (1~4)',
+    }),
+    ApiResponse({
+      status: 200,
+      description: '그룹 활동 통계 조회 성공',
+      schema: {
+        type: 'object',
+        properties: {
+          data: {
+            type: 'array',
+            items: {
+              type: 'object',
+              properties: {
+                day: { type: 'string', example: '2025-04-01' },
+                value: { type: 'number', example: 7 },
+              },
+            },
+          },
+          groupInfo: {
+            type: 'object',
+            properties: {
+              totalMembers: { type: 'number', example: 10 },
+              startDate: { type: 'string', example: '2025-04-01' },
+              endDate: { type: 'string', example: '2025-06-30' },
+            },
+          },
+        },
+      },
+    }),
+    ApiResponse({
+      status: 404,
+      description: '그룹을 찾을 수 없거나 활동 기록이 없음',
+      schema: {
+        type: 'object',
+        properties: {
+          message: {
+            type: 'string',
+            example: '그룹을 찾을 수 없습니다.',
           },
         },
       },
