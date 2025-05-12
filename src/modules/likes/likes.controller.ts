@@ -45,7 +45,7 @@ export class LikesController {
    * @param userUuid 사용자 UUID
    * @returns 좋아요 여부와 좋아요 ID
    */
-  @Get('check/:postId/:userUuid')
+  @Get('check/:postId')
   @ApiCheckLikeStatus()
   checkLikeStatus(
     @Param('postId') postId: string,
@@ -60,7 +60,7 @@ export class LikesController {
    * @param userUuid 사용자 UUID
    * @returns 삭제 성공 메시지와 업데이트된 좋아요 수
    */
-  @Delete('post/:postId/user/:userUuid')
+  @Delete('post/:postId/user')
   @ApiDeleteLike()
   removeLike(@Param('postId') postId: string, @UserUuid() userUuid: string) {
     return this.likesService.removeLike(+postId, userUuid);

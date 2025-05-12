@@ -269,6 +269,15 @@ export class PostsService {
       select: ['id', 'nickname', 'profileImage'],
     });
 
+    // 운동 로그 정보 조회
+    const workoutLogs = await this.workoutLogRepository.find({
+      where: { postId: id },
+    });
+
+    // 운동 정보 집계
+    const bodyPart = [...new Set(workoutLogs.flatMap((log) => log.bodyPart))];
+    const duration = workoutLogs.reduce((sum, log) => sum + log.duration, 0);
+
     const likeCount = await this.likesService.getLikeCountByPostId(id);
     const comments = await this.commentsService.getCommentsByPostId(
       id,
@@ -281,6 +290,8 @@ export class PostsService {
 
     return {
       ...post,
+      bodyPart,
+      duration,
       likeCount,
       commentCount,
       userLiked: likeStatus?.liked ?? false,
