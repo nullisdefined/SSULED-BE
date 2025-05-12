@@ -1292,12 +1292,6 @@ export function ApiCreateLike() {
       schema: {
         type: 'object',
         properties: {
-          userUuid: {
-            type: 'string',
-            format: 'uuid',
-            description: '좋아요를 추가할 사용자 UUID',
-            example: '123e4567-e89b-12d3-a456-426614174000',
-          },
           postId: {
             type: 'integer',
             description: '좋아요를 추가할 게시글 ID',
@@ -1404,13 +1398,6 @@ export function ApiCheckLikeStatus() {
       required: true,
       type: 'string',
     }),
-    ApiParam({
-      name: 'userUuid',
-      description: '확인할 사용자 UUID',
-      example: '123e4567-e89b-12d3-a456-426614174000',
-      required: true,
-      type: 'string',
-    }),
     ApiResponse({
       status: 200,
       description: '좋아요 상태 확인 성공',
@@ -1437,13 +1424,6 @@ export function ApiDeleteLike() {
     ApiParam({
       name: 'postId',
       description: '게시글 ID',
-      required: true,
-      type: 'string',
-    }),
-    ApiParam({
-      name: 'userUuid',
-      description: '사용자 UUID',
-      example: '123e4567-e89b-12d3-a456-426614174000',
       required: true,
       type: 'string',
     }),
