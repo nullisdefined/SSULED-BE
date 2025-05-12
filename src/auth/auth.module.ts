@@ -17,12 +17,7 @@ import { UsersModule } from '@/modules/users/users.module';
     ConfigModule.forRoot(),
     TypeOrmModule.forFeature([Auth, User, Post]),
     PassportModule,
-    JwtModule.register({
-      secret: process.env.JWT_ACCESS_TOKEN_SECRET,
-      signOptions: {
-        expiresIn: process.env.JWT_ACCESS_TOKEN_EXPIRES_IN,
-      },
-    }),
+    JwtModule.register({}),
     forwardRef(() => UsersModule),
   ],
   controllers: [AuthController],

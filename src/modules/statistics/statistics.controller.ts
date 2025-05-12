@@ -35,9 +35,9 @@ export class StatisticsController {
   getGroupStreaks(
     @Query('groupId') groupId: number,
     @Query('year') year: number,
-    @Query('month') month: number,
+    @Query('quarter') quarter: number,
   ) {
-    return this.statisticsService.getGroupStreaks(groupId, year, month);
+    return this.statisticsService.getGroupStreaks(groupId, year, quarter);
   }
 
   @Get('/group/ranking')

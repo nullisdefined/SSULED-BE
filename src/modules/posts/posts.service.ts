@@ -22,6 +22,7 @@ import { UsersService } from '../users/users.service';
 import { QuarterlyStatistics } from '@/entities/quarterly-statistics.entity';
 import { QuarterlyRanking } from '@/entities/quarterly-ranking.entity';
 import { RankingType } from '@/types/ranking.enum';
+import { DailyGroupActivity } from '@/entities/daily_group_activiry.entity';
 
 @Injectable()
 export class PostsService {
@@ -34,6 +35,8 @@ export class PostsService {
     private quarterlyStatisticsRepository: Repository<QuarterlyStatistics>,
     @InjectRepository(QuarterlyRanking)
     private quarterlyRankingRepository: Repository<QuarterlyRanking>,
+    @InjectRepository(DailyGroupActivity)
+    private dailyGroupActivityRepository: Repository<DailyGroupActivity>,
     private likesService: LikesService,
     @Inject(forwardRef(() => CommentsService))
     private commentsService: CommentsService,
@@ -115,18 +118,38 @@ export class PostsService {
             groupId,
             year,
             quarter,
-            streak: 0,
-            rate: 0,
-            commits: 1,
             score,
             isFinal: false,
           });
         } else {
-          ranking.commits += 1;
           ranking.score += score;
         }
-
         await this.quarterlyRankingRepository.save(ranking);
+
+        // DailyGroupActiviry 업데이트
+        const todayStr = new Date().toISOString().slice(0, 10); //YYYY-MM-DD
+        let dailyActivity = await this.dailyGroupActivityRepository.findOne({
+          where: {
+            groupId: groupId,
+            date: todayStr,
+          },
+        });
+
+        if (!dailyActivity) {
+          dailyActivity = this.dailyGroupActivityRepository.create({
+            groupId,
+            date: todayStr,
+            value: 1,
+          });
+        } else {
+          dailyActivity.value += 1;
+        }
+
+        await this.dailyGroupActivityRepository.save(dailyActivity);
+      } else {
+        throw new NotFoundException(
+          '해당 사용자는 그룹에 소속되어 있지 않습니다.',
+        );
       }
     }
 

@@ -11,6 +11,7 @@ import { UsersModule } from '../users/users.module';
 import { WorkoutLog } from '@/entities/workout-log.entity';
 import { QuarterlyStatistics } from '@/entities/quarterly-statistics.entity';
 import { QuarterlyRanking } from '@/entities/quarterly-ranking.entity';
+import { DailyGroupActivity } from '@/entities/daily_group_activiry.entity';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { QuarterlyRanking } from '@/entities/quarterly-ranking.entity';
       WorkoutLog,
       QuarterlyStatistics,
       QuarterlyRanking,
+      DailyGroupActivity,
     ]),
     forwardRef(() => LikesModule),
     forwardRef(() => CommentsModule),

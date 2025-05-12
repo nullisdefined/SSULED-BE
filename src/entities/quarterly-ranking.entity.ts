@@ -26,17 +26,11 @@ export class QuarterlyRanking {
   @Column({ name: 'quarter', type: 'int' })
   quarter: number;
 
-  @Column({ name: 'streak', type: 'float' })
-  streak: number; // 평균 스트릭
-
-  @Column({ name: 'rate', type: 'float' })
-  rate: number;
+  @Column({ name: 'score', type: 'float' })
+  score: number;
 
   @Column({ name: 'commits', type: 'int' })
   commits: number;
-
-  @Column({ name: 'score', type: 'float' })
-  score: number;
 
   @Column({ name: 'is_final', type: 'boolean', default: false })
   isFinal: boolean;
