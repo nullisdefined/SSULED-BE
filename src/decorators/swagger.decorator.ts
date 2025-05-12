@@ -2930,79 +2930,6 @@ export function ApiVerifyToken() {
   );
 }
 
-export function ApiGetQuarterlyGroupRanking() {
-  return applyDecorators(
-    ApiOperation({
-      summary: '분기별 그룹 랭킹 조회',
-      description: '특정 연도와 분기에 대해 상위 3개의 팀 랭킹을 조회합니다.',
-    }),
-    ApiQuery({
-      name: 'year',
-      required: true,
-      type: 'number',
-      example: 2025,
-      description: '조회할 연도',
-    }),
-    ApiQuery({
-      name: 'quarter',
-      required: true,
-      type: 'number',
-      example: 2,
-      description: '조회할 분기 (1~4)',
-    }),
-    ApiResponse({
-      status: 200,
-      description: '그룹 랭킹 조회 성공',
-      schema: {
-        type: 'object',
-        properties: {
-          year: { type: 'number', example: 2025 },
-          quarter: { type: 'number', example: 2 },
-          isFinal: { type: 'boolean', example: false },
-          teams: {
-            type: 'array',
-            description: '상위 3개의 팀 랭킹 정보',
-            items: {
-              type: 'object',
-              properties: {
-                groupId: { type: 'number', example: 3 },
-                groupTitle: { type: 'string', example: '슈레드' },
-                score: { type: 'number', example: 91.2 },
-                commits: { type: 'number', example: 74 },
-              },
-            },
-          },
-        },
-        example: {
-          year: 2025,
-          quarter: 2,
-          isFinal: false,
-          teams: [
-            {
-              groupId: 3,
-              groupTitle: '슈레드',
-              score: 91.2,
-              commits: 74,
-            },
-            {
-              groupId: 7,
-              groupTitle: 'SSULED',
-              score: 87.8,
-              commits: 69,
-            },
-            {
-              groupId: 12,
-              groupTitle: '조명은LED',
-              score: 84.5,
-              commits: 64,
-            },
-          ],
-        },
-      },
-    }),
-  );
-}
-
 export function ApiUpdateIntroduction() {
   return applyDecorators(
     ApiOperation({
@@ -3207,6 +3134,66 @@ export function ApiGroupStreaks() {
           message: {
             type: 'string',
             example: '그룹을 찾을 수 없습니다.',
+          },
+        },
+      },
+    }),
+  );
+}
+
+export function ApiGetQuarterlyGroupRanking() {
+  return applyDecorators(
+    ApiOperation({
+      summary: '분기별 그룹 랭킹 조회 (TOP 3)',
+      description: '특정 연도와 분기에 대한 그룹 랭킹 상위 3개를 반환합니다.',
+    }),
+    ApiQuery({
+      name: 'year',
+      type: Number,
+      required: true,
+      example: 2025,
+      description: '조회할 연도',
+    }),
+    ApiQuery({
+      name: 'quarter',
+      type: Number,
+      required: true,
+      example: 2,
+      description: '조회할 분기 (1~4)',
+    }),
+    ApiResponse({
+      status: 200,
+      description: '그룹 랭킹 조회 성공',
+      schema: {
+        type: 'object',
+        properties: {
+          year: { type: 'number', example: 2025 },
+          quarter: { type: 'number', example: 2 },
+          top3: {
+            type: 'array',
+            items: {
+              type: 'object',
+              properties: {
+                rank: { type: 'number', example: 1 },
+                groupId: { type: 'number', example: 3 },
+                groupName: { type: 'string', example: '불꽃체력조' },
+                score: { type: 'number', example: 456.3 },
+                commits: { type: 'number', example: 74 },
+              },
+            },
+          },
+        },
+      },
+    }),
+    ApiResponse({
+      status: 404,
+      description: '해당 분기의 랭킹 정보가 존재하지 않을 경우',
+      schema: {
+        type: 'object',
+        properties: {
+          message: {
+            type: 'string',
+            example: '랭킹 정보가 존재하지 않습니다.',
           },
         },
       },

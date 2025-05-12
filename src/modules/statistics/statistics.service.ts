@@ -22,38 +22,32 @@ export class StatisticsService {
     private readonly dailyGroupActivity: Repository<DailyGroupActivity>,
   ) {}
 
-  // 개인 통계
+  // 그룹 랭킹
   async getGroupRanking(year: number, quarter: number) {
-    const rankings = await this.quarterlyRankingRepository.find({
+    const groupTop3 = await this.quarterlyRankingRepository.find({
       where: { year, quarter },
-      order: { score: 'desc' },
+      order: { score: 'DESC' },
       take: 3,
     });
 
-    const groupIds = rankings.map((r) => r.groupId);
-
-    const groups = await this.groupRepository.find({
-      where: { id: In(groupIds) },
-      select: ['id', 'title'],
-    });
-
-    const groupTitleMap = Object.fromEntries(
-      groups.map((g) => [g.id, g.title]),
-    );
+    const groupIds = groupTop3.map((r) => r.groupId);
+    const groups = await this.groupRepository.findBy({ id: In(groupIds) });
+    const groupMap = new Map(groups.map((g) => [g.id, g.title]));
 
     return {
       year,
       quarter,
-      isFinal: rankings[0]?.isFinal ?? false,
-      teams: rankings.map((ranking) => ({
-        groupId: ranking.groupId,
-        groupTitle: groupTitleMap[ranking.groupId] || '',
-        score: ranking.score,
-        commits: ranking.commits,
+      top3: groupTop3.map((entry, idx) => ({
+        rank: idx + 1,
+        groupId: entry.groupId,
+        groupName: groupMap.get(entry.groupId),
+        score: entry.score,
+        commits: entry.commits,
       })),
     };
   }
 
+  // 개인 통계
   async getUserQuarterlyStats(userUuid: string, year: number, quarter: number) {
     // 분기 시작/끝 날짜 계산
     const quarterStartMonth = (quarter - 1) * 3 + 1;

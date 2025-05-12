@@ -29,9 +29,6 @@ export class QuarterlyRanking {
   @Column({ name: 'score', type: 'float' })
   score: number;
 
-  @Column({ name: 'rank', type: 'int' })
-  rank: number;
-
   @Column({ name: 'commits', type: 'int' })
   commits: number;
 

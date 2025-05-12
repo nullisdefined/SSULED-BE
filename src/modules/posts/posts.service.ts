@@ -118,7 +118,6 @@ export class PostsService {
             groupId,
             year,
             quarter,
-            rank: 0,
             score,
             isFinal: false,
           });
