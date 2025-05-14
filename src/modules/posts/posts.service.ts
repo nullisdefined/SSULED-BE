@@ -126,7 +126,7 @@ export class PostsService {
         }
         await this.quarterlyRankingRepository.save(ranking);
 
-        // DailyGroupActiviry 업데이트
+        // DailyGroupActivity 업데이트
         const todayStr = new Date().toISOString().slice(0, 10); //YYYY-MM-DD
         let dailyActivity = await this.dailyGroupActivityRepository.findOne({
           where: {
@@ -164,14 +164,14 @@ export class PostsService {
       for (const part of bodyPart) {
         initialBodyPart[part] = 1;
       }
-      const initalTimeZone = { dawn: 0, morning: 0, afternoon: 0, night: 0 };
-      initalTimeZone[timeZoneLabel] = 1;
+      const initialTimeZone = { dawn: 0, morning: 0, afternoon: 0, night: 0 };
+      initialTimeZone[timeZoneLabel] = 1;
 
       stat = this.quarterlyStatisticsRepository.create({
         userUuid,
         year,
         quarter,
-        timeZone: initalTimeZone,
+        timeZone: initialTimeZone,
         bodyPart: initialBodyPart,
         currentStreak: alreadyPostedToday ? 0 : 1,
         longestStreak: alreadyPostedToday ? 0 : 1,
@@ -279,9 +279,16 @@ export class PostsService {
 
     // 비공개 게시글이라면 그룹 멤버인지 체크
     if (!post.isPublic && userUuid) {
-      const group = await this.groupService.findUserCurrentGroup(userUuid);
-      if (!group || !group.memberUuid.includes(post.userUuid)) {
-        throw new UnauthorizedException('이 게시글을 조회할 권한이 없습니다.');
+      // 게시글 작성자 본인인 경우 접근 허용
+      if (post.userUuid === userUuid) {
+        // 접근 허용
+      } else {
+        const group = await this.groupService.findUserCurrentGroup(userUuid);
+        if (!group || !group.memberUuid.includes(post.userUuid)) {
+          throw new UnauthorizedException(
+            '이 게시글을 조회할 권한이 없습니다.',
+          );
+        }
       }
     }
 
@@ -408,8 +415,15 @@ export class PostsService {
 
     // 그룹 멤버 여부에 따라 where 조건 다르게 구성
     const whereCondition = isMember
-      ? [{ isPublic: true }, { userUuid: In(memberUuids), isPublic: false }]
-      : [{ isPublic: true }];
+      ? [
+          { isPublic: true },
+          { userUuid: In(memberUuids), isPublic: false },
+          { userUuid: userUuid, isPublic: false }, // 본인의 비공개 게시글도 포함
+        ]
+      : [
+          { isPublic: true },
+          { userUuid: userUuid, isPublic: false }, // 본인의 비공개 게시글도 포함
+        ];
 
     const [posts, total] = await this.postRepository.findAndCount({
       where: whereCondition,
@@ -490,7 +504,10 @@ export class PostsService {
     const { page = 1, limit = 10 } = findPopularPostsDto;
 
     // 기본적으로 공개 게시글은 모두 볼 수 있음
-    const whereCondition: any[] = [{ isPublic: true }];
+    const whereCondition: any[] = [
+      { isPublic: true },
+      { userUuid: userUuid, isPublic: false }, // 본인의 비공개 게시글도 포함
+    ];
 
     // 사용자가 그룹에 속해 있는 경우, 해당 그룹의 비공개 게시글도 볼 수 있음
     if (userUuid) {
