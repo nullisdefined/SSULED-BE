@@ -8,6 +8,7 @@ import {
   Delete,
   Query,
   UseGuards,
+  Request,
 } from '@nestjs/common';
 import { GroupService } from './group.service';
 import { CreateGroupDto } from './dto/create-group.dto';
@@ -23,8 +24,6 @@ import {
   ApiLeaveGroup,
   ApiGetUserGroup,
 } from '@/decorators/swagger.decorator';
-import { FindAllGroupsDto } from './dto/find-all-groups.dto';
-import { JoinGroupDto } from './dto/join-group.dto';
 import { JwtAuthGuard } from '@/auth/guards/jwt-auth.guard';
 import { UserUuid } from '@/decorators/user-uuid.decorator';
 
@@ -49,98 +48,92 @@ export class GroupController {
   /**
    * 그룹 생성
    * @param createGroupDto 그룹 생성 정보
-   * @param userUuid 인증된 사용자 UUID (방장)
+   * @param req 요청 객체
    * @returns 생성된 그룹 정보
    */
   @Post()
   @ApiCreateGroup()
-  createGroup(
-    @Body() createGroupDto: CreateGroupDto,
-    @UserUuid() userUuid: string,
-  ) {
+  create(@Body() createGroupDto: CreateGroupDto, @UserUuid() userUuid: string) {
     return this.groupService.createGroup(createGroupDto, userUuid);
   }
 
   /**
    * 모든 공개 그룹 조회
-   * @param findAllGroupsDto 그룹 목록 조회 조건들
+   * @param page 페이지 번호
+   * @param limit 페이지당 그룹 수
    * @returns 모든 공개 그룹 정보
    */
   @Get()
   @ApiGetAllGroups()
-  findAccessibleGroups(@Query() findAllGroupsDto: FindAllGroupsDto) {
-    return this.groupService.findAccessibleGroups(findAllGroupsDto);
+  findAll(@Query('page') page = 1, @Query('limit') limit = 10) {
+    return this.groupService.findAllGroups({ page, limit });
   }
 
   /**
    * 그룹 상세 조회
    * @param id 그룹 ID
+   * @param userUuid 현재 로그인한 사용자의 UUID
    * @returns 그룹 상세 정보
    */
-  @Get(':groupId')
+  @Get(':id')
   @ApiGetGroup()
-  findOneGroup(@Param('groupId') groupId: string) {
-    return this.groupService.findOneGroup(+groupId);
+  findOne(@Param('id') id: string, @UserUuid() userUuid: string) {
+    return this.groupService.findOneGroup(+id, userUuid);
   }
 
   /**
    * 그룹 수정
-   * @param groupId 그룹 ID
+   * @param id 그룹 ID
    * @param updateGroupDto 그룹 수정 정보
-   * @param userUuid 인증된 사용자 UUID
+   * @param userUuid 현재 로그인한 사용자의 UUID
    * @returns 수정된 그룹 정보
    */
-  @Patch(':groupId')
+  @Patch(':id')
   @ApiUpdateGroup()
-  updateGroup(
-    @Param('groupId') groupId: string,
+  update(
+    @Param('id') id: string,
     @Body() updateGroupDto: UpdateGroupDto,
     @UserUuid() userUuid: string,
   ) {
-    return this.groupService.updateGroup(+groupId, updateGroupDto, userUuid);
+    return this.groupService.updateGroup(+id, updateGroupDto, userUuid);
   }
 
   /**
    * 그룹 삭제
-   * @param groupId 그룹 ID
-   * @param userUuid 인증된 사용자 UUID
+   * @param id 그룹 ID
+   * @param req 요청 객체
    */
-  @Delete(':groupId')
+  @Delete(':id')
   @ApiDeleteGroup()
-  removeGroup(@Param('groupId') groupId: string, @UserUuid() userUuid: string) {
-    return this.groupService.deleteGroup(+groupId, userUuid);
+  remove(@Param('id') id: string, @Request() req) {
+    return this.groupService.deleteGroup(+id, req.user.userUuid);
   }
 
   /**
    * 그룹 참여
-   * @param groupId 그룹 ID
-   * @param joinGroupDto 그룹 참여 정보 (비밀번호)
-   * @param userUuid 인증된 사용자 UUID
+   * @param id 그룹 ID
+   * @param password 그룹 참여 비밀번호
+   * @param req 요청 객체
    * @returns 참여된 그룹 정보
    */
-  @Post(':groupId/join')
+  @Post(':id/join')
   @ApiJoinGroup()
   joinGroup(
-    @Param('groupId') groupId: string,
-    @Body() joinGroupDto: JoinGroupDto,
-    @UserUuid() userUuid: string,
+    @Param('id') id: string,
+    @Body('password') password: string,
+    @Request() req,
   ) {
-    return this.groupService.joinGroup(
-      +groupId,
-      userUuid,
-      joinGroupDto.password,
-    );
+    return this.groupService.joinGroup(+id, req.user.userUuid, password);
   }
 
   /**
    * 그룹 탈퇴
-   * @param groupId 그룹 ID
-   * @param userUuid 인증된 사용자 UUID
+   * @param id 그룹 ID
    * @returns 탈퇴 메시지
    */
-  @Delete(':groupId/leave')
+  @Delete(':id/leave')
   @ApiLeaveGroup()
-  leaveGroup(@Param('groupId') groupId: string, @UserUuid() userUuid: string) {
-    return this.groupService.leaveGroup(+groupId, userUuid);
+  leaveGroup(@Param('id') id: string, @UserUuid() userUuid: string) {
+    return this.groupService.leaveGroup(+id, userUuid);
   }
 }
