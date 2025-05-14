@@ -104,7 +104,7 @@ export class PostsService {
       if (isGroup) {
         const groupId = isGroup.id;
 
-        const group = await this.groupService.findOneGroup(groupId);
+        const group = await this.groupService.findOneGroup(groupId, userUuid);
         const currentMembers = group.memberUuid.length;
         const score = (1 / currentMembers) * 100;
 
@@ -403,7 +403,7 @@ export class PostsService {
     findGroupPostsDto: FindGroupPostsDto,
     userUuid: string,
   ) {
-    const group = await this.groupService.findOneGroup(groupId);
+    const group = await this.groupService.findOneGroup(groupId, userUuid);
 
     if (!group) {
       throw new NotFoundException('해당 ID의 그룹을 찾을 수 없습니다.');
