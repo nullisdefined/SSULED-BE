@@ -3,7 +3,11 @@ import { UserUuid } from '@/decorators/user-uuid.decorator';
 import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
-import { ApiLogout, ApiUpdateProfile } from '@/decorators/swagger.decorator';
+import {
+  ApiGetUserInfo,
+  ApiLogout,
+  ApiUpdateProfile,
+} from '@/decorators/swagger.decorator';
 import { UpdateProfileDto } from './dto/update-profile.dto';
 
 @ApiTags('user')
