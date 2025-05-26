@@ -42,7 +42,6 @@ export class StatisticsService {
         groupId: entry.groupId,
         groupName: groupMap.get(entry.groupId),
         score: entry.score,
-        commits: entry.commits,
       })),
     };
   }
@@ -50,7 +49,7 @@ export class StatisticsService {
   // 개인 통계
   async getUserQuarterlyStats(userUuid: string, year: number, quarter: number) {
     // 분기 시작/끝 날짜 계산
-    const quarterStartMonth = (quarter - 1) * 3 + 1;
+    const quarterStartMonth = (quarter - 1) * 3;
     const startDate = new Date(Date.UTC(year, quarterStartMonth, 1));
     const endDate = new Date(Date.UTC(year, quarterStartMonth + 3, 0)); // 말일
 

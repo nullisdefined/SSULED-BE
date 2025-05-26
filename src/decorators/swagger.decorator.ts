@@ -2591,60 +2591,6 @@ export function ApiLogout() {
   );
 }
 
-export function ApiUpdateNickname() {
-  return applyDecorators(
-    ApiOperation({
-      summary: '닉네임 변경',
-      description: '현재 로그인한 사용자의 닉네임을 변경합니다.',
-    }),
-    ApiBearerAuth(),
-    ApiBody({
-      schema: {
-        type: 'object',
-        properties: {
-          newNickname: {
-            type: 'string',
-            example: '새로운닉네임',
-          },
-        },
-        required: ['newNickname'],
-      },
-    }),
-    ApiResponse({
-      status: 200,
-      description: '닉네임 변경 성공',
-      schema: {
-        example: {
-          nickname: '새로운닉네임',
-          message: '닉네임 변경 성공',
-        },
-      },
-    }),
-    ApiResponse({
-      status: 404,
-      description: '사용자를 찾을 수 없음',
-      schema: {
-        example: {
-          statusCode: 404,
-          message: '사용자를 찾을 수 없습니다.',
-          error: 'Not Found',
-        },
-      },
-    }),
-    ApiResponse({
-      status: 400,
-      description: '닉네임 유효성 실패 등 잘못된 요청',
-      schema: {
-        example: {
-          statusCode: 400,
-          message: '닉네임은 최소 2자 이상이어야 합니다.',
-          error: 'Bad Request',
-        },
-      },
-    }),
-  );
-}
-
 export function ApiGetPopularPosts() {
   return applyDecorators(
     ApiOperation({
@@ -2915,53 +2861,6 @@ export function ApiVerifyToken() {
           error: {
             type: 'string',
             example: 'jwt expired',
-          },
-        },
-      },
-    }),
-  );
-}
-
-export function ApiUpdateIntroduction() {
-  return applyDecorators(
-    ApiOperation({
-      summary: '소개글 수정',
-      description: '해당 유저의 소개글을 새로 수정합니다.',
-    }),
-    ApiBody({
-      schema: {
-        type: 'object',
-        properties: {
-          newIntroduction: {
-            type: 'string',
-            example: '안녕하세요. 새로운 소개글입니다!',
-          },
-        },
-        required: ['newIntroduction'],
-      },
-    }),
-    ApiResponse({
-      status: 200,
-      description: '소개글 변경 성공',
-      schema: {
-        type: 'object',
-        properties: {
-          message: {
-            type: 'string',
-            example: '소개글 변경 성공!',
-          },
-        },
-      },
-    }),
-    ApiResponse({
-      status: 404,
-      description: '유저를 찾을 수 없음',
-      schema: {
-        type: 'object',
-        properties: {
-          message: {
-            type: 'string',
-            example: '사용자를 찾을 수 없습니다.',
           },
         },
       },
@@ -3249,6 +3148,67 @@ export function ApiGetQuarterlyGroupRanking() {
           message: {
             type: 'string',
             example: '랭킹 정보가 존재하지 않습니다.',
+          },
+        },
+      },
+    }),
+  );
+}
+
+export function ApiUpdateProfile() {
+  return applyDecorators(
+    ApiOperation({
+      summary: '프로필 수정 (닉네임 + 소개글 + 프로필 이미지)',
+      description:
+        '사용자의 닉네임, 소개글, 프로필 이미지를 한 번에 수정합니다.',
+    }),
+    ApiBody({
+      schema: {
+        type: 'object',
+        properties: {
+          newNickname: {
+            type: 'string',
+            maxLength: 20,
+            example: '혁수짱',
+            description: '변경할 닉네임',
+          },
+          newIntroduction: {
+            type: 'string',
+            maxLength: 200,
+            example: '열심히 사는 개발자입니다.',
+            description: '변경할 자기소개글',
+          },
+          newProfileImg: {
+            type: 'string',
+            example: 'https://cdn.example.com/profile/hyuksu.png',
+            description: '변경할 프로필 이미지 URL',
+          },
+        },
+        required: ['newNickname', 'newIntroduction', 'newProfileImg'],
+      },
+    }),
+    ApiResponse({
+      status: 200,
+      description: '프로필이 수정되었습니다.',
+      schema: {
+        type: 'object',
+        properties: {
+          message: {
+            type: 'string',
+            example: '프로필이 수정되었습니다.',
+          },
+        },
+      },
+    }),
+    ApiResponse({
+      status: 404,
+      description: '사용자를 찾을 수 없는 경우',
+      schema: {
+        type: 'object',
+        properties: {
+          message: {
+            type: 'string',
+            example: '사용자를 찾을 수 없습니다.',
           },
         },
       },

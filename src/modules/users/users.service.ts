@@ -1,13 +1,10 @@
 import { Auth } from '@/entities/auth.entity';
 import { User } from '@/entities/user.entity';
-import {
-  BadRequestException,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Post } from '@/entities/post.entity';
+import { UpdateProfileDto } from './dto/update-profile.dto';
 
 @Injectable()
 export class UsersService {
@@ -71,46 +68,32 @@ export class UsersService {
   }
 
   /*
-  닉네임 변경
+  닉네임, 소개글 변경
   */
-  async updateNickname(userUuid: string, newNickname: string) {
+  async updateProfile(userUuid: string, dto: UpdateProfileDto) {
+    const { newNickname, newIntroduction, newProfileImg } = dto;
+
     const user = await this.userRepository.findOneBy({ userUuid });
-    if (!user) {
-      throw new NotFoundException('사용자를 찾을 수 없습니다.');
+    if (!user) throw new NotFoundException('사용자를 찾을 수 없습니다.');
+
+    if (newNickname !== undefined) {
+      user.nickname = newNickname;
+    }
+    if (newIntroduction !== undefined) {
+      user.introduction = newIntroduction;
+    }
+    if (newProfileImg !== undefined) {
+      user.profileImage = newProfileImg;
     }
 
-    // 닉네임 중복 체크
-    const isDuplicate = await this.userRepository.findOneBy({
-      nickname: newNickname,
-    });
-    if (isDuplicate && isDuplicate.userUuid !== userUuid) {
-      throw new BadRequestException('이미 사용 중인 닉네임입니다.');
-    }
-
-    user.nickname = newNickname;
     await this.userRepository.save(user);
 
-    return { nickname: newNickname, message: '닉네임 변경 성공' };
+    return { message: '프로필이 수정되었습니다.' };
   }
 
   async checkUserExists(userUuid: string): Promise<boolean> {
     const user = await this.userRepository.findOne({ where: { userUuid } });
     return !!user;
-  }
-
-  /*
-  소개글 변경
-  */
-  async updateIntroduction(userUuid: string, newIntroduction: string) {
-    const user = await this.userRepository.findOneBy({ userUuid });
-    if (!user) {
-      throw new NotFoundException('사용자를 찾을 수 없습니다.');
-    }
-
-    user.introduction = newIntroduction;
-    await this.userRepository.save(user);
-
-    return { message: '소개글 변경 성공!' };
   }
 
   async getUserByIds(idArray: string[]) {

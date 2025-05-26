@@ -6,9 +6,9 @@ import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import {
   ApiGetUserInfo,
   ApiLogout,
-  ApiUpdateIntroduction,
-  ApiUpdateNickname,
+  ApiUpdateProfile,
 } from '@/decorators/swagger.decorator';
+import { UpdateProfileDto } from './dto/update-profile.dto';
 
 @ApiTags('user')
 @ApiBearerAuth('JWT-auth')
@@ -23,27 +23,19 @@ export class UsersController {
     return this.usersService.logout(userUuid);
   }
 
-  @ApiUpdateNickname()
-  @Post('nickname')
-  async updateNickname(
-    @Body('newNickname') newNickname: string,
+  @Post('profile')
+  @ApiUpdateProfile()
+  @UseGuards(JwtAuthGuard)
+  async updateProfile(
+    @Body() updateProfileDto: UpdateProfileDto,
     @UserUuid() UserUuid: string,
   ) {
-    return this.usersService.updateNickname(UserUuid, newNickname);
-  }
-
-  @Post('introduction')
-  @ApiUpdateIntroduction()
-  async updateIntroduction(
-    @Body('newIntroduction') newIntroduction: string,
-    @UserUuid() UserUuid: string,
-  ) {
-    return this.usersService.updateIntroduction(UserUuid, newIntroduction);
+    return this.usersService.updateProfile(UserUuid, updateProfileDto);
   }
 
   // @Delete('member')
   // @UseGuards(JwtAuthGuard)
-  // async deleteAccountn(@UserUuid() UserUuid: string) {
+  // async deleteAccount(@UserUuid() UserUuid: string) {
   //   return this.usersService.deleteUser(UserUuid);
   // }
 

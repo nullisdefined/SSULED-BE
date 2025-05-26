@@ -143,7 +143,7 @@ export class PostsService {
             value: 1,
           });
         } else {
-          dailyActivity.value += 1;
+          dailyActivity.value = (dailyActivity.value ?? 0) + 1;
         }
 
         await this.dailyGroupActivityRepository.save(dailyActivity);
@@ -185,7 +185,7 @@ export class PostsService {
       stat.timeZone[timeZoneLabel] = (stat.timeZone[timeZoneLabel] || 0) + 1;
 
       if (!alreadyPostedToday) {
-        stat.currentStreak += 1;
+        stat.currentStreak = (stat.currentStreak ?? 0) + 1;
         if (stat.currentStreak > stat.longestStreak) {
           stat.longestStreak = stat.currentStreak;
         }
