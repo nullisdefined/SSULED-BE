@@ -66,12 +66,15 @@ export class PostsService {
     const year = now.getFullYear();
     const quarter = Math.floor(now.getMonth() / 3) + 1;
 
-    const alreadyPostedToday = await this.postRepository.exists({
-      where: {
-        userUuid,
-        createdAt: Between(todayStart, todayEnd),
-      },
-    });
+    // const alreadyPostedToday = await this.postRepository.exists({
+    //   where: {
+    //     userUuid,
+    //     createdAt: Between(todayStart, todayEnd),
+    //   },
+    // });
+
+    // test
+    const alreadyPostedToday = false;
 
     const post = this.postRepository.create({
       title,
@@ -106,7 +109,7 @@ export class PostsService {
         const groupId = isGroup.id;
 
         const group = await this.groupService.findOneGroup(groupId, userUuid);
-        const currentMembers = group.memberUuid.length;
+        const currentMembers = group.members.length;
         const score = (1 / currentMembers) * 100;
 
         let ranking = await this.quarterlyRankingRepository.findOne({
