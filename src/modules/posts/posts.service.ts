@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import {
   Injectable,
   NotFoundException,
@@ -104,7 +105,7 @@ export class PostsService {
       if (isGroup) {
         const groupId = isGroup.id;
 
-        const group = await this.groupService.findOneGroup(groupId);
+        const group = await this.groupService.findOneGroup(groupId, userUuid);
         const currentMembers = group.memberUuid.length;
         const score = (1 / currentMembers) * 100;
 
@@ -223,27 +224,24 @@ export class PostsService {
       order: { createdAt: 'DESC' },
     });
 
-    // 모든 게시글 ID 수집
     const postIds = posts.map((post) => post.id);
 
-    // 좋아요 수 조회
     const likeCounts = await this.likesService.getLikeCountsByPostIds(postIds);
 
-    // 댓글 수 조회
     const commentCounts =
       await this.commentsService.getCommentCountsByPostIds(postIds);
 
-    // 사용자 정보 조회
     const userId = await this.userService.getUserIdByUuid(userUuid);
     const user = await this.userRepository.findOne({
       where: { id: userId },
       select: ['id', 'nickname', 'profileImage'],
     });
 
-    // 좋아요 수, 댓글 수 추가
     const postsWithLikeAndCommentCounts = posts.map((post) => {
+      const { userUuid: _, ...postInfo } = post;
+
       return {
-        ...post,
+        ...postInfo,
         likeCount: likeCounts.get(post.id) || 0,
         commentCount: commentCounts.get(post.id) || 0,
         user: user
@@ -279,9 +277,16 @@ export class PostsService {
 
     // 비공개 게시글이라면 그룹 멤버인지 체크
     if (!post.isPublic && userUuid) {
-      const group = await this.groupService.findUserCurrentGroup(userUuid);
-      if (!group || !group.memberUuid.includes(post.userUuid)) {
-        throw new UnauthorizedException('이 게시글을 조회할 권한이 없습니다.');
+      // 게시글 작성자 본인인 경우 접근 허용
+      if (post.userUuid === userUuid) {
+        // 접근 허용
+      } else {
+        const group = await this.groupService.findUserCurrentGroup(userUuid);
+        if (!group || !group.memberUuid.includes(post.userUuid)) {
+          throw new UnauthorizedException(
+            '이 게시글을 조회할 권한이 없습니다.',
+          );
+        }
       }
     }
 
@@ -291,6 +296,15 @@ export class PostsService {
       where: { id: userId },
       select: ['id', 'nickname', 'profileImage'],
     });
+
+    // 운동 로그 정보 조회
+    const workoutLogs = await this.workoutLogRepository.find({
+      where: { postId: id },
+    });
+
+    // 운동 정보 집계
+    const bodyPart = [...new Set(workoutLogs.flatMap((log) => log.bodyPart))];
+    const duration = workoutLogs.reduce((sum, log) => sum + log.duration, 0);
 
     const likeCount = await this.likesService.getLikeCountByPostId(id);
     const comments = await this.commentsService.getCommentsByPostId(
@@ -302,8 +316,13 @@ export class PostsService {
       ? await this.likesService.checkLikeStatus(userUuid, id)
       : null;
 
+    // userUuid 제거
+    const { userUuid: _, ...postInfo } = post;
+
     return {
-      ...post,
+      ...postInfo,
+      bodyPart,
+      duration,
       likeCount,
       commentCount,
       userLiked: likeStatus?.liked ?? false,
@@ -325,7 +344,10 @@ export class PostsService {
    * @returns 수정된 게시글 정보
    */
   async updatePost(id: number, updatePostDto: UpdatePostDto, userUuid: string) {
-    const post = await this.findOnePost(id);
+    const post = await this.postRepository.findOne({ where: { id } });
+    if (!post) {
+      throw new NotFoundException('해당 ID의 게시글을 찾을 수 없습니다.');
+    }
 
     if (post.userUuid !== userUuid) {
       throw new UnauthorizedException('게시글을 수정할 권한이 없습니다.');
@@ -360,9 +382,11 @@ export class PostsService {
    * @returns 삭제된 게시글 정보
    */
   async removePost(id: number, userUuid: string) {
-    const post = await this.findOnePost(id);
+    const post = await this.postRepository.findOne({ where: { id } });
+    if (!post) {
+      throw new NotFoundException('해당 ID의 게시글을 찾을 수 없습니다.');
+    }
 
-    // 게시글 삭제 권한 체크
     if (post.userUuid !== userUuid) {
       throw new UnauthorizedException('게시글을 삭제할 권한이 없습니다.');
     }
@@ -385,20 +409,28 @@ export class PostsService {
     findGroupPostsDto: FindGroupPostsDto,
     userUuid: string,
   ) {
-    const group = await this.groupService.findOneGroup(groupId);
+    const group = await this.groupService.findOneGroup(groupId, userUuid);
 
     if (!group) {
       throw new NotFoundException('해당 ID의 그룹을 찾을 수 없습니다.');
     }
 
-    const memberUuids = group.memberUuid;
-    const isMember = memberUuids.includes(userUuid);
+    const memberUuids = group.memberUuid || [];
+    const isMember =
+      Array.isArray(memberUuids) && memberUuids.includes(userUuid);
     const { page, limit } = findGroupPostsDto;
 
     // 그룹 멤버 여부에 따라 where 조건 다르게 구성
     const whereCondition = isMember
-      ? [{ isPublic: true }, { userUuid: In(memberUuids), isPublic: false }]
-      : [{ isPublic: true }];
+      ? [
+          { isPublic: true },
+          { userUuid: In(memberUuids), isPublic: false },
+          { userUuid: userUuid, isPublic: false }, // 본인의 비공개 게시글도 포함
+        ]
+      : [
+          { isPublic: true },
+          { userUuid: userUuid, isPublic: false }, // 본인의 비공개 게시글도 포함
+        ];
 
     const [posts, total] = await this.postRepository.findAndCount({
       where: whereCondition,
@@ -447,8 +479,9 @@ export class PostsService {
     });
 
     const postsWithLikeAndCommentCounts = posts.map((post) => {
+      const { userUuid: _, ...postInfo } = post;
       return {
-        ...post,
+        ...postInfo,
         likeCount: likeCounts.get(post.id) || 0,
         commentCount: commentCounts.get(post.id) || 0,
         isMine: post.userUuid === userUuid,
@@ -472,6 +505,11 @@ export class PostsService {
    * @param options 조회 옵션 (페이지, 한 페이지당 항목 수)
    * @returns 좋아요, 댓글 순 인기 게시글 목록
    */
+  /**
+   * 인기 게시글 조회
+   * @param options 조회 옵션 (페이지, 한 페이지당 항목 수)
+   * @returns 좋아요, 댓글 순 인기 게시글 목록
+   */
   async findPopularPosts(
     findPopularPostsDto: FindPopularPostsDto,
     userUuid: string,
@@ -479,12 +517,19 @@ export class PostsService {
     const { page = 1, limit = 10 } = findPopularPostsDto;
 
     // 기본적으로 공개 게시글은 모두 볼 수 있음
-    const whereCondition: any[] = [{ isPublic: true }];
+    const whereCondition: any[] = [
+      { isPublic: true },
+      { userUuid: userUuid, isPublic: false }, // 본인의 비공개 게시글도 포함
+    ];
 
     // 사용자가 그룹에 속해 있는 경우, 해당 그룹의 비공개 게시글도 볼 수 있음
     if (userUuid) {
       const group = await this.groupService.findUserCurrentGroup(userUuid);
-      if (group) {
+      if (
+        group &&
+        Array.isArray(group.memberUuid) &&
+        group.memberUuid.length > 0
+      ) {
         // 그룹에 속한 사용자라면 그룹원들의 비공개 게시글도 조회 가능
         whereCondition.push({
           userUuid: In(group.memberUuid),
@@ -539,13 +584,18 @@ export class PostsService {
       });
     });
 
-    const postsWithCounts = posts.map((post) => ({
-      ...post,
-      likeCount: likeCounts.get(post.id) || 0,
-      commentCount: commentCounts.get(post.id) || 0,
-      isMine: post.userUuid === userUuid,
-      user: userMap.get(post.userUuid) || null,
-    }));
+    const postsWithCounts = posts.map((post) => {
+      // userUuid 제거
+      const { userUuid: _, ...postInfo } = post;
+
+      return {
+        ...postInfo,
+        likeCount: likeCounts.get(post.id) || 0,
+        commentCount: commentCounts.get(post.id) || 0,
+        isMine: post.userUuid === userUuid,
+        user: userMap.get(post.userUuid) || null,
+      };
+    });
 
     const sortedPosts = postsWithCounts.sort((a, b) => {
       const scoreA = a.likeCount + a.commentCount * 2;

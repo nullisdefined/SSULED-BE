@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { Group } from '@/entities/group.entity';
 import {
   BadRequestException,
@@ -9,12 +10,14 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, Like } from 'typeorm';
 import { CreateGroupDto } from './dto/create-group.dto';
 import { UpdateGroupDto } from './dto/update-group.dto';
+import { UsersService } from '../users/users.service';
 
 @Injectable()
 export class GroupService {
   constructor(
     @InjectRepository(Group)
     private groupRepository: Repository<Group>,
+    private usersService: UsersService,
   ) {}
 
   /**
@@ -22,14 +25,37 @@ export class GroupService {
    * @param userUuid 사용자 UUID
    * @returns 사용자가 소속된 그룹 또는 null
    */
-  async findUserGroup(userUuid: string): Promise<Group | null> {
+  async findUserGroup(userUuid: string): Promise<any> {
     // memberUuid 배열에 사용자 UUID가 포함된 그룹 찾기
     const groups = await this.groupRepository.find({
       where: {},
     });
 
     // TypeORM에서 배열 필드 검색이 제대로 작동하지 않을 수 있으므로 메모리에서 필터링
-    return groups.find((group) => group.memberUuid.includes(userUuid)) || null;
+    const group = groups.find((group) => group.memberUuid.includes(userUuid));
+
+    if (!group) {
+      return null;
+    }
+
+    // 그룹원들의 상세 정보 조회
+    const memberDetails = await Promise.all(
+      group.memberUuid.map(async (memberUuid) => {
+        const userInfo = await this.usersService.getUserInfo(memberUuid);
+        return {
+          ...userInfo,
+        };
+      }),
+    );
+
+    // uuid, password 제외한 그룹 정보
+    const { ownerUuid, memberUuid, password, ...safeGroupInfo } = group;
+
+    return {
+      ...safeGroupInfo,
+      members: memberDetails,
+      isOwner: userUuid === group.ownerUuid,
+    };
   }
 
   /**
@@ -41,7 +67,7 @@ export class GroupService {
   async createGroup(
     createGroupDto: CreateGroupDto,
     ownerUuid: string,
-  ): Promise<Group> {
+  ): Promise<Partial<Group>> {
     // 이미 다른 그룹에 소속되어 있는지 확인
     const existingGroup = await this.findUserGroup(ownerUuid);
     if (existingGroup) {
@@ -62,7 +88,16 @@ export class GroupService {
       memberUuid: [ownerUuid],
     });
 
-    return this.groupRepository.save(group);
+    const savedGroup = await this.groupRepository.save(group);
+
+    const {
+      ownerUuid: _,
+      memberUuid: __,
+      password: ___,
+      ...safeGroupInfo
+    } = savedGroup;
+
+    return safeGroupInfo;
   }
 
   /**
@@ -150,8 +185,13 @@ export class GroupService {
       },
     });
 
+    const safeGroups = groups.map((group) => {
+      const { ownerUuid, memberUuid, password, ...safeGroupInfo } = group;
+      return safeGroupInfo;
+    });
+
     return {
-      data: groups,
+      data: safeGroups,
       meta: {
         totalItems: total,
         itemsPerPage: limit,
@@ -164,9 +204,13 @@ export class GroupService {
   /**
    * 공개 그룹 조회
    * @param options 그룹 목록 조회 조건들
+   * @param userUuid 현재 로그인한 사용자의 UUID
    * @returns 공개 그룹 정보
    */
-  async findAccessibleGroups(options: { page: number; limit: number }) {
+  async findAccessibleGroups(
+    options: { page: number; limit: number },
+    userUuid: string,
+  ) {
     const { page, limit } = options;
     const skip = (page - 1) * limit;
 
@@ -183,8 +227,32 @@ export class GroupService {
       },
     });
 
+    // 각 그룹의 멤버 상세 정보 조회
+    const groupsWithDetails = await Promise.all(
+      groups.map(async (group) => {
+        const memberDetails = await Promise.all(
+          group.memberUuid.map(async (memberUuid) => {
+            const userInfo = await this.usersService.getUserInfo(memberUuid);
+            return {
+              ...userInfo,
+              isOwner: memberUuid === group.ownerUuid,
+            };
+          }),
+        );
+
+        // uuid, password 제외한 그룹 정보
+        const { ownerUuid, memberUuid, password, ...safeGroupInfo } = group;
+
+        return {
+          ...safeGroupInfo,
+          members: memberDetails,
+          isOwner: userUuid === group.ownerUuid,
+        };
+      }),
+    );
+
     return {
-      data: groups,
+      data: groupsWithDetails,
       meta: {
         totalItems: total,
         itemsPerPage: limit,
@@ -197,13 +265,17 @@ export class GroupService {
   /**
    * 그룹 제목 검색
    * @param options 그룹 목록 조회 조건들
+   * @param userUuid 현재 로그인한 사용자의 UUID
    * @returns 그룹 목록 정보
    */
-  async searchGroupsByTitle(options: {
-    page: number;
-    limit: number;
-    title: string;
-  }) {
+  async searchGroupsByTitle(
+    options: {
+      page: number;
+      limit: number;
+      title: string;
+    },
+    userUuid: string,
+  ) {
     const { page, limit, title } = options;
     const skip = (page - 1) * limit;
 
@@ -221,14 +293,32 @@ export class GroupService {
       },
     });
 
-    // 현재 멤버 수 계산
-    const groupsWithMemberCount = groups.map((group) => ({
-      ...group,
-      currentMembers: group.memberUuid.length,
-    }));
+    // 각 그룹의 멤버 상세 정보 조회
+    const groupDetails = await Promise.all(
+      groups.map(async (group) => {
+        const memberDetails = await Promise.all(
+          group.memberUuid.map(async (memberUuid) => {
+            const userInfo = await this.usersService.getUserInfo(memberUuid);
+            return {
+              ...userInfo,
+              isOwner: memberUuid === group.ownerUuid,
+            };
+          }),
+        );
+
+        const { ownerUuid, memberUuid, password, ...safeGroupInfo } = group;
+
+        return {
+          ...safeGroupInfo,
+          members: memberDetails,
+          isOwner: userUuid === group.ownerUuid,
+          currentMembers: group.memberUuid.length,
+        };
+      }),
+    );
 
     return {
-      data: groupsWithMemberCount,
+      data: groupDetails,
       meta: {
         totalItems: total,
         itemsPerPage: limit,
@@ -241,9 +331,10 @@ export class GroupService {
   /**
    * 그룹 상세 조회
    * @param groupId 그룹 ID
+   * @param userUuid 현재 로그인한 사용자의 UUID
    * @returns 그룹 상세 정보
    */
-  async findOneGroup(groupId: number): Promise<Group> {
+  async findOneGroup(groupId: number, userUuid: string): Promise<any> {
     const group = await this.groupRepository.findOne({
       where: { id: groupId },
     });
@@ -252,7 +343,25 @@ export class GroupService {
       throw new NotFoundException('해당 ID의 그룹을 찾을 수 없습니다.');
     }
 
-    return group;
+    // 그룹원들의 상세 정보 조회
+    const memberDetails = await Promise.all(
+      group.memberUuid.map(async (memberUuid) => {
+        const userInfo = await this.usersService.getUserInfo(memberUuid);
+        return {
+          ...userInfo,
+          isOwner: memberUuid === group.ownerUuid,
+        };
+      }),
+    );
+
+    // 민감 정보 제외
+    const { ownerUuid, memberUuid, password, ...safeGroupInfo } = group;
+
+    return {
+      ...safeGroupInfo,
+      members: memberDetails,
+      isOwner: userUuid === group.ownerUuid,
+    };
   }
 
   /**

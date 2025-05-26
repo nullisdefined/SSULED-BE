@@ -344,11 +344,6 @@ export function ApiGetAllPosts() {
                   example: 5,
                   description: '댓글 수',
                 },
-                userUuid: {
-                  type: 'string',
-                  example: '123e4567-e89b-12d3-a456-426614174000',
-                  description: '게시글 작성자 UUID',
-                },
                 title: {
                   type: 'string',
                   example: '오늘의 운동',
@@ -473,11 +468,6 @@ export function ApiGetPostById() {
             type: 'boolean',
             example: true,
             description: '현재 사용자의 좋아요 여부',
-          },
-          userUuid: {
-            type: 'string',
-            example: '123e4567-e89b-12d3-a456-426614174000',
-            description: '게시글 작성자 UUID',
           },
           isMine: {
             type: 'boolean',
@@ -632,10 +622,6 @@ export function ApiUpdatePost() {
           id: {
             type: 'number',
             example: 1,
-          },
-          userUuid: {
-            type: 'string',
-            example: '123e4567-e89b-12d3-a456-426614174000',
           },
           title: {
             type: 'string',
@@ -1163,10 +1149,6 @@ export function ApiGetComment() {
             type: 'string',
             example: '멋진 운동이네요!',
           },
-          userUuid: {
-            type: 'string',
-            example: '123e4567-e89b-12d3-a456-426614174001',
-          },
           postId: {
             type: 'number',
             example: 1,
@@ -1292,12 +1274,6 @@ export function ApiCreateLike() {
       schema: {
         type: 'object',
         properties: {
-          userUuid: {
-            type: 'string',
-            format: 'uuid',
-            description: '좋아요를 추가할 사용자 UUID',
-            example: '123e4567-e89b-12d3-a456-426614174000',
-          },
           postId: {
             type: 'integer',
             description: '좋아요를 추가할 게시글 ID',
@@ -1331,10 +1307,6 @@ export function ApiCreateLike() {
       schema: {
         type: 'object',
         properties: {
-          message: {
-            type: 'array',
-            example: ['userUuid must be a UUID', 'postId must be a number'],
-          },
           error: {
             type: 'string',
             example: 'Bad Request',
@@ -1404,13 +1376,6 @@ export function ApiCheckLikeStatus() {
       required: true,
       type: 'string',
     }),
-    ApiParam({
-      name: 'userUuid',
-      description: '확인할 사용자 UUID',
-      example: '123e4567-e89b-12d3-a456-426614174000',
-      required: true,
-      type: 'string',
-    }),
     ApiResponse({
       status: 200,
       description: '좋아요 상태 확인 성공',
@@ -1437,13 +1402,6 @@ export function ApiDeleteLike() {
     ApiParam({
       name: 'postId',
       description: '게시글 ID',
-      required: true,
-      type: 'string',
-    }),
-    ApiParam({
-      name: 'userUuid',
-      description: '사용자 UUID',
-      example: '123e4567-e89b-12d3-a456-426614174000',
       required: true,
       type: 'string',
     }),
@@ -1533,24 +1491,9 @@ export function ApiCreateGroup() {
             type: 'number',
             example: 1,
           },
-          ownerUuid: {
-            type: 'string',
-            example: '123e4567-e89b-12d3-a456-426614174000',
-          },
-          memberUuid: {
-            type: 'array',
-            items: {
-              type: 'string',
-            },
-            example: ['123e4567-e89b-12d3-a456-426614174000'],
-          },
           title: {
             type: 'string',
             example: '같이 운동해요',
-          },
-          password: {
-            type: 'string',
-            example: '1234',
           },
           isAccessible: {
             type: 'boolean',
@@ -1569,6 +1512,48 @@ export function ApiCreateGroup() {
             type: 'string',
             format: 'date-time',
             example: '2025-03-31T10:00:00.000Z',
+          },
+          isOwner: {
+            type: 'boolean',
+            example: true,
+            description: '현재 로그인한 사용자의 방장 여부',
+          },
+          members: {
+            type: 'array',
+            items: {
+              type: 'object',
+              properties: {
+                userName: {
+                  type: 'string',
+                  example: '홍길동',
+                },
+                userImage: {
+                  type: 'string',
+                  example: 'https://example.com/profile1.jpg',
+                },
+                userIntroduction: {
+                  type: 'string',
+                  example: '안녕하세요',
+                },
+              },
+            },
+          },
+        },
+      },
+    }),
+    ApiResponse({
+      status: 401,
+      description: '권한 없음',
+      schema: {
+        type: 'object',
+        properties: {
+          message: {
+            type: 'string',
+            example: 'Unauthorized',
+          },
+          statusCode: {
+            type: 'number',
+            example: 401,
           },
         },
       },
@@ -1610,13 +1595,6 @@ export function ApiUpdateGroup() {
       type: 'string',
       example: '1',
     }),
-    ApiParam({
-      name: 'ownerUuid',
-      description: '방장 UUID',
-      required: true,
-      type: 'string',
-      example: '123e4567-e89b-12d3-a456-426614174000',
-    }),
     ApiBody({
       schema: {
         type: 'object',
@@ -1654,27 +1632,9 @@ export function ApiUpdateGroup() {
             type: 'number',
             example: 1,
           },
-          ownerUuid: {
-            type: 'string',
-            example: '123e4567-e89b-12d3-a456-426614174000',
-          },
-          memberUuid: {
-            type: 'array',
-            items: {
-              type: 'string',
-            },
-            example: [
-              '123e4567-e89b-12d3-a456-426614174000',
-              '123e4567-e89b-12d3-a456-426614174001',
-            ],
-          },
           title: {
             type: 'string',
             example: '수정된 그룹 제목',
-          },
-          password: {
-            type: 'string',
-            example: '7890',
           },
           isAccessible: {
             type: 'boolean',
@@ -1692,7 +1652,49 @@ export function ApiUpdateGroup() {
           updatedAt: {
             type: 'string',
             format: 'date-time',
-            example: '2025-03-31T10:30:00.000Z',
+            example: '2025-03-31T30:00:00.000Z',
+          },
+          isOwner: {
+            type: 'boolean',
+            example: true,
+            description: '현재 로그인한 사용자의 방장 여부',
+          },
+          members: {
+            type: 'array',
+            items: {
+              type: 'object',
+              properties: {
+                userName: {
+                  type: 'string',
+                  example: '홍길동',
+                },
+                userImage: {
+                  type: 'string',
+                  example: 'https://example.com/profile1.jpg',
+                },
+                userIntroduction: {
+                  type: 'string',
+                  example: '안녕하세요',
+                },
+              },
+            },
+          },
+        },
+      },
+    }),
+    ApiResponse({
+      status: 401,
+      description: '권한 없음',
+      schema: {
+        type: 'object',
+        properties: {
+          message: {
+            type: 'string',
+            example: 'Unauthorized',
+          },
+          statusCode: {
+            type: 'number',
+            example: 401,
           },
         },
       },
@@ -1714,27 +1716,6 @@ export function ApiUpdateGroup() {
           statusCode: {
             type: 'number',
             example: 404,
-          },
-        },
-      },
-    }),
-    ApiResponse({
-      status: 403,
-      description: '권한 없음',
-      schema: {
-        type: 'object',
-        properties: {
-          message: {
-            type: 'string',
-            example: '이 그룹을 수정할 권한이 없습니다.',
-          },
-          error: {
-            type: 'string',
-            example: 'Unauthorized',
-          },
-          statusCode: {
-            type: 'number',
-            example: 403,
           },
         },
       },
@@ -1847,20 +1828,6 @@ export function ApiGetAllGroups() {
                   type: 'number',
                   example: 1,
                 },
-                ownerUuid: {
-                  type: 'string',
-                  example: '123e4567-e89b-12d3-a456-426614174000',
-                },
-                memberUuid: {
-                  type: 'array',
-                  items: {
-                    type: 'string',
-                  },
-                  example: [
-                    '123e4567-e89b-12d3-a456-426614174000',
-                    '123e4567-e89b-12d3-a456-426614174001',
-                  ],
-                },
                 title: {
                   type: 'string',
                   example: '같이 운동해요',
@@ -1882,6 +1849,31 @@ export function ApiGetAllGroups() {
                   type: 'string',
                   format: 'date-time',
                   example: '2025-03-31T10:00:00.000Z',
+                },
+                isOwner: {
+                  type: 'boolean',
+                  example: true,
+                  description: '현재 로그인한 사용자의 방장 여부',
+                },
+                members: {
+                  type: 'array',
+                  items: {
+                    type: 'object',
+                    properties: {
+                      userName: {
+                        type: 'string',
+                        example: '홍길동',
+                      },
+                      userImage: {
+                        type: 'string',
+                        example: 'https://example.com/profile1.jpg',
+                      },
+                      userIntroduction: {
+                        type: 'string',
+                        example: '안녕하세요',
+                      },
+                    },
+                  },
                 },
               },
             },
@@ -1935,20 +1927,6 @@ export function ApiGetGroup() {
             type: 'number',
             example: 1,
           },
-          ownerUuid: {
-            type: 'string',
-            example: '123e4567-e89b-12d3-a456-426614174000',
-          },
-          memberUuid: {
-            type: 'array',
-            items: {
-              type: 'string',
-            },
-            example: [
-              '123e4567-e89b-12d3-a456-426614174000',
-              '123e4567-e89b-12d3-a456-426614174001',
-            ],
-          },
           title: {
             type: 'string',
             example: '같이 운동해요',
@@ -1970,6 +1948,31 @@ export function ApiGetGroup() {
             type: 'string',
             format: 'date-time',
             example: '2025-03-31T10:00:00.000Z',
+          },
+          isOwner: {
+            type: 'boolean',
+            example: true,
+            description: '현재 로그인한 사용자의 방장 여부',
+          },
+          members: {
+            type: 'array',
+            items: {
+              type: 'object',
+              properties: {
+                userName: {
+                  type: 'string',
+                  example: '홍길동',
+                },
+                userImage: {
+                  type: 'string',
+                  example: 'https://example.com/profile1.jpg',
+                },
+                userIntroduction: {
+                  type: 'string',
+                  example: '안녕하세요',
+                },
+              },
+            },
           },
         },
       },
@@ -2035,20 +2038,6 @@ export function ApiJoinGroup() {
             type: 'number',
             example: 1,
           },
-          ownerUuid: {
-            type: 'string',
-            example: '123e4567-e89b-12d3-a456-426614174000',
-          },
-          memberUuid: {
-            type: 'array',
-            items: {
-              type: 'string',
-            },
-            example: [
-              '123e4567-e89b-12d3-a456-426614174000',
-              '123e4567-e89b-12d3-a456-426614174001',
-            ],
-          },
           title: {
             type: 'string',
             example: '같이 운동해요',
@@ -2071,41 +2060,41 @@ export function ApiJoinGroup() {
             format: 'date-time',
             example: '2025-03-31T11:00:00.000Z',
           },
-        },
-      },
-    }),
-    ApiResponse({
-      status: 400,
-      description: '잘못된 요청',
-      schema: {
-        type: 'object',
-        properties: {
-          message: {
-            type: 'string',
-            example: '이미 그룹에 가입되어 있습니다.',
+          isOwner: {
+            type: 'boolean',
+            example: false,
+            description: '현재 로그인한 사용자의 방장 여부',
           },
-          error: {
-            type: 'string',
-            example: 'Bad Request',
-          },
-          statusCode: {
-            type: 'number',
-            example: 400,
+          members: {
+            type: 'array',
+            items: {
+              type: 'object',
+              properties: {
+                userName: {
+                  type: 'string',
+                  example: '홍길동',
+                },
+                userImage: {
+                  type: 'string',
+                  example: 'https://example.com/profile1.jpg',
+                },
+                userIntroduction: {
+                  type: 'string',
+                  example: '안녕하세요',
+                },
+              },
+            },
           },
         },
       },
     }),
     ApiResponse({
       status: 401,
-      description: '인증 오류',
+      description: '권한 없음',
       schema: {
         type: 'object',
         properties: {
           message: {
-            type: 'string',
-            example: '비밀번호가 일치하지 않습니다.',
-          },
-          error: {
             type: 'string',
             example: 'Unauthorized',
           },
@@ -2221,20 +2210,6 @@ export function ApiGetUserGroup() {
             type: 'number',
             example: 1,
           },
-          ownerUuid: {
-            type: 'string',
-            example: '123e4567-e89b-12d3-a456-426614174000',
-          },
-          memberUuid: {
-            type: 'array',
-            items: {
-              type: 'string',
-            },
-            example: [
-              '123e4567-e89b-12d3-a456-426614174000',
-              '123e4567-e89b-12d3-a456-426614174001',
-            ],
-          },
           title: {
             type: 'string',
             example: '같이 운동해요',
@@ -2257,26 +2232,47 @@ export function ApiGetUserGroup() {
             format: 'date-time',
             example: '2025-03-31T11:00:00.000Z',
           },
+          isOwner: {
+            type: 'boolean',
+            example: true,
+            description: '현재 로그인한 사용자의 방장 여부',
+          },
+          members: {
+            type: 'array',
+            items: {
+              type: 'object',
+              properties: {
+                userName: {
+                  type: 'string',
+                  example: '홍길동',
+                },
+                userImage: {
+                  type: 'string',
+                  example: 'https://example.com/profile1.jpg',
+                },
+                userIntroduction: {
+                  type: 'string',
+                  example: '안녕하세요',
+                },
+              },
+            },
+          },
         },
       },
     }),
     ApiResponse({
-      status: 400,
-      description: '잘못된 요청',
+      status: 401,
+      description: '권한 없음',
       schema: {
         type: 'object',
         properties: {
           message: {
             type: 'string',
-            example: '사용자 UUID가 필요합니다.',
-          },
-          error: {
-            type: 'string',
-            example: 'Bad Request',
+            example: 'Unauthorized',
           },
           statusCode: {
             type: 'number',
-            example: 400,
+            example: 401,
           },
         },
       },
@@ -2331,10 +2327,6 @@ export function ApiGetGroupPosts() {
                   type: 'string',
                   example:
                     '오늘도 성공적으로 운동을 완료했습니다. 모두 화이팅하세요!',
-                },
-                userUuid: {
-                  type: 'string',
-                  example: '123e4567-e89b-12d3-a456-426614174000',
                 },
                 isMine: {
                   type: 'boolean',
@@ -2869,6 +2861,122 @@ export function ApiVerifyToken() {
           error: {
             type: 'string',
             example: 'jwt expired',
+          },
+        },
+      },
+    }),
+  );
+}
+
+export function ApiUpdateIntroduction() {
+  return applyDecorators(
+    ApiOperation({
+      summary: '소개글 수정',
+      description: '해당 유저의 소개글을 새로 수정합니다.',
+    }),
+    ApiBody({
+      schema: {
+        type: 'object',
+        properties: {
+          newIntroduction: {
+            type: 'string',
+            example: '안녕하세요. 새로운 소개글입니다!',
+          },
+        },
+        required: ['newIntroduction'],
+      },
+    }),
+    ApiResponse({
+      status: 200,
+      description: '소개글 변경 성공',
+      schema: {
+        type: 'object',
+        properties: {
+          message: {
+            type: 'string',
+            example: '소개글 변경 성공!',
+          },
+        },
+      },
+    }),
+    ApiResponse({
+      status: 404,
+      description: '유저를 찾을 수 없음',
+      schema: {
+        type: 'object',
+        properties: {
+          message: {
+            type: 'string',
+            example: '사용자를 찾을 수 없습니다.',
+          },
+        },
+      },
+    }),
+  );
+}
+
+export function ApiGetUserInfo() {
+  return applyDecorators(
+    ApiOperation({
+      summary: '사용자 정보 조회',
+      description: '로그인한 사용자의 정보를 조회합니다.',
+    }),
+    ApiResponse({
+      status: 200,
+      description: '사용자 정보 조회 성공',
+      schema: {
+        type: 'object',
+        properties: {
+          userName: {
+            type: 'string',
+            example: '익명_5',
+          },
+          userImage: {
+            type: 'string',
+            example:
+              'https://ssuled-bucket.s3.ap-southeast-2.amazonaws.com/images/d11849a6-b1e1-4a61-91b5-2fc209fd23e1.jpeg',
+          },
+          userIntroduction: {
+            type: 'string',
+            example: '재굴재굴',
+          },
+        },
+      },
+    }),
+    ApiResponse({
+      status: 401,
+      description: '권한 없음',
+      schema: {
+        type: 'object',
+        properties: {
+          message: {
+            type: 'string',
+            example: 'Unauthorized',
+          },
+          statusCode: {
+            type: 'number',
+            example: 401,
+          },
+        },
+      },
+    }),
+    ApiResponse({
+      status: 404,
+      description: '사용자를 찾을 수 없음',
+      schema: {
+        type: 'object',
+        properties: {
+          message: {
+            type: 'string',
+            example: '사용자를 찾을 수 없습니다.',
+          },
+          error: {
+            type: 'string',
+            example: 'Not Found',
+          },
+          statusCode: {
+            type: 'number',
+            example: 404,
           },
         },
       },

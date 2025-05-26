@@ -1,3 +1,6 @@
+import * as dotenv from 'dotenv';
+dotenv.config({ path: `env/.${process.env.NODE_ENV || 'development'}.env` });
+
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ConfigService } from '@nestjs/config';
@@ -50,7 +53,15 @@ async function bootstrap() {
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('api/docs', app, document);
+  SwaggerModule.setup('api/docs', app, document, {
+    swaggerOptions: {
+      filter: true,
+      persistAuthorization: true,
+      defaultModelsExpandDepth: -1,
+      displayRequestDuration: true,
+      deepLinking: true,
+    },
+  });
 
   const port = configService.get<number>('PORT') ?? 7777;
   await app.listen(port);

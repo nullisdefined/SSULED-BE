@@ -14,7 +14,6 @@ export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Post('logout')
-  @UseGuards(JwtAuthGuard)
   @ApiLogout()
   async logout(@UserUuid() userUuid: string) {
     return this.usersService.logout(userUuid);
@@ -37,7 +36,7 @@ export class UsersController {
   // }
 
   @Get('userInfo')
-  @UseGuards(JwtAuthGuard)
+  @ApiGetUserInfo()
   async getUserInfo(@UserUuid() UserUuid: string) {
     return this.usersService.getUserInfo(UserUuid);
   }

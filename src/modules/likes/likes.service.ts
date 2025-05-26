@@ -45,6 +45,7 @@ export class LikesService {
     const like = this.likeRepository.create({
       ...createLikeDto,
       userId,
+      userUuid,
     });
 
     await this.likeRepository.save(like);
