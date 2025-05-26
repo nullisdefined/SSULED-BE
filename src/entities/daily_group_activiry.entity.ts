@@ -17,7 +17,7 @@ export class DailyGroupActivity {
   @Column({ type: 'date' })
   date: string;
 
-  @Column({ type: 'int' })
+  @Column({ type: 'int', default: 0 })
   value: number; // ex: 참여자 수, 총 커밋 수 등
 
   @CreateDateColumn()

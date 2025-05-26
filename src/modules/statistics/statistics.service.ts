@@ -42,7 +42,6 @@ export class StatisticsService {
         groupId: entry.groupId,
         groupName: groupMap.get(entry.groupId),
         score: entry.score,
-        commits: entry.commits,
       })),
     };
   }

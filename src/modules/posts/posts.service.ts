@@ -126,7 +126,7 @@ export class PostsService {
         }
         await this.quarterlyRankingRepository.save(ranking);
 
-        // DailyGroupActiviry 업데이트
+        // DailyGroupActivity 업데이트
         const todayStr = new Date().toISOString().slice(0, 10); //YYYY-MM-DD
         let dailyActivity = await this.dailyGroupActivityRepository.findOne({
           where: {
@@ -142,7 +142,7 @@ export class PostsService {
             value: 1,
           });
         } else {
-          dailyActivity.value += 1;
+          dailyActivity.value = (dailyActivity.value ?? 0) + 1;
         }
 
         await this.dailyGroupActivityRepository.save(dailyActivity);
@@ -164,14 +164,14 @@ export class PostsService {
       for (const part of bodyPart) {
         initialBodyPart[part] = 1;
       }
-      const initalTimeZone = { dawn: 0, morning: 0, afternoon: 0, night: 0 };
-      initalTimeZone[timeZoneLabel] = 1;
+      const initialTimeZone = { dawn: 0, morning: 0, afternoon: 0, night: 0 };
+      initialTimeZone[timeZoneLabel] = 1;
 
       stat = this.quarterlyStatisticsRepository.create({
         userUuid,
         year,
         quarter,
-        timeZone: initalTimeZone,
+        timeZone: initialTimeZone,
         bodyPart: initialBodyPart,
         currentStreak: alreadyPostedToday ? 0 : 1,
         longestStreak: alreadyPostedToday ? 0 : 1,
@@ -184,7 +184,7 @@ export class PostsService {
       stat.timeZone[timeZoneLabel] = (stat.timeZone[timeZoneLabel] || 0) + 1;
 
       if (!alreadyPostedToday) {
-        stat.currentStreak += 1;
+        stat.currentStreak = (stat.currentStreak ?? 0) + 1;
         if (stat.currentStreak > stat.longestStreak) {
           stat.longestStreak = stat.currentStreak;
         }
