@@ -79,12 +79,9 @@ jobs:
             npm ci --production
             
             # PM2 서비스 재시작/시작
-            if pm2 list | grep -q 'ssuled-api'; then
-              pm2 restart ssuled-api --update-env
-            else
-              cd /home/${{ secrets.EC2_USERNAME }}/ssuled-be
-              NODE_ENV=production pm2 start dist/src/main.js --name ssuled-api
-            fi
+            pm2 stop ssuled-api || true
+            pm2 delete ssuled-api || true
+            NODE_ENV=production pm2 start dist/src/main.js --name ssuled-api
             
             # PM2 설정 저장
             pm2 save
