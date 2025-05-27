@@ -23,7 +23,7 @@ import { UsersService } from '../users/users.service';
 import { QuarterlyStatistics } from '@/entities/quarterly-statistics.entity';
 import { QuarterlyRanking } from '@/entities/quarterly-ranking.entity';
 import { RankingType } from '@/types/ranking.enum';
-import { DailyGroupActivity } from '@/entities/daily_group_activiry.entity';
+import { DailyGroupActivity } from '@/entities/daily_group_activity.entity';
 
 @Injectable()
 export class PostsService {
@@ -178,6 +178,9 @@ export class PostsService {
         longestStreak: alreadyPostedToday ? 0 : 1,
       });
     } else {
+      if (!stat.bodyPart) stat.bodyPart = {};
+      if (!stat.timeZone)
+        stat.timeZone = { dawn: 0, morning: 0, afternoon: 0, night: 0 };
       for (const part of bodyPart) {
         stat.bodyPart[part] = (stat.bodyPart[part] || 0) + 1;
       }
