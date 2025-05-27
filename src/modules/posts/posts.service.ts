@@ -178,6 +178,9 @@ export class PostsService {
         longestStreak: alreadyPostedToday ? 0 : 1,
       });
     } else {
+      if (!stat.bodyPart) stat.bodyPart = {};
+      if (!stat.timeZone)
+        stat.timeZone = { dawn: 0, morning: 0, afternoon: 0, night: 0 };
       for (const part of bodyPart) {
         stat.bodyPart[part] = (stat.bodyPart[part] || 0) + 1;
       }
