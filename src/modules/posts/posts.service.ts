@@ -227,6 +227,18 @@ export class PostsService {
       order: { createdAt: 'DESC' },
     });
 
+    if (!posts.length) {
+      return {
+        data: [],
+        meta: {
+          totalItems: 0,
+          itemsPerPage: limit,
+          totalPages: 0,
+          currentPage: page,
+        },
+      };
+    }
+
     const postIds = posts.map((post) => post.id);
 
     const likeCounts = await this.likesService.getLikeCountsByPostIds(postIds);
@@ -503,11 +515,6 @@ export class PostsService {
     };
   }
 
-  /**
-   * 인기 게시글 조회
-   * @param options 조회 옵션 (페이지, 한 페이지당 항목 수)
-   * @returns 좋아요, 댓글 순 인기 게시글 목록
-   */
   /**
    * 인기 게시글 조회
    * @param options 조회 옵션 (페이지, 한 페이지당 항목 수)
