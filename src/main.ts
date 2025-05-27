@@ -1,6 +1,11 @@
 import * as dotenv from 'dotenv';
 dotenv.config({ path: `env/.${process.env.NODE_ENV || 'development'}.env` });
 
+import * as crypto from 'crypto';
+if (typeof global !== 'undefined') {
+  (global as any).crypto = crypto;
+}
+
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ConfigService } from '@nestjs/config';
