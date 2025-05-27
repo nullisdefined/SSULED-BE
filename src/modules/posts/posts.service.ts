@@ -66,15 +66,12 @@ export class PostsService {
     const year = now.getFullYear();
     const quarter = Math.floor(now.getMonth() / 3) + 1;
 
-    // const alreadyPostedToday = await this.postRepository.exists({
-    //   where: {
-    //     userUuid,
-    //     createdAt: Between(todayStart, todayEnd),
-    //   },
-    // });
-
-    // test
-    const alreadyPostedToday = false;
+    const alreadyPostedToday = await this.postRepository.exists({
+      where: {
+        userUuid,
+        createdAt: Between(todayStart, todayEnd),
+      },
+    });
 
     const post = this.postRepository.create({
       title,
