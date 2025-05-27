@@ -2,9 +2,15 @@ import * as dotenv from 'dotenv';
 dotenv.config({ path: `env/.${process.env.NODE_ENV || 'development'}.env` });
 
 import * as crypto from 'crypto';
-if (typeof global !== 'undefined') {
-  (global as any).crypto = crypto;
-}
+try {
+  if (typeof global !== 'undefined' && !global.crypto) {
+    Object.defineProperty(global, 'crypto', {
+      value: crypto,
+      writable: false,
+      configurable: true,
+    });
+  }
+} catch {}
 
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
