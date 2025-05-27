@@ -23,7 +23,7 @@ import { UsersService } from '../users/users.service';
 import { QuarterlyStatistics } from '@/entities/quarterly-statistics.entity';
 import { QuarterlyRanking } from '@/entities/quarterly-ranking.entity';
 import { RankingType } from '@/types/ranking.enum';
-import { DailyGroupActivity } from '@/entities/daily_group_activiry.entity';
+import { DailyGroupActivity } from '@/entities/daily_group_activity.entity';
 
 @Injectable()
 export class PostsService {
