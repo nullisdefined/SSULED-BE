@@ -106,7 +106,7 @@ export class PostsService {
         const groupId = isGroup.id;
 
         const group = await this.groupService.findOneGroup(groupId, userUuid);
-        const currentMembers = group.memberUuid.length;
+        const currentMembers = group.members.length;
         const score = (1 / currentMembers) * 100;
 
         let ranking = await this.quarterlyRankingRepository.findOne({
