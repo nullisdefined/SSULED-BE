@@ -3215,3 +3215,38 @@ export function ApiUpdateProfile() {
     }),
   );
 }
+export function ApiDeleteUser() {
+  return applyDecorators(
+    ApiOperation({
+      summary: '회원 탈퇴',
+      description:
+        '회원의 status를 delete로 변경하고, 닉네임과 프로필 이미지를 null로 처리합니다.',
+    }),
+    ApiResponse({
+      status: 200,
+      description: '회원 탈퇴 성공',
+      schema: {
+        type: 'object',
+        properties: {
+          message: {
+            type: 'string',
+            example: '회원 탈퇴 성공!',
+          },
+        },
+      },
+    }),
+    ApiResponse({
+      status: 404,
+      description: '사용자를 찾을 수 없는 경우',
+      schema: {
+        type: 'object',
+        properties: {
+          message: {
+            type: 'string',
+            example: '사용자를 찾을 수 없습니다.',
+          },
+        },
+      },
+    }),
+  );
+}
