@@ -5,6 +5,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Post } from '@/entities/post.entity';
 import { UpdateProfileDto } from './dto/update-profile.dto';
+import { UserStatusType } from '@/types/user-status.enum';
 
 @Injectable()
 export class UsersService {
@@ -29,6 +30,7 @@ export class UsersService {
       profileImage: user.profileImage,
       socialProvider: user.socialProvider,
       socialId: user.socialId,
+      status: UserStatusType.ACTIVITY,
     });
     return this.userRepository.save(newUser);
   }
@@ -107,27 +109,22 @@ export class UsersService {
     return users.filter((user) => user !== null);
   }
 
-  // // 회원 탈퇴
-  // async deleteUser(userUuid: string) {
-  //   const userId = await this.getUserIdByUuid(userUuid);
+  // 회원 탈퇴
+  async deleteUser(userUuid: string) {
+    const user = await this.userRepository.findOneBy({ userUuid });
 
-  //   if (!userId) {
-  //     throw new NotFoundException('사용자를 찾을 수 없습니다.');
-  //   }
+    if (!user) {
+      throw new NotFoundException('사용자를 찾을 수 없습니다.');
+    }
 
-  //   // 사용자 관련 데이터 삭제
-  //   // await this.postRepository.delete({ userUuid });
-  //   await this.commentRepository.delete({ userUuid });
-  //   await this.likeRepository.delete({ userUuid });
-  //   await this.groupRepository.delete({ ownerUuid: userUuid });
-  //   // 자신이 속한 그룹에서 삭제
+    user.status = UserStatusType.DELETE;
+    user.nickname = null;
+    user.profileImage = null;
 
-  //   // 사용자 삭제
-  //   await this.authRepository.delete({ userId });
-  //   await this.userRepository.delete({ userUuid });
+    await this.userRepository.save(user);
 
-  //   return { message: '회원 탈퇴 성공!' };
-  // }
+    return { message: '회원 탈퇴 성공!' };
+  }
 
   async getUserInfo(userUuid: string) {
     const user = await this.userRepository.findOne({

@@ -1,4 +1,5 @@
 import { SocialProvider } from '@/types/social-provider.enum';
+import { UserStatusType } from '@/types/user-status.enum';
 import {
   Column,
   CreateDateColumn,
@@ -15,7 +16,7 @@ export class User {
   @Column({ name: 'user_uuid', type: 'uuid', unique: true })
   userUuid: string;
 
-  @Column({ name: 'nickname', type: 'varchar', unique: true })
+  @Column({ name: 'nickname', type: 'varchar', unique: true, nullable: true })
   nickname: string;
 
   @Column({ name: 'socialNickname', type: 'varchar' })
@@ -32,6 +33,9 @@ export class User {
 
   @Column({ name: 'introduction', type: 'varchar', nullable: true })
   introduction: string;
+
+  @Column({ name: 'status', type: 'enum', enum: UserStatusType })
+  status: UserStatusType;
 
   @CreateDateColumn({ name: 'created_at', type: 'timestamptz' })
   createdAt: Date;
