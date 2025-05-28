@@ -71,69 +71,69 @@ export class GroupController {
 
   /**
    * 그룹 상세 조회
-   * @param id 그룹 ID
+   * @param groupId 그룹 ID
    * @param userUuid 현재 로그인한 사용자의 UUID
    * @returns 그룹 상세 정보
    */
-  @Get(':id')
+  @Get(':groupId')
   @ApiGetGroup()
-  findOne(@Param('id') id: string, @UserUuid() userUuid: string) {
-    return this.groupService.findOneGroup(+id, userUuid);
+  findOne(@Param('groupId') groupId: string, @UserUuid() userUuid: string) {
+    return this.groupService.findOneGroup(+groupId, userUuid);
   }
 
   /**
    * 그룹 수정
-   * @param id 그룹 ID
+   * @param groupId 그룹 ID
    * @param updateGroupDto 그룹 수정 정보
    * @param userUuid 현재 로그인한 사용자의 UUID
    * @returns 수정된 그룹 정보
    */
-  @Patch(':id')
+  @Patch(':groupId')
   @ApiUpdateGroup()
   update(
-    @Param('id') id: string,
+    @Param('groupId') groupId: string,
     @Body() updateGroupDto: UpdateGroupDto,
     @UserUuid() userUuid: string,
   ) {
-    return this.groupService.updateGroup(+id, updateGroupDto, userUuid);
+    return this.groupService.updateGroup(+groupId, updateGroupDto, userUuid);
   }
 
   /**
    * 그룹 삭제
-   * @param id 그룹 ID
+   * @param groupId 그룹 ID
    * @param req 요청 객체
    */
-  @Delete(':id')
+  @Delete(':groupId')
   @ApiDeleteGroup()
-  remove(@Param('id') id: string, @Request() req) {
-    return this.groupService.deleteGroup(+id, req.user.userUuid);
+  remove(@Param('groupId') groupId: string, @Request() req) {
+    return this.groupService.deleteGroup(+groupId, req.user.userUuid);
   }
 
   /**
    * 그룹 참여
-   * @param id 그룹 ID
+   * @param groupId 그룹 ID
    * @param password 그룹 참여 비밀번호
    * @param req 요청 객체
    * @returns 참여된 그룹 정보
    */
-  @Post(':id/join')
+  @Post(':groupId/join')
   @ApiJoinGroup()
   joinGroup(
-    @Param('id') id: string,
+    @Param('groupId') groupId: string,
     @Body('password') password: string,
     @Request() req,
   ) {
-    return this.groupService.joinGroup(+id, req.user.userUuid, password);
+    return this.groupService.joinGroup(+groupId, req.user.userUuid, password);
   }
 
   /**
    * 그룹 탈퇴
-   * @param id 그룹 ID
+   * @param groupId 그룹 ID
    * @returns 탈퇴 메시지
    */
-  @Delete(':id/leave')
+  @Delete(':groupId/leave')
   @ApiLeaveGroup()
-  leaveGroup(@Param('id') id: string, @UserUuid() userUuid: string) {
-    return this.groupService.leaveGroup(+id, userUuid);
+  leaveGroup(@Param('groupId') groupId: string, @UserUuid() userUuid: string) {
+    return this.groupService.leaveGroup(+groupId, userUuid);
   }
 }
