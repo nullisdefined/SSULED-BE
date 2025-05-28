@@ -5,8 +5,12 @@ import { Group } from '@/entities/group.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UsersModule } from '../users/users.module';
 import { forwardRef } from '@nestjs/common';
+import { QuarterlyRanking } from '@/entities/quarterly-ranking.entity';
 @Module({
-  imports: [TypeOrmModule.forFeature([Group]), forwardRef(() => UsersModule)],
+  imports: [
+    TypeOrmModule.forFeature([Group, QuarterlyRanking]),
+    forwardRef(() => UsersModule),
+  ],
   controllers: [GroupController],
   providers: [GroupService],
   exports: [GroupService],

@@ -11,12 +11,15 @@ import { Repository, Like } from 'typeorm';
 import { CreateGroupDto } from './dto/create-group.dto';
 import { UpdateGroupDto } from './dto/update-group.dto';
 import { UsersService } from '../users/users.service';
+import { QuarterlyRanking } from '@/entities/quarterly-ranking.entity';
 
 @Injectable()
 export class GroupService {
   constructor(
     @InjectRepository(Group)
     private groupRepository: Repository<Group>,
+    @InjectRepository(QuarterlyRanking)
+    private quarterlyRankingRepository: Repository<QuarterlyRanking>,
     private usersService: UsersService,
   ) {}
 
@@ -470,5 +473,36 @@ export class GroupService {
     group.updatedAt = new Date();
 
     return this.groupRepository.save(group);
+  }
+
+  async getGroupRanking(groupId: number, year: number, quarter: number) {
+    const result = await this.quarterlyRankingRepository.query(
+      `
+    SELECT *
+    FROM (
+      SELECT group_id, score,
+             RANK() OVER (ORDER BY score DESC) AS rank
+      FROM quarterly_ranking
+      WHERE year = $1 AND quarter = $2
+    ) ranked
+    WHERE group_id = $3
+    `,
+      [year, quarter, groupId],
+    );
+
+    // 그룹은 존재하지만 랭킹 테이블에 없을 수 있으므로 null 처리
+    if (!result.length) {
+      return {
+        groupId,
+        score: null,
+        rank: null,
+      };
+    }
+
+    return {
+      groupId: result[0].group_id,
+      score: result[0].score,
+      rank: result[0].rank,
+    };
   }
 }

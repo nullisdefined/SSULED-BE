@@ -3250,3 +3250,46 @@ export function ApiDeleteUser() {
     }),
   );
 }
+
+export function ApiGetGroupRanking() {
+  return applyDecorators(
+    ApiOperation({
+      summary: '그룹 랭킹 조회',
+      description:
+        '특정 그룹의 지정된 연도와 분기 기준 분기별 랭킹 정보를 조회합니다.',
+    }),
+    ApiParam({
+      name: 'groupId',
+      required: true,
+      type: Number,
+      description: '조회할 그룹의 ID',
+      example: 1,
+    }),
+    ApiQuery({
+      name: 'year',
+      required: true,
+      type: Number,
+      example: 2025,
+      description: '조회 연도',
+    }),
+    ApiQuery({
+      name: 'quarter',
+      required: true,
+      type: Number,
+      example: 2,
+      description: '조회 분기 (1 ~ 4)',
+    }),
+    ApiResponse({
+      status: 200,
+      description: '랭킹 정보 반환 (없을 경우 score, rank는 null)',
+      schema: {
+        type: 'object',
+        properties: {
+          groupId: { type: 'number', example: 3 },
+          score: { type: 'number', example: 85.4, nullable: true },
+          rank: { type: 'number', example: 2, nullable: true },
+        },
+      },
+    }),
+  );
+}
