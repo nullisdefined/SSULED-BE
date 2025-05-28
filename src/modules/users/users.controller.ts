@@ -4,6 +4,7 @@ import { Body, Controller, Delete, Get, Post, UseGuards } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import {
+  ApiDeleteUser,
   ApiGetUserInfo,
   ApiLogout,
   ApiUpdateProfile,
@@ -35,6 +36,7 @@ export class UsersController {
 
   @Delete('member')
   @UseGuards(JwtAuthGuard)
+  @ApiDeleteUser()
   async deleteAccount(@UserUuid() UserUuid: string) {
     return this.usersService.deleteUser(UserUuid);
   }

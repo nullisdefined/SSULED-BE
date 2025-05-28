@@ -34,7 +34,12 @@ export class User {
   @Column({ name: 'introduction', type: 'varchar', nullable: true })
   introduction: string;
 
-  @Column({ name: 'status', type: 'enum', enum: UserStatusType })
+  @Column({
+    name: 'status',
+    type: 'enum',
+    enum: UserStatusType,
+    default: UserStatusType.ACTIVITY,
+  })
   status: UserStatusType;
 
   @CreateDateColumn({ name: 'created_at', type: 'timestamptz' })
