@@ -490,10 +490,19 @@ export class GroupService {
       [year, quarter, groupId],
     );
 
+    const group = await this.groupRepository.findOne({
+      where: { id: groupId },
+    });
+
+    if (!group) {
+      throw new NotFoundException('해당 그룹을 찾을 수 없습니다.');
+    }
+
     // 그룹은 존재하지만 랭킹 테이블에 없을 수 있으므로 null 처리
     if (!result.length) {
       return {
         groupId,
+        groupName: group.title,
         score: null,
         rank: null,
       };
@@ -501,6 +510,7 @@ export class GroupService {
 
     return {
       groupId: result[0].group_id,
+      groupName: group.title,
       score: result[0].score,
       rank: result[0].rank,
     };
