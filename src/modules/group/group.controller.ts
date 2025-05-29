@@ -9,6 +9,7 @@ import {
   Query,
   UseGuards,
   Request,
+  ParseIntPipe,
 } from '@nestjs/common';
 import { GroupService } from './group.service';
 import { CreateGroupDto } from './dto/create-group.dto';
@@ -23,6 +24,7 @@ import {
   ApiJoinGroup,
   ApiLeaveGroup,
   ApiGetUserGroup,
+  ApiGetGroupRanking,
 } from '@/decorators/swagger.decorator';
 import { JwtAuthGuard } from '@/auth/guards/jwt-auth.guard';
 import { UserUuid } from '@/decorators/user-uuid.decorator';
@@ -135,5 +137,16 @@ export class GroupController {
   @ApiLeaveGroup()
   leaveGroup(@Param('groupId') groupId: string, @UserUuid() userUuid: string) {
     return this.groupService.leaveGroup(+groupId, userUuid);
+  }
+
+  // 자신이 속한 그룹 랭킹
+  @Get('ranking/:groupId')
+  @ApiGetGroupRanking()
+  getGroupRanking(
+    @Param('groupId', ParseIntPipe) groupId: number,
+    @Query('year') year: number,
+    @Query('quarter') quarter: number,
+  ) {
+    return this.groupService.getGroupRanking(groupId, year, quarter);
   }
 }
