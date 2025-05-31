@@ -16,6 +16,8 @@ import { LikesModule } from './modules/likes/likes.module';
 import { UsersModule } from './modules/users/users.module';
 import { GroupModule } from './modules/group/group.module';
 import { StatisticsModule } from './modules/statistics/statistics.module';
+import { addTransactionalDataSource } from 'typeorm-transactional';
+import { DataSource } from 'typeorm';
 
 @Module({
   imports: [
@@ -29,6 +31,11 @@ import { StatisticsModule } from './modules/statistics/statistics.module';
       inject: [ConfigService],
       useFactory: (configService: ConfigService) =>
         typeOrmConfig(configService),
+      async dataSourceFactory(option) {
+        if (!option) throw new Error('Invalid options passed');
+
+        return addTransactionalDataSource(new DataSource(option));
+      },
     }),
     UploadsModule,
     S3Module,

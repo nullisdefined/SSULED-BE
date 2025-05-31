@@ -6,6 +6,7 @@ import { Repository } from 'typeorm';
 import { Post } from '@/entities/post.entity';
 import { UpdateProfileDto } from './dto/update-profile.dto';
 import { UserStatusType } from '@/types/user-status.enum';
+import { Transactional } from 'typeorm-transactional';
 
 @Injectable()
 export class UsersService {
@@ -22,6 +23,7 @@ export class UsersService {
     return this.userRepository.findOneBy({ socialId });
   }
 
+  @Transactional()
   createUser(user, uuid): Promise<User> {
     const newUser = this.userRepository.create({
       userUuid: uuid,
@@ -55,6 +57,7 @@ export class UsersService {
     return user.id;
   }
 
+  @Transactional()
   async logout(userUuid: string) {
     const userId = await this.getUserIdByUuid(userUuid);
     await this.authRepository.update(
@@ -72,6 +75,7 @@ export class UsersService {
   /*
   닉네임, 소개글 변경
   */
+  @Transactional()
   async updateProfile(userUuid: string, dto: UpdateProfileDto) {
     const { newNickname, newIntroduction, newProfileImg } = dto;
 
@@ -110,6 +114,7 @@ export class UsersService {
   }
 
   // 회원 탈퇴
+  @Transactional()
   async deleteUser(userUuid: string) {
     const user = await this.userRepository.findOneBy({ userUuid });
 

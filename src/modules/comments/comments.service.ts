@@ -14,6 +14,7 @@ import { FindAllCommentsDto } from './dto/find-all-comments.dto';
 import { Comment } from '@/entities/comment.entity';
 import { User } from '@/entities/user.entity';
 import { UsersService } from '../users/users.service';
+import { Transactional } from 'typeorm-transactional';
 
 @Injectable()
 export class CommentsService {
@@ -33,6 +34,7 @@ export class CommentsService {
    * @param userUuid 인증된 사용자 UUID
    * @returns 생성된 댓글 정보
    */
+  @Transactional()
   async createComment(createCommentDto: CreateCommentDto, userUuid: string) {
     // 게시글 존재 여부 확인
     await this.postsService.findOnePost(createCommentDto.postId);
@@ -197,6 +199,7 @@ export class CommentsService {
    * @param updateCommentDto 댓글 수정 정보
    * @returns 수정된 댓글 정보
    */
+  @Transactional()
   async updateComment(
     id: number,
     updateCommentDto: UpdateCommentDto,
@@ -219,8 +222,9 @@ export class CommentsService {
   /**
    * 댓글 삭제
    * @param id 댓글 ID
-   * @returns 삭제 성공 메시지
+   * @returns 삭제 결과 메시지
    */
+  @Transactional()
   async removeComment(id: number, userUuid: string) {
     const comment = await this.findOneComment(id);
 

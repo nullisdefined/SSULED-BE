@@ -24,6 +24,7 @@ import { QuarterlyStatistics } from '@/entities/quarterly-statistics.entity';
 import { QuarterlyRanking } from '@/entities/quarterly-ranking.entity';
 import { RankingType } from '@/types/ranking.enum';
 import { DailyGroupActivity } from '@/entities/daily_group_activity.entity';
+import { Transactional } from 'typeorm-transactional';
 
 @Injectable()
 export class PostsService {
@@ -53,6 +54,7 @@ export class PostsService {
    * @param createPostDto 게시글 생성 정보
    * @returns 생성된 게시글 정보
    */
+  @Transactional()
   async createPost(createPostDto: CreatePostDto, userUuid: string) {
     const { title, content, imageUrl, isPublic, bodyPart, duration } =
       createPostDto;
@@ -358,8 +360,10 @@ export class PostsService {
    * @param updatePostDto 게시글 수정 정보
    * @returns 수정된 게시글 정보
    */
+  @Transactional()
   async updatePost(id: number, updatePostDto: UpdatePostDto, userUuid: string) {
     const post = await this.postRepository.findOne({ where: { id } });
+
     if (!post) {
       throw new NotFoundException('해당 ID의 게시글을 찾을 수 없습니다.');
     }
@@ -393,9 +397,9 @@ export class PostsService {
   /**
    * 게시글 삭제
    * @param id 게시글 ID
-   * @param userUuid 삭제 요청하는 사용자 UUID
-   * @returns 삭제된 게시글 정보
+   * @returns 삭제 결과 메시지
    */
+  @Transactional()
   async removePost(id: number, userUuid: string) {
     const post = await this.postRepository.findOne({ where: { id } });
     if (!post) {

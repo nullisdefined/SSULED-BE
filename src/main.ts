@@ -18,10 +18,13 @@ import { ConfigService } from '@nestjs/config';
 import { WINSTON_MODULE_NEST_PROVIDER } from 'nest-winston';
 import { ValidationPipe } from '@nestjs/common';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
+import { initializeTransactionalContext } from 'typeorm-transactional';
 
 declare const module: any;
 
 async function bootstrap() {
+  initializeTransactionalContext();
+
   const app = await NestFactory.create(AppModule, {
     logger:
       process.env.NODE_ENV === 'production'
