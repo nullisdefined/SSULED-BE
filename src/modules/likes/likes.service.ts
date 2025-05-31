@@ -10,6 +10,7 @@ import { Repository } from 'typeorm';
 import { Like } from '@/entities/like.entity';
 import { CreateLikeDto } from './dto/create-like.dto';
 import { UsersService } from '../users/users.service';
+import { Transactional } from 'typeorm-transactional';
 
 @Injectable()
 export class LikesService {
@@ -25,6 +26,7 @@ export class LikesService {
    * @param createLikeDto 좋아요 생성 정보
    * @returns 생성된 좋아요 정보와 좋아요 수
    */
+  @Transactional()
   async createLike(createLikeDto: CreateLikeDto, userUuid: string) {
     // 이미 좋아요한 게시글인지 확인
     const existingLike = await this.likeRepository.findOne({
@@ -95,6 +97,7 @@ export class LikesService {
    * @param userUuid 사용자 UUID
    * @returns 삭제 성공 메시지와 업데이트된 좋아요 수
    */
+  @Transactional()
   async removeLike(postId: number, userUuid: string) {
     const like = await this.likeRepository.findOne({
       where: {
