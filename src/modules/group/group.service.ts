@@ -12,7 +12,6 @@ import { CreateGroupDto } from './dto/create-group.dto';
 import { UpdateGroupDto } from './dto/update-group.dto';
 import { UsersService } from '../users/users.service';
 import { QuarterlyRanking } from '@/entities/quarterly-ranking.entity';
-import { Transactional } from 'typeorm-transactional';
 
 @Injectable()
 export class GroupService {
@@ -68,7 +67,6 @@ export class GroupService {
    * @param ownerUuid 방장 UUID
    * @returns 생성된 그룹 정보
    */
-  @Transactional()
   async createGroup(
     createGroupDto: CreateGroupDto,
     ownerUuid: string,
@@ -112,7 +110,6 @@ export class GroupService {
    * @param ownerUuid 방장 UUID
    * @returns 수정된 그룹 정보
    */
-  @Transactional()
   async updateGroup(
     groupId: number,
     updateGroupDto: UpdateGroupDto,
@@ -152,7 +149,6 @@ export class GroupService {
    * @param ownerUuid 방장 UUID
    * @returns 삭제 메시지
    */
-  @Transactional()
   async deleteGroup(
     groupId: number,
     ownerUuid: string,
@@ -386,7 +382,6 @@ export class GroupService {
    * @param userUuid 사용자 UUID
    * @returns 탈퇴 결과
    */
-  @Transactional()
   async leaveGroup(
     groupId: number,
     userUuid: string,
@@ -429,7 +424,6 @@ export class GroupService {
    * @param password 비밀번호 (필요한 경우)
    * @returns 가입된 그룹 정보
    */
-  @Transactional()
   async joinGroup(
     groupId: number,
     userUuid: string,

@@ -24,7 +24,6 @@ import { QuarterlyStatistics } from '@/entities/quarterly-statistics.entity';
 import { QuarterlyRanking } from '@/entities/quarterly-ranking.entity';
 import { RankingType } from '@/types/ranking.enum';
 import { DailyGroupActivity } from '@/entities/daily_group_activity.entity';
-import { Transactional } from 'typeorm-transactional';
 
 @Injectable()
 export class PostsService {
@@ -54,7 +53,6 @@ export class PostsService {
    * @param createPostDto 게시글 생성 정보
    * @returns 생성된 게시글 정보
    */
-  @Transactional()
   async createPost(createPostDto: CreatePostDto, userUuid: string) {
     const { title, content, imageUrl, isPublic, bodyPart, duration } =
       createPostDto;
@@ -360,7 +358,6 @@ export class PostsService {
    * @param updatePostDto 게시글 수정 정보
    * @returns 수정된 게시글 정보
    */
-  @Transactional()
   async updatePost(id: number, updatePostDto: UpdatePostDto, userUuid: string) {
     const post = await this.postRepository.findOne({ where: { id } });
 
@@ -399,7 +396,6 @@ export class PostsService {
    * @param id 게시글 ID
    * @returns 삭제 결과 메시지
    */
-  @Transactional()
   async removePost(id: number, userUuid: string) {
     const post = await this.postRepository.findOne({ where: { id } });
     if (!post) {
@@ -439,17 +435,18 @@ export class PostsService {
       Array.isArray(memberUuids) && memberUuids.includes(userUuid);
     const { page, limit } = findGroupPostsDto;
 
-    // 그룹 멤버 여부에 따라 where 조건 다르게 구성
-    const whereCondition = isMember
-      ? [
-          { isPublic: true },
-          { userUuid: In(memberUuids), isPublic: false },
-          { userUuid: userUuid, isPublic: false }, // 본인의 비공개 게시글도 포함
-        ]
-      : [
-          { isPublic: true },
-          { userUuid: userUuid, isPublic: false }, // 본인의 비공개 게시글도 포함
-        ];
+    // 그룹 멤버가 아닌 경우 접근 권한 없음
+    if (!isMember) {
+      throw new UnauthorizedException(
+        '해당 그룹의 게시글을 조회할 권한이 없습니다.',
+      );
+    }
+
+    // 그룹 멤버들의 게시글만 조회 (공개/비공개 모두 포함)
+    const whereCondition = [
+      { userUuid: In(memberUuids), isPublic: true }, // 그룹 멤버들의 공개 게시글
+      { userUuid: In(memberUuids), isPublic: false }, // 그룹 멤버들의 비공개 게시글
+    ];
 
     const [posts, total] = await this.postRepository.findAndCount({
       where: whereCondition,
