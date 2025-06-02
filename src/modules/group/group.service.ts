@@ -12,6 +12,8 @@ import { CreateGroupDto } from './dto/create-group.dto';
 import { UpdateGroupDto } from './dto/update-group.dto';
 import { UsersService } from '../users/users.service';
 import { QuarterlyRanking } from '@/entities/quarterly-ranking.entity';
+import { DailyGroupActivity } from '@/entities/daily_group_activity.entity';
+import { QuarterlyStatistics } from '@/entities/quarterly-statistics.entity';
 
 @Injectable()
 export class GroupService {
@@ -20,6 +22,8 @@ export class GroupService {
     private groupRepository: Repository<Group>,
     @InjectRepository(QuarterlyRanking)
     private quarterlyRankingRepository: Repository<QuarterlyRanking>,
+    @InjectRepository(DailyGroupActivity)
+    private dailyGroupActivityRepository: Repository<DailyGroupActivity>,
     private usersService: UsersService,
   ) {}
 
@@ -165,6 +169,8 @@ export class GroupService {
       throw new UnauthorizedException('이 그룹을 삭제할 권한이 없습니다.');
     }
 
+    await this.dailyGroupActivityRepository.delete({ groupId });
+    await this.quarterlyRankingRepository.delete({ groupId });
     await this.groupRepository.delete(groupId);
     return {
       message: '그룹이 성공적으로 삭제되었습니다.',
