@@ -227,7 +227,10 @@ export class GroupService {
 
     const safeGroups = groups.map((group) => {
       const { ownerUuid, memberUuid, password, ...safeGroupInfo } = group;
-      return safeGroupInfo;
+      return {
+        ...safeGroupInfo,
+        memberCount: memberUuid.length,
+      };
     });
 
     return {

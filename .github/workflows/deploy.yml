@@ -58,24 +58,24 @@ jobs:
         run: |
           ssh ${{ secrets.EC2_USERNAME }}@${{ secrets.EC2_HOST }} "
             # 배포 디렉토리 생성
-            mkdir -p /home/${{ secrets.EC2_USERNAME }}/ssuled-be
+            mkdir -p /home/${{ secrets.EC2_USERNAME }}/apps/backend
             
             # 압축 해제
             tar -xzf deploy.tar.gz
             
             # 파일 복사
-            rm -rf /home/${{ secrets.EC2_USERNAME }}/ssuled-be/dist
-            cp -r deploy/dist /home/${{ secrets.EC2_USERNAME }}/ssuled-be/
-            cp -f deploy/package.json /home/${{ secrets.EC2_USERNAME }}/ssuled-be/
-            cp -f deploy/package-lock.json /home/${{ secrets.EC2_USERNAME }}/ssuled-be/
-            cp -f deploy/.env /home/${{ secrets.EC2_USERNAME }}/ssuled-be/
+            rm -rf /home/${{ secrets.EC2_USERNAME }}/apps/backend/dist
+            cp -r deploy/dist /home/${{ secrets.EC2_USERNAME }}/apps/backend/
+            cp -f deploy/package.json /home/${{ secrets.EC2_USERNAME }}/apps/backend/
+            cp -f deploy/package-lock.json /home/${{ secrets.EC2_USERNAME }}/apps/backend/
+            cp -f deploy/.env /home/${{ secrets.EC2_USERNAME }}/apps/backend/
             
             # 환경 변수 파일 복사
-            mkdir -p /home/${{ secrets.EC2_USERNAME }}/ssuled-be/env
-            cp -f deploy/.production.env /home/${{ secrets.EC2_USERNAME }}/ssuled-be/env/.production.env
+            mkdir -p /home/${{ secrets.EC2_USERNAME }}/apps/backend/env
+            cp -f deploy/.production.env /home/${{ secrets.EC2_USERNAME }}/apps/backend/env/.production.env
             
             # 패키지 설치
-            cd /home/${{ secrets.EC2_USERNAME }}/ssuled-be
+            cd /home/${{ secrets.EC2_USERNAME }}/apps/backend
             npm ci --production
             
             # PM2 서비스 재시작/시작
