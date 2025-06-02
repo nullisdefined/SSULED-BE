@@ -430,9 +430,11 @@ export class PostsService {
       throw new NotFoundException('해당 ID의 그룹을 찾을 수 없습니다.');
     }
 
-    const memberUuids = group.memberUuid || [];
+    // group.members 배열에서 사용자 UUID 확인 (멤버 정보는 findOneGroup에서 이미 조회됨)
     const isMember =
-      Array.isArray(memberUuids) && memberUuids.includes(userUuid);
+      group.members &&
+      group.members.some((member) => member.userUuid === userUuid);
+    console.log(isMember);
     const { page, limit } = findGroupPostsDto;
 
     // 그룹 멤버가 아닌 경우 접근 권한 없음
@@ -444,8 +446,14 @@ export class PostsService {
 
     // 그룹 멤버들의 게시글만 조회 (공개/비공개 모두 포함)
     const whereCondition = [
-      { userUuid: In(memberUuids), isPublic: true }, // 그룹 멤버들의 공개 게시글
-      { userUuid: In(memberUuids), isPublic: false }, // 그룹 멤버들의 비공개 게시글
+      {
+        userUuid: In(group.members.map((member) => member.userUuid)),
+        isPublic: true,
+      }, // 그룹 멤버들의 공개 게시글
+      {
+        userUuid: In(group.members.map((member) => member.userUuid)),
+        isPublic: false,
+      }, // 그룹 멤버들의 비공개 게시글
     ];
 
     const [posts, total] = await this.postRepository.findAndCount({
