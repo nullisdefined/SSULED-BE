@@ -1,4 +1,4 @@
 export enum UserStatusType {
-  ACTIVITY = 'ACTIVITY',
+  ACTIVE = 'ACTIVE',
   DELETE = 'DELETE',
 }

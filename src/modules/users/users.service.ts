@@ -30,7 +30,7 @@ export class UsersService {
       profileImage: user.profileImage,
       socialProvider: user.socialProvider,
       socialId: user.socialId,
-      status: UserStatusType.ACTIVITY,
+      status: UserStatusType.ACTIVE,
     });
     return this.userRepository.save(newUser);
   }
