@@ -39,11 +39,10 @@ export class GroupService {
       where: {},
     });
 
-    // TypeORM에서 배열 필드 검색이 제대로 작동하지 않을 수 있으므로 메모리에서 필터링
     const group = groups.find((group) => group.memberUuid.includes(userUuid));
 
     if (!group) {
-      return null;
+      throw new NotFoundException('사용자가 가입된 그룹이 없습니다.');
     }
 
     // 오늘 날짜 범위 설정
@@ -455,7 +454,18 @@ export class GroupService {
    * @returns 사용자가 속한 그룹 정보 또는 null
    */
   async findUserCurrentGroup(userUuid: string): Promise<Group | null> {
-    return this.findUserGroup(userUuid);
+    // TypeORM에서 배열 필드 검색이 제대로 작동하지 않을 수 있으므로 메모리에서 필터링
+    const groups = await this.groupRepository.find({
+      where: {},
+    });
+
+    const group = groups.find((group) => group.memberUuid.includes(userUuid));
+
+    if (!group) {
+      throw new NotFoundException('사용자가 가입된 그룹이 없습니다.');
+    }
+
+    return group;
   }
 
   /**

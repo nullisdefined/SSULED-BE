@@ -130,6 +130,16 @@ export class UsersService {
     const user = await this.userRepository.findOne({
       where: { userUuid },
     });
+
+    if (!user) {
+      return {
+        userName: null,
+        userImage: null,
+        userIntroduction: null,
+        userUuid: userUuid,
+      };
+    }
+
     return {
       userName: user.nickname,
       userImage: user.profileImage,

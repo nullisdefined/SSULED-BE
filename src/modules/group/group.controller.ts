@@ -44,7 +44,7 @@ export class GroupController {
   @Get('user')
   @ApiGetUserGroup()
   getUserGroup(@UserUuid() userUuid: string) {
-    return this.groupService.findUserCurrentGroup(userUuid);
+    return this.groupService.findUserGroup(userUuid);
   }
 
   /**
