@@ -243,7 +243,7 @@ export class AuthService {
           : 'accessToken 재발급 완료',
 
         access_token: newAccessToken,
-        refresh_token: newRefreshToken ? newRefreshToken : '',
+        refresh_token: newRefreshToken ? newRefreshToken : null,
       });
     } catch (error) {
       console.log(error);
