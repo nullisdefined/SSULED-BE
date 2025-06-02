@@ -298,9 +298,7 @@ export class PostsService {
       } else {
         const group = await this.groupService.findUserCurrentGroup(userUuid);
         if (!group || !group.memberUuid.includes(post.userUuid)) {
-          throw new UnauthorizedException(
-            '이 게시글을 조회할 권한이 없습니다.',
-          );
+          throw new NotFoundException('이 게시글을 조회할 권한이 없습니다.');
         }
       }
     }
@@ -437,24 +435,25 @@ export class PostsService {
     console.log(isMember);
     const { page, limit } = findGroupPostsDto;
 
-    // 그룹 멤버가 아닌 경우 접근 권한 없음
-    if (!isMember) {
-      throw new UnauthorizedException(
-        '해당 그룹의 게시글을 조회할 권한이 없습니다.',
-      );
-    }
+    // whereCondition 조건 설정
+    let whereCondition = [];
 
-    // 그룹 멤버들의 게시글만 조회 (공개/비공개 모두 포함)
-    const whereCondition = [
-      {
-        userUuid: In(group.members.map((member) => member.userUuid)),
-        isPublic: true,
-      }, // 그룹 멤버들의 공개 게시글
-      {
-        userUuid: In(group.members.map((member) => member.userUuid)),
-        isPublic: false,
-      }, // 그룹 멤버들의 비공개 게시글
-    ];
+    if (isMember) {
+      // 그룹 멤버인 경우 공개/비공개 모두 조회 가능
+      whereCondition = [
+        {
+          userUuid: In(group.members.map((member) => member.userUuid)),
+        },
+      ];
+    } else {
+      // 그룹 멤버가 아닌 경우 공개 게시글만 조회 가능
+      whereCondition = [
+        {
+          userUuid: In(group.members.map((member) => member.userUuid)),
+          isPublic: true,
+        },
+      ];
+    }
 
     const [posts, total] = await this.postRepository.findAndCount({
       where: whereCondition,
