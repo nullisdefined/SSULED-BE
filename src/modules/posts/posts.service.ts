@@ -634,4 +634,12 @@ export class PostsService {
       },
     };
   }
+
+  async findAllPostsByNickname(nickname: string) {
+    const user = await this.userRepository.findOne({ where: { nickname } });
+    if (!user) {
+      throw new NotFoundException('해당 닉네임의 사용자를 찾을 수 없습니다.');
+    }
+    return this.findAllPosts({ page: 1, limit: 10 }, user.userUuid);
+  }
 }

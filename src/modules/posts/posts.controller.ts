@@ -21,6 +21,7 @@ import {
   ApiUpdatePost,
   ApiGetGroupPosts,
   ApiGetPopularPosts,
+  ApiGetAllPostsByNickname,
 } from '@/decorators/swagger.decorator';
 import { FindAllPostsDto } from './dto/find-all-posts.dto';
 import { FindGroupPostsDto } from './dto/find-group-posts.dto';
@@ -51,7 +52,7 @@ export class PostsController {
   }
 
   /**
-   * 사용자 게시글 조회
+   * 현재 로그인 사용자의 게시글 조회
    * @param findAllPostsDto 게시글 목록 조회 조건들
    * @param userUuid 사용자 UUID
    * @returns 사용자 게시글 목록
@@ -63,6 +64,18 @@ export class PostsController {
     @UserUuid() userUuid: string,
   ) {
     return this.postsService.findAllPosts(findAllPostsDto, userUuid);
+  }
+
+  /**
+   * 다른 사용자의 게시글 조회
+   * @param nickname 사용자 닉네임
+   * @param findAllPostsDto 게시글 목록 조회 조건들
+   * @returns 사용자 게시글 목록
+   */
+  @Get('user/:nickname')
+  @ApiGetAllPostsByNickname()
+  findAllPostsByNickname(@Param('nickname') nickname: string) {
+    return this.postsService.findAllPostsByNickname(nickname);
   }
 
   /**
