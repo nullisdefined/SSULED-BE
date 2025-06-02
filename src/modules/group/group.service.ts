@@ -7,11 +7,12 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, Like } from 'typeorm';
+import { Repository, Like, Between, In } from 'typeorm';
 import { CreateGroupDto } from './dto/create-group.dto';
 import { UpdateGroupDto } from './dto/update-group.dto';
 import { UsersService } from '../users/users.service';
 import { QuarterlyRanking } from '@/entities/quarterly-ranking.entity';
+import { Post } from '@/entities/post.entity';
 
 @Injectable()
 export class GroupService {
@@ -41,12 +42,47 @@ export class GroupService {
       return null;
     }
 
+    // 오늘 날짜 범위 설정
+    const todayStart = new Date();
+    todayStart.setHours(0, 0, 0, 0);
+    const todayEnd = new Date();
+    todayEnd.setHours(23, 59, 59, 999);
+
+    // Post 엔티티에 접근하기 위해 레포지토리 사용
+    const postRepository =
+      this.quarterlyRankingRepository.manager.getRepository(Post);
+
+    // 현재 사용자 인증 상태 확인
+    const userTodayPost = await postRepository.findOne({
+      where: {
+        userUuid: userUuid,
+        createdAt: Between(todayStart, todayEnd),
+      },
+    });
+
+    const userIsCertificated = !!userTodayPost;
+
+    // 그룹 전체 멤버의 오늘 게시글 조회
+    const memberPostsToday = await postRepository.find({
+      where: {
+        userUuid: In(group.memberUuid),
+        createdAt: Between(todayStart, todayEnd),
+      },
+    });
+
+    // userUuid별 인증 상태 매핑
+    const certificationMap = new Map();
+    memberPostsToday.forEach((post) => {
+      certificationMap.set(post.userUuid, true);
+    });
+
     // 그룹원들의 상세 정보 조회
     const memberDetails = await Promise.all(
       group.memberUuid.map(async (memberUuid) => {
         const userInfo = await this.usersService.getUserInfo(memberUuid);
         return {
           ...userInfo,
+          isCertificated: certificationMap.has(memberUuid), // 멤버별 인증 상태
         };
       }),
     );
@@ -58,6 +94,7 @@ export class GroupService {
       ...safeGroupInfo,
       members: memberDetails,
       isOwner: userUuid === group.ownerUuid,
+      isCertificated: userIsCertificated,
     };
   }
 
@@ -346,6 +383,40 @@ export class GroupService {
       throw new NotFoundException('해당 ID의 그룹을 찾을 수 없습니다.');
     }
 
+    // 오늘 날짜 범위 설정
+    const todayStart = new Date();
+    todayStart.setHours(0, 0, 0, 0);
+    const todayEnd = new Date();
+    todayEnd.setHours(23, 59, 59, 999);
+
+    // Post 엔티티에 접근하기 위해 레포지토리 사용
+    const postRepository =
+      this.quarterlyRankingRepository.manager.getRepository(Post);
+
+    // 현재 사용자 인증 상태 확인
+    const userTodayPost = await postRepository.findOne({
+      where: {
+        userUuid: userUuid,
+        createdAt: Between(todayStart, todayEnd),
+      },
+    });
+
+    const userIsCertificated = !!userTodayPost;
+
+    // 그룹 전체 멤버의 오늘 게시글 조회
+    const memberPostsToday = await postRepository.find({
+      where: {
+        userUuid: In(group.memberUuid),
+        createdAt: Between(todayStart, todayEnd),
+      },
+    });
+
+    // userUuid별 인증 상태 매핑
+    const certificationMap = new Map();
+    memberPostsToday.forEach((post) => {
+      certificationMap.set(post.userUuid, true);
+    });
+
     // 그룹원들의 상세 정보 조회
     const memberDetails = await Promise.all(
       group.memberUuid.map(async (memberUuid) => {
@@ -353,6 +424,7 @@ export class GroupService {
         return {
           ...userInfo,
           isOwner: memberUuid === group.ownerUuid,
+          isCertificated: certificationMap.has(memberUuid), // 멤버별 인증 상태
         };
       }),
     );
@@ -364,6 +436,7 @@ export class GroupService {
       ...safeGroupInfo,
       members: memberDetails,
       isOwner: userUuid === group.ownerUuid,
+      isCertificated: userIsCertificated,
     };
   }
 
