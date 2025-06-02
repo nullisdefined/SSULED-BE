@@ -219,7 +219,7 @@ export class CommentsService {
   /**
    * 댓글 삭제
    * @param id 댓글 ID
-   * @returns 삭제 성공 메시지
+   * @returns 삭제 결과 메시지
    */
   async removeComment(id: number, userUuid: string) {
     const comment = await this.findOneComment(id);

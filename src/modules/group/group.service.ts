@@ -380,7 +380,7 @@ export class GroupService {
    * 그룹 탈퇴
    * @param groupId 그룹 ID
    * @param userUuid 사용자 UUID
-   * @returns 탈퇴 메시지
+   * @returns 탈퇴 결과
    */
   async leaveGroup(
     groupId: number,
@@ -397,7 +397,7 @@ export class GroupService {
     // 방장은 그룹을 탈퇴할 수 없음
     if (group.ownerUuid === userUuid) {
       throw new BadRequestException(
-        '방장은 그룹을 탈퇴할 수 없습니다. 그룹을 삭제하세요.',
+        '그룹 소유자는 탈퇴할 수 없습니다. 그룹을 삭제하거나 소유권을 이전한 후 시도해주세요.',
       );
     }
 
@@ -418,11 +418,11 @@ export class GroupService {
   }
 
   /**
-   * 그룹 참여
+   * 그룹 가입
    * @param groupId 그룹 ID
    * @param userUuid 사용자 UUID
-   * @param password 비밀번호 (선택적)
-   * @returns 참여된 그룹 정보
+   * @param password 비밀번호 (필요한 경우)
+   * @returns 가입된 그룹 정보
    */
   async joinGroup(
     groupId: number,
@@ -445,9 +445,9 @@ export class GroupService {
       throw new NotFoundException('해당 ID의 그룹을 찾을 수 없습니다.');
     }
 
-    // 이미 그룹에 속해 있는지 확인 (중복 체크)
+    // 이미 해당 그룹에 소속되어 있는지 확인
     if (group.memberUuid.includes(userUuid)) {
-      throw new BadRequestException('이미 그룹에 가입되어 있습니다.');
+      throw new BadRequestException('이미 이 그룹에 소속되어 있습니다.');
     }
 
     // 그룹이 최대 인원에 도달했는지 확인

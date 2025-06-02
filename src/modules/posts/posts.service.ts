@@ -360,6 +360,7 @@ export class PostsService {
    */
   async updatePost(id: number, updatePostDto: UpdatePostDto, userUuid: string) {
     const post = await this.postRepository.findOne({ where: { id } });
+
     if (!post) {
       throw new NotFoundException('해당 ID의 게시글을 찾을 수 없습니다.');
     }
@@ -393,8 +394,7 @@ export class PostsService {
   /**
    * 게시글 삭제
    * @param id 게시글 ID
-   * @param userUuid 삭제 요청하는 사용자 UUID
-   * @returns 삭제된 게시글 정보
+   * @returns 삭제 결과 메시지
    */
   async removePost(id: number, userUuid: string) {
     const post = await this.postRepository.findOne({ where: { id } });
@@ -435,17 +435,18 @@ export class PostsService {
       Array.isArray(memberUuids) && memberUuids.includes(userUuid);
     const { page, limit } = findGroupPostsDto;
 
-    // 그룹 멤버 여부에 따라 where 조건 다르게 구성
-    const whereCondition = isMember
-      ? [
-          { isPublic: true },
-          { userUuid: In(memberUuids), isPublic: false },
-          { userUuid: userUuid, isPublic: false }, // 본인의 비공개 게시글도 포함
-        ]
-      : [
-          { isPublic: true },
-          { userUuid: userUuid, isPublic: false }, // 본인의 비공개 게시글도 포함
-        ];
+    // 그룹 멤버가 아닌 경우 접근 권한 없음
+    if (!isMember) {
+      throw new UnauthorizedException(
+        '해당 그룹의 게시글을 조회할 권한이 없습니다.',
+      );
+    }
+
+    // 그룹 멤버들의 게시글만 조회 (공개/비공개 모두 포함)
+    const whereCondition = [
+      { userUuid: In(memberUuids), isPublic: true }, // 그룹 멤버들의 공개 게시글
+      { userUuid: In(memberUuids), isPublic: false }, // 그룹 멤버들의 비공개 게시글
+    ];
 
     const [posts, total] = await this.postRepository.findAndCount({
       where: whereCondition,
