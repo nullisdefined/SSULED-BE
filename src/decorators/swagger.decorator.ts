@@ -3293,3 +3293,138 @@ export function ApiGetGroupRanking() {
     }),
   );
 }
+
+export function ApiGetAllPostsByNickname() {
+  return applyDecorators(
+    ApiOperation({
+      summary: '닉네임으로 사용자 게시글 조회',
+      description: '닉네임으로 특정 사용자의 모든 게시글 목록을 조회합니다.',
+    }),
+    ApiParam({
+      name: 'nickname',
+      required: true,
+      type: String,
+      example: '재굴TV',
+      description: '조회할 사용자의 닉네임',
+    }),
+    ApiResponse({
+      status: 200,
+      description: '게시글 목록 조회 성공',
+      schema: {
+        type: 'object',
+        properties: {
+          data: {
+            type: 'array',
+            items: {
+              type: 'object',
+              properties: {
+                id: {
+                  type: 'number',
+                  example: 1,
+                },
+                content: {
+                  type: 'string',
+                  example: '처음으로 헬스장에 가봤는데 너무 좋았어요!',
+                },
+                imageUrl: {
+                  type: 'array',
+                  items: {
+                    type: 'string',
+                  },
+                  example: [
+                    'https://ssuled-bucket.s3.amazonaws.com/images/example-image1.jpg',
+                  ],
+                },
+                bodyPart: {
+                  type: 'array',
+                  items: {
+                    type: 'string',
+                    enum: Object.values(BodyPartEnum),
+                  },
+                  example: [
+                    BodyPartEnum.CHEST,
+                    BodyPartEnum.SHOULDERS_ARMS,
+                    BodyPartEnum.BACK,
+                  ],
+                },
+                duration: {
+                  type: 'number',
+                  example: 90,
+                },
+                isPublic: {
+                  type: 'boolean',
+                  example: true,
+                },
+                createdAt: {
+                  type: 'string',
+                  format: 'date-time',
+                  example: '2025-03-17T09:00:00.000Z',
+                },
+                updatedAt: {
+                  type: 'string',
+                  format: 'date-time',
+                  example: '2025-03-19T09:00:00.000Z',
+                },
+                likeCount: {
+                  type: 'number',
+                  example: 15,
+                  description: '좋아요 수',
+                },
+                commentCount: {
+                  type: 'number',
+                  example: 5,
+                  description: '댓글 수',
+                },
+                title: {
+                  type: 'string',
+                  example: '오늘의 운동',
+                  description: '게시글 제목 (없을 경우 작성 날짜가 기본값)',
+                },
+                isMine: {
+                  type: 'boolean',
+                  example: false,
+                  description: '본인 작성글 여부',
+                },
+                user: {
+                  type: 'object',
+                  properties: {
+                    nickname: {
+                      type: 'string',
+                      example: '재굴TV',
+                    },
+                    profileImage: {
+                      type: 'string',
+                      example:
+                        'https://ssuled-bucket.s3.amazonaws.com/profiles/user1.jpg',
+                    },
+                  },
+                },
+              },
+            },
+          },
+          meta: {
+            type: 'object',
+            properties: {
+              totalItems: {
+                type: 'number',
+                example: 100,
+              },
+              itemsPerPage: {
+                type: 'number',
+                example: 10,
+              },
+              totalPages: {
+                type: 'number',
+                example: 10,
+              },
+              currentPage: {
+                type: 'number',
+                example: 1,
+              },
+            },
+          },
+        },
+      },
+    }),
+  );
+}

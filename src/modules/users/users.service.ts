@@ -134,6 +134,7 @@ export class UsersService {
       userName: user.nickname,
       userImage: user.profileImage,
       userIntroduction: user.introduction,
+      userUuid: user.userUuid,
     };
   }
 }
