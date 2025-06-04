@@ -127,47 +127,18 @@ export class PostsService {
         }
         await this.quarterlyRankingRepository.save(ranking);
 
-        // DailyGroupActivity 업데이트
-        const todayStr = new Date().toISOString().slice(0, 10); //YYYY-MM-DD
-        let dailyActivity = await this.dailyGroupActivityRepository.findOne({
-          where: {
-            groupId: groupId,
-            date: todayStr,
-          },
-        });
+        // DailyGroupActivity 업데이트 (onConflict 사용)
+        const todayStr = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
 
-        if (!dailyActivity) {
-          try {
-            // 동시에 여러 요청이 발생할 경우 중복 생성을 방지하기 위해 트랜잭션 처리
-            dailyActivity = this.dailyGroupActivityRepository.create({
-              groupId,
-              date: todayStr,
-              value: 1,
-            });
-            await this.dailyGroupActivityRepository.save(dailyActivity);
-          } catch (error) {
-            if (error.code === '23505') {
-              // PostgreSQL 중복 키 오류 코드
-              // 중복 키 오류 발생 시 다시 조회
-              dailyActivity = await this.dailyGroupActivityRepository.findOne({
-                where: {
-                  groupId: groupId,
-                  date: todayStr,
-                },
-              });
-
-              if (dailyActivity) {
-                dailyActivity.value = (dailyActivity.value ?? 0) + 1;
-                await this.dailyGroupActivityRepository.save(dailyActivity);
-              }
-            } else {
-              throw error;
-            }
-          }
-        } else {
-          dailyActivity.value = (dailyActivity.value ?? 0) + 1;
-          await this.dailyGroupActivityRepository.save(dailyActivity);
-        }
+        await this.dailyGroupActivityRepository.query(
+          `
+          INSERT INTO daily_group_activity (group_id, date, value) 
+          VALUES ($1, $2, 1) 
+          ON CONFLICT (group_id, date) 
+          DO UPDATE SET value = daily_group_activity.value + 1
+        `,
+          [groupId, todayStr],
+        );
       } else {
         throw new NotFoundException(
           '해당 사용자는 그룹에 소속되어 있지 않습니다.',
