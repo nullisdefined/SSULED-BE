@@ -5,9 +5,9 @@ import { Logger } from 'winston';
 import { LoggerService } from '@/utils/logger.service';
 import { AuthSeeder } from './auth.seeder';
 import { GroupSeeder } from './group.seeder';
-import { PostSeeder } from './post.seeder';
+import { PostSeeder } from './_post.seeder';
 import { LikeSeeder } from './like.seeder';
-import { CommentSeeder } from './comment.seeder';
+import { CommentSeeder } from './_comment.seeder';
 
 export class MainSeeder implements Seeder {
   private readonly logger: Logger = LoggerService.getInstance().logger;

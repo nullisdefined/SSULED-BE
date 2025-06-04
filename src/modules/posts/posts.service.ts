@@ -195,14 +195,19 @@ export class PostsService {
     await this.quarterlyStatisticsRepository.save(stat);
 
     if (duration && bodyPart?.length > 0) {
-      for (const part of bodyPart) {
-        const log = this.workoutLogRepository.create({
-          userUuid,
-          bodyPart: [part],
-          duration: Math.round(duration / bodyPart.length),
-          postId: savedPost.id,
-        });
-        await this.workoutLogRepository.save(log);
+      try {
+        for (const part of bodyPart) {
+          const log = this.workoutLogRepository.create({
+            userUuid,
+            bodyPart: [part],
+            duration: Math.round(duration / bodyPart.length),
+            postId: savedPost.id,
+          });
+          await this.workoutLogRepository.save(log);
+        }
+      } catch (error) {
+        // 오류 로깅하고 계속 진행
+        console.error('WorkoutLog 저장 오류:', error.message);
       }
     }
 

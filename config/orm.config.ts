@@ -6,8 +6,6 @@ import { SeederOptions } from 'typeorm-extension';
 import { UserSeeder } from 'database/seeds/user.seeder';
 import { AuthSeeder } from 'database/seeds/auth.seeder';
 import { GroupSeeder } from 'database/seeds/group.seeder';
-import { PostSeeder } from 'database/seeds/post.seeder';
-import { CommentSeeder } from 'database/seeds/comment.seeder';
 import { LikeSeeder } from 'database/seeds/like.seeder';
 
 const nodeEnv = process.env.NODE_ENV || 'development';
@@ -46,14 +44,7 @@ export const dataSourceOptions: DataSourceOptions & SeederOptions = {
   entities: [__dirname + '/../**/*.entity.{js,ts}'],
   migrations: [__dirname + '/../database/migrations/**/*.{js,ts}'],
   migrationsTableName: 'migrations',
-  seeds: [
-    UserSeeder,
-    AuthSeeder,
-    GroupSeeder,
-    PostSeeder,
-    CommentSeeder,
-    LikeSeeder,
-  ],
+  seeds: [UserSeeder, AuthSeeder, GroupSeeder, LikeSeeder],
   ssl:
     process.env.NODE_ENV === 'production'
       ? { rejectUnauthorized: false }

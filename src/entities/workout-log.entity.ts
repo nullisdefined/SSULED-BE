@@ -5,9 +5,11 @@ import {
   Entity,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
+  Unique,
 } from 'typeorm';
 
 @Entity('workout_log')
+@Unique(['postId', 'userUuid', 'bodyPart'])
 export class WorkoutLog {
   @PrimaryGeneratedColumn()
   id: number;
