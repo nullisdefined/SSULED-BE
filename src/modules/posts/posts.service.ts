@@ -534,30 +534,38 @@ export class PostsService {
   ) {
     const { page = 1, limit = 10 } = findPopularPostsDto;
 
-    // 기본적으로 공개 게시글은 모두 볼 수 있음
-    const whereCondition: any[] = [
-      { isPublic: true },
-      { userUuid: userUuid, isPublic: false }, // 본인의 비공개 게시글도 포함
-    ];
+    // OR 조건으로 처리하기 위해 구조 변경
+    const whereConditions = [];
 
-    // 사용자가 그룹에 속해 있는 경우, 해당 그룹의 비공개 게시글도 볼 수 있음
+    // 공개 게시글은 모두 볼 수 있음
+    whereConditions.push({ isPublic: true });
+
+    // 로그인한 사용자라면 자신의 비공개 게시글도 포함
     if (userUuid) {
-      const group = await this.groupService.findUserCurrentGroup(userUuid);
-      if (
-        group &&
-        Array.isArray(group.memberUuid) &&
-        group.memberUuid.length > 0
-      ) {
-        // 그룹에 속한 사용자라면 그룹원들의 비공개 게시글도 조회 가능
-        whereCondition.push({
-          userUuid: In(group.memberUuid),
-          isPublic: false,
-        });
+      whereConditions.push({ userUuid: userUuid, isPublic: false });
+
+      // 사용자가 그룹에 속해 있는 경우, 해당 그룹의 비공개 게시글도 볼 수 있음
+      try {
+        const group = await this.groupService.findUserCurrentGroup(userUuid);
+        if (
+          group &&
+          Array.isArray(group.memberUuid) &&
+          group.memberUuid.length > 0
+        ) {
+          // 그룹에 속한 사용자라면 그룹원들의 비공개 게시글도 조회 가능
+          whereConditions.push({
+            userUuid: In(group.memberUuid),
+            isPublic: false,
+          });
+        }
+      } catch (error) {
+        // 그룹 조회 실패시에도 계속 진행 (그룹이 없는 경우)
+        console.log('그룹 조회 실패 또는 그룹이 없음:', error.message);
       }
     }
 
     const [posts, total] = await this.postRepository.findAndCount({
-      where: whereCondition,
+      where: whereConditions,
       skip: (page - 1) * limit,
       take: limit * 2, // 인기 게시글은 더 많이 가져와야 점수 매기기 쉬움
       order: { createdAt: 'DESC' },
