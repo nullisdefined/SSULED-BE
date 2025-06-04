@@ -7,4 +7,5 @@ export enum BodyPartEnum {
   SHOULDERS_ARMS = 'shoulders_arms', // 어깨&팔
   CARDIO = 'cardio', // 유산소
   OTHER = 'other', // 기타
+  ABS = 'abs', // 복부
 }

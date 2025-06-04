@@ -1,4 +1,5 @@
 import { BodyPartEnum } from '@/types/body-part.enum';
+import { IsEnum } from 'class-validator';
 import {
   Column,
   CreateDateColumn,
@@ -9,7 +10,7 @@ import {
 } from 'typeorm';
 
 @Entity('workout_log')
-@Unique(['postId', 'userUuid', 'bodyPart'])
+@Unique(['postId', 'userUuid'])
 export class WorkoutLog {
   @PrimaryGeneratedColumn()
   id: number;
@@ -21,6 +22,7 @@ export class WorkoutLog {
   userUuid: string;
 
   @Column({ name: 'body_part', type: 'simple-array' })
+  @IsEnum(BodyPartEnum, { each: true })
   bodyPart: BodyPartEnum[];
 
   @Column({ name: 'duration', type: 'integer' })
