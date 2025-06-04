@@ -11,7 +11,7 @@ import { UsersModule } from '../users/users.module';
 import { WorkoutLog } from '@/entities/workout-log.entity';
 import { QuarterlyStatistics } from '@/entities/quarterly-statistics.entity';
 import { QuarterlyRanking } from '@/entities/quarterly-ranking.entity';
-import { DailyGroupActivity } from '@/entities/daily_group_activity.entity';
+import { DailyGroupActivity } from '@/entities/daily-group-activity.entity';
 
 @Module({
   imports: [

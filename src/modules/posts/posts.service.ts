@@ -23,7 +23,7 @@ import { UsersService } from '../users/users.service';
 import { QuarterlyStatistics } from '@/entities/quarterly-statistics.entity';
 import { QuarterlyRanking } from '@/entities/quarterly-ranking.entity';
 import { RankingType } from '@/types/ranking.enum';
-import { DailyGroupActivity } from '@/entities/daily_group_activity.entity';
+import { DailyGroupActivity } from '@/entities/daily-group-activity.entity';
 
 @Injectable()
 export class PostsService {
@@ -137,16 +137,37 @@ export class PostsService {
         });
 
         if (!dailyActivity) {
-          dailyActivity = this.dailyGroupActivityRepository.create({
-            groupId,
-            date: todayStr,
-            value: 1,
-          });
+          try {
+            // 동시에 여러 요청이 발생할 경우 중복 생성을 방지하기 위해 트랜잭션 처리
+            dailyActivity = this.dailyGroupActivityRepository.create({
+              groupId,
+              date: todayStr,
+              value: 1,
+            });
+            await this.dailyGroupActivityRepository.save(dailyActivity);
+          } catch (error) {
+            if (error.code === '23505') {
+              // PostgreSQL 중복 키 오류 코드
+              // 중복 키 오류 발생 시 다시 조회
+              dailyActivity = await this.dailyGroupActivityRepository.findOne({
+                where: {
+                  groupId: groupId,
+                  date: todayStr,
+                },
+              });
+
+              if (dailyActivity) {
+                dailyActivity.value = (dailyActivity.value ?? 0) + 1;
+                await this.dailyGroupActivityRepository.save(dailyActivity);
+              }
+            } else {
+              throw error;
+            }
+          }
         } else {
           dailyActivity.value = (dailyActivity.value ?? 0) + 1;
+          await this.dailyGroupActivityRepository.save(dailyActivity);
         }
-
-        await this.dailyGroupActivityRepository.save(dailyActivity);
       } else {
         throw new NotFoundException(
           '해당 사용자는 그룹에 소속되어 있지 않습니다.',

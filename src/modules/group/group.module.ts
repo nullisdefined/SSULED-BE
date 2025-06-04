@@ -6,7 +6,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { UsersModule } from '../users/users.module';
 import { forwardRef } from '@nestjs/common';
 import { QuarterlyRanking } from '@/entities/quarterly-ranking.entity';
-import { DailyGroupActivity } from '@/entities/daily_group_activity.entity';
+import { DailyGroupActivity } from '@/entities/daily-group-activity.entity';
 @Module({
   imports: [
     TypeOrmModule.forFeature([Group, QuarterlyRanking, DailyGroupActivity]),

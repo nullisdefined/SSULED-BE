@@ -13,7 +13,7 @@ import { UpdateGroupDto } from './dto/update-group.dto';
 import { UsersService } from '../users/users.service';
 import { QuarterlyRanking } from '@/entities/quarterly-ranking.entity';
 import { Post } from '@/entities/post.entity';
-import { DailyGroupActivity } from '@/entities/daily_group_activity.entity';
+import { DailyGroupActivity } from '@/entities/daily-group-activity.entity';
 import { QuarterlyStatistics } from '@/entities/quarterly-statistics.entity';
 
 @Injectable()

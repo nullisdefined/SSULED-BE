@@ -5,7 +5,7 @@ import { QuarterlyRanking } from '@/entities/quarterly-ranking.entity';
 import { QuarterlyStatistics } from '@/entities/quarterly-statistics.entity';
 import { Group } from '@/entities/group.entity';
 import { Post } from '@/entities/post.entity';
-import { DailyGroupActivity } from '@/entities/daily_group_activity.entity';
+import { DailyGroupActivity } from '@/entities/daily-group-activity.entity';
 
 @Injectable()
 export class StatisticsService {

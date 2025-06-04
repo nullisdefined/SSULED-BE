@@ -3,6 +3,7 @@ import {
   IsArray,
   IsBoolean,
   IsDate,
+  IsEnum,
   IsNumber,
   IsOptional,
   IsString,
@@ -20,6 +21,7 @@ export class CreatePostDto {
   imageUrl: string[];
 
   @IsArray()
+  @IsEnum(BodyPartEnum, { each: true })
   bodyPart: BodyPartEnum[];
 
   @IsNumber()
