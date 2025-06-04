@@ -25,14 +25,20 @@ export class GroupSeeder implements Seeder {
         title: '💪 오운완 인증단',
         password: null,
         isAccessible: true,
-        maxMember: 6,
+        maxMember: 15,
         ownerUuid: users[0].userUuid,
         memberUuid: [
           users[0].userUuid,
           users[1].userUuid,
           users[2].userUuid,
           users[3].userUuid,
-          users[9].userUuid, // 근육돼지
+          users[4].userUuid,
+          users[5].userUuid,
+          users[6].userUuid,
+          users[7].userUuid,
+          users[8].userUuid,
+          users[9].userUuid,
+          users[10].userUuid,
         ],
         createdAt: new Date(),
         updatedAt: new Date(),
@@ -42,26 +48,27 @@ export class GroupSeeder implements Seeder {
         password: null,
         isAccessible: true,
         maxMember: 5,
-        ownerUuid: users[4].userUuid, // 홈트마스터
+        ownerUuid: users[11].userUuid,
         memberUuid: [
-          users[4].userUuid,
-          users[5].userUuid,
-          users[6].userUuid,
-          users[16].userUuid, // 헬스초보
+          users[11].userUuid,
+          users[12].userUuid,
+          users[13].userUuid,
+          users[14].userUuid,
         ],
         createdAt: new Date(),
         updatedAt: new Date(),
       },
       {
         title: '🔥 벤치프레스 100kg 클럽',
-        password: '1004',
-        isAccessible: false,
+        password: null,
+        isAccessible: true,
         maxMember: 4,
-        ownerUuid: users[0].userUuid, // 헬창러버
+        ownerUuid: users[15].userUuid,
         memberUuid: [
-          users[0].userUuid,
-          users[9].userUuid, // 근육돼지
-          users[25].userUuid, // 근력운동러버
+          users[15].userUuid,
+          users[16].userUuid,
+          users[17].userUuid,
+          users[18].userUuid,
         ],
         createdAt: new Date(),
         updatedAt: new Date(),
@@ -73,27 +80,26 @@ export class GroupSeeder implements Seeder {
         password: null,
         isAccessible: true,
         maxMember: 8,
-        ownerUuid: users[1].userUuid, // 러닝맨김종국
+        ownerUuid: users[19].userUuid,
         memberUuid: [
-          users[1].userUuid,
-          users[11].userUuid, // 마라톤러너
-          users[17].userUuid, // 런닝스타터
-          users[27].userUuid, // 마라톤지망생
-          users[31].userUuid, // 마라톤완주자
+          users[19].userUuid,
+          users[20].userUuid,
+          users[21].userUuid,
+          users[22].userUuid,
         ],
         createdAt: new Date(),
         updatedAt: new Date(),
       },
       {
         title: '🚴‍♀️ 자전거 라이딩 동호회',
-        password: '5678',
-        isAccessible: false,
+        password: null,
+        isAccessible: true,
         maxMember: 6,
-        ownerUuid: users[6].userUuid, // 사이클링퀸
+        ownerUuid: users[23].userUuid,
         memberUuid: [
-          users[6].userUuid,
-          users[21].userUuid, // 사이클링시작
-          users[26].userUuid, // 사이클링프로
+          users[23].userUuid,
+          users[24].userUuid,
+          users[25].userUuid,
         ],
         createdAt: new Date(),
         updatedAt: new Date(),
@@ -103,12 +109,12 @@ export class GroupSeeder implements Seeder {
         password: null,
         isAccessible: true,
         maxMember: 5,
-        ownerUuid: users[11].userUuid, // 마라톤러너
+        ownerUuid: users[26].userUuid,
         memberUuid: [
-          users[11].userUuid,
-          users[1].userUuid, // 러닝맨김종국
-          users[17].userUuid, // 런닝스타터
-          users[39].userUuid, // 주말운동러
+          users[26].userUuid,
+          users[27].userUuid,
+          users[28].userUuid,
+          users[29].userUuid,
         ],
         createdAt: new Date(),
         updatedAt: new Date(),
@@ -120,11 +126,11 @@ export class GroupSeeder implements Seeder {
         password: '1234',
         isAccessible: false,
         maxMember: 4,
-        ownerUuid: users[2].userUuid, // 요가여신
+        ownerUuid: users[30].userUuid,
         memberUuid: [
-          users[2].userUuid,
-          users[10].userUuid, // 필라테스스타
-          users[18].userUuid, // 요가초심자
+          users[30].userUuid,
+          users[31].userUuid,
+          users[32].userUuid,
         ],
         createdAt: new Date(),
         updatedAt: new Date(),
@@ -134,12 +140,12 @@ export class GroupSeeder implements Seeder {
         password: null,
         isAccessible: true,
         maxMember: 6,
-        ownerUuid: users[10].userUuid, // 필라테스스타
+        ownerUuid: users[33].userUuid,
         memberUuid: [
-          users[10].userUuid,
-          users[2].userUuid, // 요가여신
-          users[24].userUuid, // 필라테스러버
-          users[29].userUuid, // 필라테스마스터
+          users[33].userUuid,
+          users[34].userUuid,
+          users[35].userUuid,
+          users[36].userUuid,
         ],
         createdAt: new Date(),
         updatedAt: new Date(),
@@ -151,11 +157,11 @@ export class GroupSeeder implements Seeder {
         password: null,
         isAccessible: true,
         maxMember: 5,
-        ownerUuid: users[3].userUuid, // 수영고수
+        ownerUuid: users[37].userUuid,
         memberUuid: [
-          users[3].userUuid,
-          users[19].userUuid, // 수영새내기
-          users[23].userUuid, // 수영선수
+          users[37].userUuid,
+          users[38].userUuid,
+          users[39].userUuid,
         ],
         createdAt: new Date(),
         updatedAt: new Date(),
@@ -167,11 +173,11 @@ export class GroupSeeder implements Seeder {
         password: '9012',
         isAccessible: false,
         maxMember: 4,
-        ownerUuid: users[5].userUuid, // 클라이밍킹
+        ownerUuid: users[40].userUuid,
         memberUuid: [
-          users[5].userUuid,
-          users[20].userUuid, // 클라이밍루키
-          users[25].userUuid, // 클라이밍마스터
+          users[40].userUuid,
+          users[41].userUuid,
+          users[42].userUuid,
         ],
         createdAt: new Date(),
         updatedAt: new Date(),
@@ -183,11 +189,11 @@ export class GroupSeeder implements Seeder {
         password: null,
         isAccessible: true,
         maxMember: 6,
-        ownerUuid: users[7].userUuid, // 크로스핏워리어
+        ownerUuid: users[43].userUuid,
         memberUuid: [
-          users[7].userUuid,
-          users[22].userUuid, // 크로스핏입문
-          users[27].userUuid, // 크로스핏고수
+          users[43].userUuid,
+          users[44].userUuid,
+          users[45].userUuid,
         ],
         createdAt: new Date(),
         updatedAt: new Date(),
@@ -199,12 +205,12 @@ export class GroupSeeder implements Seeder {
         password: null,
         isAccessible: true,
         maxMember: 8,
-        ownerUuid: users[8].userUuid, // 다이어트성공
+        ownerUuid: users[46].userUuid,
         memberUuid: [
-          users[8].userUuid,
-          users[23].userUuid, // 다이어터
-          users[28].userUuid, // 다이어트성공자
-          users[35].userUuid, // 웰니스추구자
+          users[46].userUuid,
+          users[47].userUuid,
+          users[48].userUuid,
+          users[49].userUuid,
         ],
         createdAt: new Date(),
         updatedAt: new Date(),
@@ -214,11 +220,13 @@ export class GroupSeeder implements Seeder {
         password: '2024',
         isAccessible: false,
         maxMember: 5,
-        ownerUuid: users[8].userUuid, // 다이어트성공
+        ownerUuid: users[50].userUuid,
         memberUuid: [
-          users[8].userUuid,
-          users[0].userUuid, // 헬창러버
-          users[28].userUuid, // 다이어트성공자
+          users[50].userUuid,
+          users[51].userUuid,
+          users[52].userUuid,
+          users[53].userUuid,
+          users[54].userUuid,
         ],
         createdAt: new Date(),
         updatedAt: new Date(),
@@ -230,11 +238,11 @@ export class GroupSeeder implements Seeder {
         password: null,
         isAccessible: true,
         maxMember: 6,
-        ownerUuid: users[12].userUuid, // 테니스매니아
+        ownerUuid: users[55].userUuid,
         memberUuid: [
-          users[12].userUuid,
-          users[32].userUuid, // 테니스고수
-          users[28].userUuid, // 테니스입문자
+          users[55].userUuid,
+          users[56].userUuid,
+          users[57].userUuid,
         ],
         createdAt: new Date(),
         updatedAt: new Date(),
@@ -244,11 +252,11 @@ export class GroupSeeder implements Seeder {
         password: null,
         isAccessible: true,
         maxMember: 8,
-        ownerUuid: users[13].userUuid, // 배드민턴고수
+        ownerUuid: users[58].userUuid,
         memberUuid: [
-          users[13].userUuid,
-          users[29].userUuid, // 배드민턴초보
-          users[33].userUuid, // 배드민턴달인
+          users[58].userUuid,
+          users[59].userUuid,
+          users[60].userUuid,
         ],
         createdAt: new Date(),
         updatedAt: new Date(),
@@ -257,14 +265,14 @@ export class GroupSeeder implements Seeder {
       // 격투기 그룹들
       {
         title: '👊 복싱 트레이닝 클럽',
-        password: '3721',
-        isAccessible: false,
+        password: null,
+        isAccessible: true,
         maxMember: 4,
-        ownerUuid: users[14].userUuid, // 복싱챔피언
+        ownerUuid: users[61].userUuid,
         memberUuid: [
-          users[14].userUuid,
-          users[30].userUuid, // 복싱입문
-          users[34].userUuid, // 복싱마스터
+          users[61].userUuid,
+          users[62].userUuid,
+          users[63].userUuid,
         ],
         createdAt: new Date(),
         updatedAt: new Date(),
@@ -275,14 +283,20 @@ export class GroupSeeder implements Seeder {
         title: '💼 직장인 새벽 운동단',
         password: null,
         isAccessible: true,
-        maxMember: 10,
-        ownerUuid: users[38].userUuid, // 운동하는직장인
+        maxMember: 11,
+        ownerUuid: users[64].userUuid,
         memberUuid: [
-          users[38].userUuid,
-          users[1].userUuid, // 러닝맨김종국 (새벽러닝)
-          users[11].userUuid, // 마라톤러너
-          users[35].userUuid, // 웰니스추구자
-          users[36].userUuid, // 건강한삶
+          users[64].userUuid,
+          users[65].userUuid,
+          users[66].userUuid,
+          users[67].userUuid,
+          users[68].userUuid,
+          users[69].userUuid,
+          users[70].userUuid,
+          users[71].userUuid,
+          users[72].userUuid,
+          users[73].userUuid,
+          users[74].userUuid,
         ],
         createdAt: new Date(),
         updatedAt: new Date(),
@@ -292,13 +306,18 @@ export class GroupSeeder implements Seeder {
         password: null,
         isAccessible: true,
         maxMember: 12,
-        ownerUuid: users[39].userUuid, // 주말운동러
+        ownerUuid: users[75].userUuid,
         memberUuid: [
-          users[39].userUuid,
-          users[6].userUuid, // 사이클링퀸
-          users[12].userUuid, // 테니스매니아
-          users[13].userUuid, // 배드민턴고수
-          users[35].userUuid, // 액티브라이프
+          users[75].userUuid,
+          users[76].userUuid,
+          users[77].userUuid,
+          users[78].userUuid,
+          users[79].userUuid,
+          users[80].userUuid,
+          users[81].userUuid,
+          users[82].userUuid,
+          users[83].userUuid,
+          users[84].userUuid,
         ],
         createdAt: new Date(),
         updatedAt: new Date(),
@@ -310,16 +329,19 @@ export class GroupSeeder implements Seeder {
         password: null,
         isAccessible: true,
         maxMember: 15,
-        ownerUuid: users[16].userUuid, // 헬스초보
+        ownerUuid: users[85].userUuid,
         memberUuid: [
-          users[16].userUuid, // 헬스초보
-          users[17].userUuid, // 런닝스타터
-          users[18].userUuid, // 요가초심자
-          users[19].userUuid, // 수영새내기
-          users[20].userUuid, // 홈트빈이
-          users[21].userUuid, // 클라이밍루키
-          users[22].userUuid, // 사이클링시작
-          users[23].userUuid, // 크로스핏입문
+          users[85].userUuid,
+          users[86].userUuid,
+          users[87].userUuid,
+          users[88].userUuid,
+          users[89].userUuid,
+          users[90].userUuid,
+          users[91].userUuid,
+          users[92].userUuid,
+          users[93].userUuid,
+          users[94].userUuid,
+          users[95].userUuid,
         ],
         createdAt: new Date(),
         updatedAt: new Date(),
@@ -329,14 +351,12 @@ export class GroupSeeder implements Seeder {
         password: 'pro2024',
         isAccessible: false,
         maxMember: 8,
-        ownerUuid: users[37].userUuid, // 운동중독자
+        ownerUuid: users[96].userUuid,
         memberUuid: [
-          users[37].userUuid, // 운동중독자
-          users[0].userUuid, // 헬창러버
-          users[7].userUuid, // 크로스핏워리어
-          users[5].userUuid, // 클라이밍킹
-          users[14].userUuid, // 복싱챔피언
-          users[36].userUuid, // 스포츠마니아
+          users[96].userUuid,
+          users[97].userUuid,
+          users[98].userUuid,
+          users[99].userUuid,
         ],
         createdAt: new Date(),
         updatedAt: new Date(),

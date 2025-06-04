@@ -42,7 +42,7 @@ export class GroupService {
     const group = groups.find((group) => group.memberUuid.includes(userUuid));
 
     if (!group) {
-      throw new NotFoundException('사용자가 가입된 그룹이 없습니다.');
+      return null;
     }
 
     // 오늘 날짜 범위 설정
@@ -522,11 +522,19 @@ export class GroupService {
     password?: string,
   ): Promise<Group> {
     // 이미 다른 그룹에 소속되어 있는지 확인
-    const existingGroup = await this.findUserGroup(userUuid);
-    if (existingGroup) {
-      throw new BadRequestException(
-        '이미 다른 그룹에 소속되어 있습니다. 계정당 하나의 그룹만 가입할 수 있습니다.',
-      );
+    try {
+      const existingGroup = await this.findUserGroup(userUuid);
+      if (existingGroup) {
+        throw new BadRequestException(
+          '이미 다른 그룹에 소속되어 있습니다. 계정당 하나의 그룹만 가입할 수 있습니다.',
+        );
+      }
+    } catch (error) {
+      // 사용자가 아직 그룹에 가입되어 있지 않으면 findUserGroup에서 NotFoundException이 발생하므로 이를 무시
+      if (!(error instanceof NotFoundException)) {
+        throw error; // 다른 종류의 에러는 그대로 전파
+      }
+      // 그룹에 속해있지 않으면 정상 진행
     }
 
     const group = await this.groupRepository.findOne({
