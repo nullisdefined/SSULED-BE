@@ -4,9 +4,11 @@ import {
   Entity,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
+  Unique,
 } from 'typeorm';
 
 @Entity('daily_group_activity')
+@Unique(['groupId', 'date'])
 export class DailyGroupActivity {
   @PrimaryGeneratedColumn()
   id: number;
@@ -20,9 +22,9 @@ export class DailyGroupActivity {
   @Column({ type: 'int', default: 0 })
   value: number; // ex: 참여자 수, 총 커밋 수 등
 
-  @CreateDateColumn()
+  @CreateDateColumn({ name: 'created_at', type: 'timestamp' })
   createdAt: Date;
 
-  @UpdateDateColumn()
+  @UpdateDateColumn({ name: 'updated_at', type: 'timestamp' })
   updatedAt: Date;
 }

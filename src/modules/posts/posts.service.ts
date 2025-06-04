@@ -130,15 +130,20 @@ export class PostsService {
         // DailyGroupActivity 업데이트 (onConflict 사용)
         const todayStr = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
 
-        await this.dailyGroupActivityRepository.query(
-          `
-          INSERT INTO daily_group_activity (group_id, date, value) 
-          VALUES ($1, $2, 1) 
-          ON CONFLICT (group_id, date) 
-          DO UPDATE SET value = daily_group_activity.value + 1
-        `,
-          [groupId, todayStr],
-        );
+        try {
+          await this.dailyGroupActivityRepository.query(
+            `
+            INSERT INTO daily_group_activity (group_id, date, value) 
+            VALUES ($1, $2, 1) 
+            ON CONFLICT (group_id, date) 
+            DO UPDATE SET value = daily_group_activity.value + 1
+          `,
+            [groupId, todayStr],
+          );
+        } catch (error) {
+          // 오류 로깅하고 계속 진행
+          console.error('DailyGroupActivity 업데이트 오류:', error.message);
+        }
       } else {
         throw new NotFoundException(
           '해당 사용자는 그룹에 소속되어 있지 않습니다.',
