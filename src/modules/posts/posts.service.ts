@@ -566,11 +566,15 @@ export class PostsService {
       }
     }
 
+    // 최근 30일 이내의 게시글만 조회
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
     const [posts, total] = await this.postRepository.findAndCount({
       where: whereConditions,
       skip: (page - 1) * limit,
-      take: limit * 2, // 인기 게시글은 더 많이 가져와야 점수 매기기 쉬움
-      order: { createdAt: 'DESC' },
+      take: limit * 3,
+      order: { createdAt: 'DESC' }, // 최근 게시글 우선
     });
 
     if (!posts.length) {
@@ -612,26 +616,62 @@ export class PostsService {
       });
     });
 
+    const now = new Date();
     const postsWithCounts = posts.map((post) => {
       // userUuid 제거
       const { userUuid: _, ...postInfo } = post;
 
+      // 좋아요 수와 댓글 수 가져오기
+      const likeCount = likeCounts.get(post.id) || 0;
+      const commentCount = commentCounts.get(post.id) || 0;
+
+      // 최근 게시물에 약간의 가중치 부여 (최대 7일 이내 게시물)
+      const daysSinceCreation = Math.min(
+        7,
+        Math.floor(
+          (now.getTime() - post.createdAt.getTime()) / (1000 * 60 * 60 * 24),
+        ),
+      );
+      const recencyBoost = Math.max(0, (7 - daysSinceCreation) / 7); // 0~1 사이 값
+
+      // 인기도 점수 계산
+      const popularityScore = likeCount + commentCount * 3 + recencyBoost * 2;
+
       return {
         ...postInfo,
-        likeCount: likeCounts.get(post.id) || 0,
-        commentCount: commentCounts.get(post.id) || 0,
+        likeCount,
+        commentCount,
+        popularityScore, // 정렬에 사용할 점수 추가
         isMine: post.userUuid === userUuid,
         user: userMap.get(post.userUuid) || null,
       };
     });
 
-    const sortedPosts = postsWithCounts.sort((a, b) => {
-      const scoreA = a.likeCount + a.commentCount * 2;
-      const scoreB = b.likeCount + b.commentCount * 2;
-      return scoreB - scoreA;
+    // 정렬 전 게시글 점수 로그 (개발 환경에서만)
+    console.log('정렬 전 게시글 점수:');
+    postsWithCounts.forEach((post) => {
+      console.log(
+        `게시글 ID ${post.id}: 좋아요 ${post.likeCount}, 댓글 ${post.commentCount}, 점수 ${post.popularityScore}`,
+      );
     });
 
-    const popularPosts = sortedPosts.slice(0, limit);
+    const sortedPosts = postsWithCounts.sort((a, b) => {
+      // popularityScore를 기준으로 내림차순 정렬
+      return b.popularityScore - a.popularityScore;
+    });
+
+    // 정렬 후 게시글 점수 로그 (개발 환경에서만)
+    console.log('정렬 후 게시글 점수:');
+    sortedPosts.slice(0, limit).forEach((post) => {
+      console.log(
+        `게시글 ID ${post.id}: 좋아요 ${post.likeCount}, 댓글 ${post.commentCount}, 점수 ${post.popularityScore}`,
+      );
+    });
+
+    // 프론트엔드에 보내기 전에 불필요한 속성 제거
+    const popularPosts = sortedPosts
+      .slice(0, limit)
+      .map(({ popularityScore, ...post }) => post);
 
     return {
       data: popularPosts,
