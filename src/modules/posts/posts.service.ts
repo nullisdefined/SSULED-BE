@@ -649,6 +649,7 @@ export class PostsService {
 
     // 정렬 전 게시글 점수 로그 (개발 환경에서만)
     console.log('정렬 전 게시글 점수:');
+    console.log(postsWithCounts);
     postsWithCounts.forEach((post) => {
       console.log(
         `게시글 ID ${post.id}: 좋아요 ${post.likeCount}, 댓글 ${post.commentCount}, 점수 ${post.popularityScore}`,
