@@ -122,8 +122,8 @@ npm run dev
 ```
 
 ### API 문서
-- Swagger UI: `http://localhost:3000/api/docs`
-- API 명세서: [Swagger Documentation](http://13.125.191.87:7777/api/docs)
+- Swagger UI: `http://localhost:7777/api/docs`
+- [![Swagger](https://img.shields.io/badge/Swagger-API_Documentation-85EA2D?style=flat-square&logo=swagger&logoColor=black)](http://13.125.191.87:7777/api/docs)
 
 ## 👥 팀 구성
 
@@ -186,7 +186,8 @@ npm run dev
 
 ## 📄 라이선스
 
-[MIT LICENSE](LICENSE)
+[![Frontend License](https://img.shields.io/badge/Frontend-MIT_License-blue?style=flat-square&logo=github)](https://github.com/SSU-LED/client/blob/main/LICENSE)
+[![Backend License](https://img.shields.io/badge/Backend-MIT_License-blue?style=flat-square&logo=github)](https://github.com/SSU-LED/server/blob/main/LICENSE)
 
 ## 🔗 관련 링크
 
